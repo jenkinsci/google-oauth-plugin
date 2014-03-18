@@ -26,7 +26,7 @@
   -->
   <artifactId>google-oauth-plugin</artifactId>
   <packaging>hpi</packaging>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
 
   <name>Google OAuth Credentials plugin</name>
   <description>
