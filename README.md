@@ -2,6 +2,8 @@ Jenkins Google OAuth Credentials Plugin
 =====================
 Google-specific implementation of the OAuth Credentials interfaces.
 
+[![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/google-oauth-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/google-oauth-plugin/)
+
 Read more: [http://wiki.jenkins-ci.org/display/JENKINS/Google+OAuth+Plugin](http://wiki.jenkins-ci.org/display/JENKINS/Google+OAuth+Plugin)
 
 Development
@@ -10,7 +12,7 @@ Development
 How to build
 --------------
 
-	mvn clean package
+	mvn clean verify
 
 Creates the plugin HPI package for use with Jenkins.
 
