@@ -151,11 +151,6 @@ public abstract class Executor {
           if (e.getStatusCode() == 409 /* STATUS_CODE_CONFLICT */) {
             throw new ConflictException(e);
           }
-          if (!block.canRetry()) {
-            // If this request contained a media upload, then it cannot simply
-            // be retried.
-            break;
-          }
           // Many other status codes may simply relate to ephemeral
           // service availability hiccups, that could simply go away
           // on retry.
@@ -165,6 +160,11 @@ public abstract class Executor {
           lastException = e;
         }
 
+        if (!block.canRetry()) {
+          // If this request contained a media upload, then it cannot simply
+          // be retried.
+          break;
+        }
         // Pause before we retry
         sleep(i);
       }
