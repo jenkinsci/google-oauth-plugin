@@ -32,10 +32,13 @@ import com.google.common.base.Charsets;
  *
  * @author Matt Moore
  */
-public final class GoogleRobotSecrets extends GenericJson {
+@Deprecated
+@SuppressWarnings("deprecation")
+public final class JsonKeyLegacy extends GenericJson {
 
   /** Details for web applications. */
   @Key
+  @SuppressWarnings("unused")
   private Details web;
 
   /** Returns the details for web applications. */
@@ -50,6 +53,7 @@ public final class GoogleRobotSecrets extends GenericJson {
   public static final class Details extends GenericJson {
     /** Client email. */
     @Key("client_email")
+    @SuppressWarnings("unused")
     private String clientEmail;
 
     /** Returns the client email. */
@@ -59,10 +63,10 @@ public final class GoogleRobotSecrets extends GenericJson {
   }
 
   /** Loads the {@code client_secrets.json} file from the given input stream. */
-  public static GoogleRobotSecrets load(
+  public static JsonKeyLegacy load(
       JsonFactory jsonFactory, InputStream inputStream)
       throws IOException {
     return jsonFactory.fromInputStream(
-        inputStream, Charsets.UTF_8, GoogleRobotSecrets.class);
+        inputStream, Charsets.UTF_8, JsonKeyLegacy.class);
   }
 }
