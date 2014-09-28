@@ -15,18 +15,15 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.security.KeyPair;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.apache.commons.fileupload.FileItem;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -51,8 +48,10 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   private static final String ACCESS_TOKEN = "ThE.ToKeN";
   private static final String PROJECT_ID = "foo.com:bar-baz";
   private static final String FAKE_SCOPE = "my.fake.scope";
+  private static KeyPair keyPair;
   private static String jsonKeyPath;
   private static String p12KeyPath;
+  private static String legacyJsonKeyPath;
   @Rule
   public JenkinsRule jenkins = new JenkinsRule();
   private MockHttpTransport transport;
@@ -65,10 +64,12 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
   @BeforeClass
   public static void preparePrivateKey() throws Exception {
-    KeyPair keyPair = P12KeyUtil.generateKeyPair();
+    keyPair = P12KeyUtil.generateKeyPair();
     jsonKeyPath = JsonKeyUtil.createTempJsonKeyFile(
             SERVICE_ACCOUNT_EMAIL_ADDRESS, keyPair.getPrivate());
     p12KeyPath = P12KeyUtil.createTempP12KeyFile(keyPair);
+    legacyJsonKeyPath = LegacyJsonKeyUtil.createTempLegacyJsonKeyFile(
+            SERVICE_ACCOUNT_EMAIL_ADDRESS);
   }
 
   @Before
@@ -166,12 +167,201 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, module);
 
-    assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
-    assertTrue(credentials.getUsername().isEmpty());
+    try {
+      credentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.KeyTypeNotSetException ignored) {
+    }
 
-    GoogleCredential googleCredential = credentials.getGoogleCredential(
+    try {
+      credentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.KeyTypeNotSetException ignored) {
+    }
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentials() throws Exception {
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyPath);
+    setPrivateField(legacyCredentials, "p12File", p12KeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+            upgradedCredentials.getUsername());
+    GoogleCredential googleCredential = upgradedCredentials.getGoogleCredential(
             new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
-    assertNull(googleCredential);
+    assertEquals(keyPair.getPrivate(),
+            googleCredential.getServiceAccountPrivateKey());
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentialsWithoutSecretsFile()
+          throws Exception {
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "p12File", p12KeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    try {
+      upgradedCredentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentialsWithMissingWebObject()
+          throws Exception {
+    String legacyJsonKeyFileWithMissingWebObject =
+            LegacyJsonKeyUtil.createTempLegacyJsonKeyFileWithMissingWebObject();
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "secretsFile",
+            legacyJsonKeyFileWithMissingWebObject);
+    setPrivateField(legacyCredentials, "p12File", p12KeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    try {
+      upgradedCredentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentialsWithMissingClientEmail()
+          throws Exception {
+    String legacyJsonKeyFileWithMissingClientEmail = LegacyJsonKeyUtil
+            .createTempLegacyJsonKeyFileWithMissingClientEmail();
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "secretsFile",
+            legacyJsonKeyFileWithMissingClientEmail);
+    setPrivateField(legacyCredentials, "p12File", p12KeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    try {
+      upgradedCredentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentialsWithInvalidSecretsFile()
+          throws Exception {
+    String invalidLegacyJsonKeyFile =
+            LegacyJsonKeyUtil.createTempInvalidLegacyJsonKeyFile();
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "secretsFile", invalidLegacyJsonKeyFile);
+    setPrivateField(legacyCredentials, "p12File", p12KeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    try {
+      upgradedCredentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentialsWithNotExistendSecretsFile()
+          throws Exception {
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "secretsFile",
+            "/notExistendSecretsFile");
+    setPrivateField(legacyCredentials, "p12File", p12KeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    try {
+      upgradedCredentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.AccountIdNotSetException
+            ignored) {
+    }
+  }
+
+  @Test
+  public void testUpgradeLegacyCredentialsWithoutP12File() throws Exception {
+    GoogleRobotPrivateKeyCredentials legacyCredentials =
+            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
+    setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyPath);
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    try {
+      upgradedCredentials.getUsername();
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.PrivateKeyNotSetException
+            ignored) {
+    }
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.PrivateKeyNotSetException
+            ignored) {
+    }
+  }
+
+  private static void setPrivateField(
+          GoogleRobotPrivateKeyCredentials credentials, String fieldName,
+          Object value)
+          throws NoSuchFieldException, IllegalAccessException {
+    Field field = GoogleRobotPrivateKeyCredentials.class
+            .getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.set(credentials, value);
   }
 
   @Test

@@ -143,45 +143,14 @@ public class JsonKeyTypeTest {
     JsonKeyType jsonKeyType = new JsonKeyType(mockFileItem, null);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    serialize(jsonKeyType, out);
+    SerializationUtil.serialize(jsonKeyType, out);
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    JsonKeyType deserializedJsonKeyType = deserialize(in);
+    JsonKeyType deserializedJsonKeyType =
+            SerializationUtil.deserialize(JsonKeyType.class, in);
 
     assertTrue(new File(deserializedJsonKeyType.getJsonKeyFile()).exists());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
             deserializedJsonKeyType.getAccountId());
     assertEquals(privateKey, deserializedJsonKeyType.getPrivateKey());
-  }
-
-  private void serialize(JsonKeyType jsonKeyType, OutputStream out)
-          throws IOException {
-    ObjectOutputStream objectOut = null;
-    try {
-      objectOut = new ObjectOutputStream(out);
-      objectOut.writeObject(jsonKeyType);
-    } finally {
-      if (objectOut != null) {
-        try {
-          objectOut.close();
-        } catch (IOException ignored) {
-        }
-      }
-    }
-  }
-
-  private JsonKeyType deserialize(InputStream in) throws IOException,
-          ClassNotFoundException {
-    ObjectInputStream objectIn = null;
-    try {
-      objectIn = new ObjectInputStream(in);
-      return (JsonKeyType) objectIn.readObject();
-    } finally {
-      if (objectIn != null) {
-        try {
-          objectIn.close();
-        } catch (IOException ignored) {
-        }
-      }
-    }
   }
 }

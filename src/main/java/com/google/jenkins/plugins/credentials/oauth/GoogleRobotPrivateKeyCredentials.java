@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
+import org.codehaus.jackson.JsonParseException;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
@@ -51,10 +52,9 @@ public final class GoogleRobotPrivateKeyCredentials
           GoogleRobotPrivateKeyCredentials.class.getSimpleName());
   private KeyType keyType;
   @Deprecated
-  private String secretsFile = null;
+  private transient String secretsFile;
   @Deprecated
-  private String p12File = null;
-
+  private transient String p12File;
 
   /**
    * Construct a set of service account credentials.
@@ -72,19 +72,57 @@ public final class GoogleRobotPrivateKeyCredentials
 
   @SuppressWarnings("deprecation")
   public Object readResolve() {
-    if (keyType == null && p12File != null && secretsFile != null) {
-      try {
-        JsonKeyLegacy jsonKeyLegacy = JsonKeyLegacy.load(
-                getModule().getJsonFactory(), new FileInputStream(secretsFile));
-        keyType = new P12KeyType(jsonKeyLegacy.getWeb().getClientEmail(), null,
-                p12File);
-      } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to migrate keys", e);
-      }
+    if (keyType == null) {
+      String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
+      keyType = new P12KeyType(clientEmail, null, p12File);
     }
-    p12File = null;
-    secretsFile = null;
     return this;
+  }
+
+  private String getClientEmailFromSecretsFileAndLogErrors() {
+    try {
+      return getClientEmailFromSecretsFile();
+    } catch (MissingSecretsFileException e) {
+      LOGGER.log(Level.WARNING, String.format("SecretsFile is not set. " +
+              "Failed to set Service Account E-Mail Address on upgraded " +
+              "Credentials with Project Id '%s'.", getProjectId()));
+    } catch (SecretsFileNotFoundException e) {
+      LOGGER.log(Level.WARNING, String.format("SecretsFile could not be " +
+              "found. Failed to set Service Account E-Mail Address on " +
+              "upgraded Credentials with Project Id '%s'.", getProjectId()));
+    } catch (InvalidSecretsFileException e) {
+      LOGGER.log(Level.WARNING, String.format("Invalid SecretsFile format. " +
+              "Failed to set Service Account E-Mail Address on upgraded " +
+              "Credentials with Project Id '%s'.", getProjectId()));
+    }
+    return null;
+  }
+
+  @SuppressWarnings("deprecation")
+  private String getClientEmailFromSecretsFile()
+          throws MissingSecretsFileException, SecretsFileNotFoundException,
+          InvalidSecretsFileException {
+    if (secretsFile == null) {
+      throw new MissingSecretsFileException();
+    }
+    LegacyJsonKey legacyJsonKey;
+    try {
+      legacyJsonKey = LegacyJsonKey.load(getModule().getJsonFactory(),
+              new FileInputStream(secretsFile));
+    } catch (JsonParseException e) {
+      throw new InvalidSecretsFileException(e);
+    } catch (IOException e) {
+      throw new SecretsFileNotFoundException(e);
+    }
+    LegacyJsonKey.Details web = legacyJsonKey.getWeb();
+    if (web == null) {
+      throw new InvalidSecretsFileException();
+    }
+    String clientEmail = web.getClientEmail();
+    if (clientEmail == null) {
+      throw new InvalidSecretsFileException();
+    }
+    return clientEmail;
   }
 
   public static List<KeyType.Descriptor> getKeyTypeDescriptors() {
@@ -96,20 +134,19 @@ public final class GoogleRobotPrivateKeyCredentials
 
   @NonNull
   @Override
-  public String getUsername() {
-      GoogleCredential credential = getGoogleCredential(
-          new GoogleOAuth2ScopeRequirement() {
-            private static final long serialVersionUID = -8046870980553756366L;
+  public String getUsername() throws KeyTypeNotSetException,
+          AccountIdNotSetException, PrivateKeyNotSetException {
+    GoogleCredential credential = getGoogleCredential(
+            new GoogleOAuth2ScopeRequirement() {
+              private static final long serialVersionUID =
+                      -8046870980553756366L;
 
-            @Override
-            public Collection<String> getScopes() {
-              return ImmutableList.of();
-            }
-          });
-    if (credential != null) {
-      return credential.getServiceAccountId();
-    }
-    return "";
+              @Override
+              public Collection<String> getScopes() {
+                return ImmutableList.of();
+              }
+            });
+    return credential.getServiceAccountId();
   }
 
   /**
@@ -129,17 +166,25 @@ public final class GoogleRobotPrivateKeyCredentials
 
   @Override
   public GoogleCredential getGoogleCredential(
-      GoogleOAuth2ScopeRequirement requirement) {
-    if (keyType != null) {
-      return new GoogleCredential.Builder()
-          .setTransport(getModule().getHttpTransport())
-          .setJsonFactory(getModule().getJsonFactory())
-          .setServiceAccountScopes(requirement.getScopes())
-          .setServiceAccountId(keyType.getAccountId())
-          .setServiceAccountPrivateKey(keyType.getPrivateKey())
-          .build();
+          GoogleOAuth2ScopeRequirement requirement)
+          throws KeyTypeNotSetException, AccountIdNotSetException,
+          PrivateKeyNotSetException {
+    if (keyType == null) {
+      throw new KeyTypeNotSetException();
     }
-    return null;
+    if (keyType.getAccountId() == null) {
+      throw new AccountIdNotSetException();
+    }
+    if (keyType.getPrivateKey() == null) {
+      throw new PrivateKeyNotSetException();
+    }
+    return new GoogleCredential.Builder()
+        .setTransport(getModule().getHttpTransport())
+        .setJsonFactory(getModule().getJsonFactory())
+        .setServiceAccountScopes(requirement.getScopes())
+        .setServiceAccountId(keyType.getAccountId())
+        .setServiceAccountPrivateKey(keyType.getPrivateKey())
+        .build();
   }
 
   public KeyType getKeyType() {
@@ -171,5 +216,53 @@ public final class GoogleRobotPrivateKeyCredentials
     //  - validate secretsFile (prev or new should be specified)
     //  - validate p12File (prev or new should be specified)
     //  - some sort of test connection to validate the credentials?
+  }
+
+  /**
+   * Exception that gets thrown if SecretsFile is not set while upgrading
+   * legacy {@link GoogleRobotPrivateKeyCredentials}
+   */
+  public static class MissingSecretsFileException extends RuntimeException {
+  }
+
+  /**
+   * Exception that gets thrown if an invalid SecretsFile is set while upgrading
+   * legacy {@link GoogleRobotPrivateKeyCredentials}
+   */
+  public static class InvalidSecretsFileException extends RuntimeException {
+    public InvalidSecretsFileException() {
+    }
+
+    public InvalidSecretsFileException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /**
+   * Exception that gets thrown if SecretsFile could not be found while
+   * upgrading legacy {@link GoogleRobotPrivateKeyCredentials}
+   */
+  public static class SecretsFileNotFoundException extends RuntimeException {
+    public SecretsFileNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /**
+   * Exception that gets thrown if KeyType is not set.
+   */
+  public static class KeyTypeNotSetException extends RuntimeException {
+  }
+
+  /**
+   * Exception that gets thrown if AccountId is not set.
+   */
+  public static class AccountIdNotSetException extends RuntimeException {
+  }
+
+  /**
+   * Exception that gets thrown if PrivateKey is not set.
+   */
+  public static class PrivateKeyNotSetException extends RuntimeException {
   }
 }

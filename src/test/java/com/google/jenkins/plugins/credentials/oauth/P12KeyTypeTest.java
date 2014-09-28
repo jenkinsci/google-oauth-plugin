@@ -57,42 +57,49 @@ public class P12KeyTypeTest {
   }
 
   @Test
-  public void testCreateP12KeyTypeWithNewP12KeyFile() throws Exception {
+  public void testCreateWithNewP12KeyFile() throws Exception {
     when(mockFileItem.getSize()).thenReturn(1L);
     when(mockFileItem.getInputStream())
             .thenReturn(new FileInputStream(p12KeyPath));
     P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS,
             mockFileItem, null);
 
-    assertTrue(new File(p12KeyType.getP12KeyFile()).exists());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
     assertEquals(keyPair.getPrivate(), p12KeyType.getPrivateKey());
   }
 
   @Test
   @WithoutJenkins
-  public void testCreateP12KeyTypeWithNullParameters() throws Exception {
-    P12KeyType p12KeyType = new P12KeyType(null, null, null);
+  public void testCreateWithNullAccountId() throws Exception {
+    P12KeyType p12KeyType = new P12KeyType(null, null, p12KeyPath);
 
-    assertNull(p12KeyType.getP12KeyFile());
     assertNull(p12KeyType.getAccountId());
-    assertNull(p12KeyType.getPrivateKey());
+    assertEquals(keyPair.getPrivate(), p12KeyType.getPrivateKey());
   }
 
   @Test
   @WithoutJenkins
-  public void testCreateP12KeyTypeWithEmptyP12KeyFile() throws Exception {
-    when(mockFileItem.getSize()).thenReturn(0L);
-    P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS,
-            mockFileItem, null);
+  public void testCreateWithNullP12KeyFile() throws Exception {
+    P12KeyType p12KeyType =
+            new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS, null, null);
 
-    assertNull(p12KeyType.getP12KeyFile());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
     assertNull(p12KeyType.getPrivateKey());
   }
 
   @Test
-  public void testCreateP12KeyTypeWithInvalidP12KeyFile() throws Exception {
+  @WithoutJenkins
+  public void testCreateWithEmptyP12KeyFile() throws Exception {
+    when(mockFileItem.getSize()).thenReturn(0L);
+    P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+            mockFileItem, null);
+
+    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
+    assertNull(p12KeyType.getPrivateKey());
+  }
+
+  @Test
+  public void testCreateWithInvalidP12KeyFile() throws Exception {
     byte[] bytes = "invalidP12KeyFile".getBytes();
     when(mockFileItem.getSize()).thenReturn((long) bytes.length);
     when(mockFileItem.getInputStream())
@@ -100,41 +107,36 @@ public class P12KeyTypeTest {
     P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS,
             mockFileItem, null);
 
-    assertTrue(new File(p12KeyType.getP12KeyFile()).exists());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
     assertNull(p12KeyType.getPrivateKey());
   }
 
   @Test
   @WithoutJenkins
-  public void testCreateP12KeyTypeWithPrevP12KeyFile() throws Exception {
+  public void testCreateWithPrevP12KeyFile() throws Exception {
     P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
             p12KeyPath);
 
-    assertTrue(new File(p12KeyType.getP12KeyFile()).exists());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
     assertEquals(keyPair.getPrivate(), p12KeyType.getPrivateKey());
   }
 
   @Test
   @WithoutJenkins
-  public void testCreateP12KeyTypeWithEmptyPrevP12KeyFile() throws Exception {
+  public void testCreateWithEmptyPrevP12KeyFile() throws Exception {
     P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
             "");
 
-    assertNull(p12KeyType.getP12KeyFile());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
     assertNull(p12KeyType.getPrivateKey());
   }
 
   @Test
   @WithoutJenkins
-  public void testCreateJsonKeyTypeWithInvalidPrevJsonKeyFile()
-          throws Exception {
+  public void testCreateWithInvalidPrevP12KeyFile() throws Exception {
     P12KeyType p12KeyType = new P12KeyType(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
             "invalidPrevP12KeyFile.p12");
 
-    assertFalse(new File(p12KeyType.getP12KeyFile()).exists());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyType.getAccountId());
     assertNull(p12KeyType.getPrivateKey());
   }
@@ -148,45 +150,14 @@ public class P12KeyTypeTest {
             mockFileItem, null);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    serialize(p12KeyType, out);
+    SerializationUtil.serialize(p12KeyType, out);
     ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    P12KeyType deserializedP12KeyType = deserialize(in);
+    P12KeyType deserializedP12KeyType =
+            SerializationUtil.deserialize(P12KeyType.class, in);
 
     assertTrue(new File(deserializedP12KeyType.getP12KeyFile()).exists());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
             deserializedP12KeyType.getAccountId());
     assertEquals(keyPair.getPrivate(), deserializedP12KeyType.getPrivateKey());
-  }
-
-  private void serialize(P12KeyType p12KeyType, OutputStream out)
-          throws IOException {
-    ObjectOutputStream objectOut = null;
-    try {
-      objectOut = new ObjectOutputStream(out);
-      objectOut.writeObject(p12KeyType);
-    } finally {
-      if (objectOut != null) {
-        try {
-          objectOut.close();
-        } catch (IOException ignored) {
-        }
-      }
-    }
-  }
-
-  private P12KeyType deserialize(InputStream in) throws IOException,
-          ClassNotFoundException {
-    ObjectInputStream objectIn = null;
-    try {
-      objectIn = new ObjectInputStream(in);
-      return (P12KeyType) objectIn.readObject();
-    } finally {
-      if (objectIn != null) {
-        try {
-          objectIn.close();
-        } catch (IOException ignored) {
-        }
-      }
-    }
   }
 }

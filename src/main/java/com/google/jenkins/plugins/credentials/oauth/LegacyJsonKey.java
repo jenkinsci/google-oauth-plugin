@@ -34,16 +34,19 @@ import com.google.common.base.Charsets;
  */
 @Deprecated
 @SuppressWarnings("deprecation")
-public final class JsonKeyLegacy extends GenericJson {
+public final class LegacyJsonKey extends GenericJson {
 
   /** Details for web applications. */
   @Key
-  @SuppressWarnings("unused")
   private Details web;
 
   /** Returns the details for web applications. */
   public Details getWeb() {
     return web;
+  }
+
+  public void setWeb(Details web) {
+    this.web = web;
   }
 
   /**
@@ -53,8 +56,11 @@ public final class JsonKeyLegacy extends GenericJson {
   public static final class Details extends GenericJson {
     /** Client email. */
     @Key("client_email")
-    @SuppressWarnings("unused")
     private String clientEmail;
+
+    public void setClientEmail(String clientEmail) {
+      this.clientEmail = clientEmail;
+    }
 
     /** Returns the client email. */
     public String getClientEmail() {
@@ -63,10 +69,10 @@ public final class JsonKeyLegacy extends GenericJson {
   }
 
   /** Loads the {@code client_secrets.json} file from the given input stream. */
-  public static JsonKeyLegacy load(
+  public static LegacyJsonKey load(
       JsonFactory jsonFactory, InputStream inputStream)
       throws IOException {
     return jsonFactory.fromInputStream(
-        inputStream, Charsets.UTF_8, JsonKeyLegacy.class);
+        inputStream, Charsets.UTF_8, LegacyJsonKey.class);
   }
 }
