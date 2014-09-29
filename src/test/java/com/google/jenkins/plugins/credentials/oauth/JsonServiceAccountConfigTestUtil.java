@@ -20,7 +20,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.Security;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMWriter;
@@ -29,9 +34,9 @@ import com.google.api.client.json.JsonGenerator;
 import com.google.api.client.json.jackson.JacksonFactory;
 
 /**
- * Util class for {@link JsonKeyTypeTest}.
+ * Util class for {@link JsonServiceAccountConfigTest}.
  */
-public class JsonKeyUtil {
+public class JsonServiceAccountConfigTestUtil {
   private static File tempFolder;
 
   public static PrivateKey generatePrivateKey()
@@ -49,12 +54,18 @@ public class JsonKeyUtil {
           IOException {
     final File tempJsonKey = File.createTempFile("temp-key", ".json",
             getTempFolder());
-    final JsonGenerator jsonGenerator = new JacksonFactory()
-            .createJsonGenerator(new FileOutputStream(tempJsonKey),
-                    Charset.forName("UTF-8"));
-    jsonGenerator.enablePrettyPrint();
-    jsonGenerator.serialize(createJsonKey(clientEmail, privateKey));
-    jsonGenerator.close();
+    JsonGenerator jsonGenerator = null;
+    try {
+      jsonGenerator = new JacksonFactory()
+              .createJsonGenerator(new FileOutputStream(tempJsonKey),
+                      Charset.forName("UTF-8"));
+      jsonGenerator.enablePrettyPrint();
+      jsonGenerator.serialize(createJsonKey(clientEmail, privateKey));
+    } finally {
+      if (jsonGenerator != null) {
+        jsonGenerator.close();
+      }
+    }
     return tempJsonKey.getAbsolutePath();
   }
 

@@ -25,7 +25,8 @@ import hudson.model.Describable;
  * mechanism. subclasses need to provide an accountId and a private key to use
  * for authenticating a service account
  */
-public abstract class KeyType implements Describable<KeyType>, Serializable {
+public abstract class ServiceAccountConfig
+        implements Describable<ServiceAccountConfig>, Serializable {
   private static final long serialVersionUID = 6355493019938144806L;
 
   public abstract String getAccountId();
@@ -36,6 +37,6 @@ public abstract class KeyType implements Describable<KeyType>, Serializable {
    * abstract descriptor for service account authentication
    */
   public abstract static class Descriptor
-          extends hudson.model.Descriptor<KeyType> {
+          extends hudson.model.Descriptor<ServiceAccountConfig> {
   }
 }

@@ -26,8 +26,8 @@ import com.google.common.base.Charsets;
 /**
  * the
  * <a href="https://console.developers.google.com">Google Developer Console</a>
- * provides private keys for service accounts in two different ways. on of
- * them is a .json file that can be downloaded in the
+ * provides private keys for service accounts in two different ways. one of
+ * them is a .json file that can be downloaded from the
  * <a href="https://console.developers.google.com">Google Developer Console</a>.
  * <p/>
  * the structure of this json file is:

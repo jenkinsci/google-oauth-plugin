@@ -19,12 +19,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -36,9 +43,11 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 /**
- * Util class for {@link P12KeyTypeTest}.
+ * Util class for {@link P12ServiceAccountConfigTest}.
  */
-public class P12KeyUtil {
+public class P12ServiceAccountConfigTestUtil {
+  private static final String DEFAULT_P12_SECRET = "notasecret";
+  private static final String DEFAULT_P12_ALIAS = "privatekey";
   private static File tempFolder;
 
   public static KeyPair generateKeyPair() throws NoSuchProviderException,
@@ -78,10 +87,14 @@ public class P12KeyUtil {
   private static void writeKeyToFile(KeyPair keyPair, File tempP12Key)
           throws IOException, OperatorCreationException, CertificateException,
           NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException {
-    FileOutputStream out = new FileOutputStream(tempP12Key);
-    KeyStore keyStore = createKeyStore(keyPair);
-    keyStore.store(out, "notasecret".toCharArray());
-    out.close();
+    FileOutputStream out = null;
+    try {
+      out = new FileOutputStream(tempP12Key);
+      KeyStore keyStore = createKeyStore(keyPair);
+      keyStore.store(out, DEFAULT_P12_SECRET.toCharArray());
+    } finally {
+      IOUtils.closeQuietly(out);
+    }
   }
 
   private static KeyStore createKeyStore(KeyPair keyPair)
@@ -90,8 +103,8 @@ public class P12KeyUtil {
           NoSuchProviderException {
     KeyStore keyStore = KeyStore.getInstance("PKCS12");
     keyStore.load(null, null);
-    keyStore.setKeyEntry("privatekey", keyPair.getPrivate(),
-            "notasecret".toCharArray(),
+    keyStore.setKeyEntry(DEFAULT_P12_ALIAS, keyPair.getPrivate(),
+            DEFAULT_P12_SECRET.toCharArray(),
             new Certificate[]{generateCertificate(keyPair)});
     return keyStore;
   }

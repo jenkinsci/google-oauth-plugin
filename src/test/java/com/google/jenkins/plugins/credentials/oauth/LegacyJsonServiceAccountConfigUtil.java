@@ -27,7 +27,7 @@ import com.google.api.client.json.jackson.JacksonFactory;
  * Util class for {@link com.google.jenkins.plugins.credentials.oauth
  * .GoogleRobotPrivateKeyCredentials}.
  */
-public class LegacyJsonKeyUtil {
+public class LegacyJsonServiceAccountConfigUtil {
   private static File tempFolder;
 
   public static String createTempLegacyJsonKeyFile(String clientEmail)

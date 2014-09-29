@@ -15,7 +15,11 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -36,7 +40,7 @@ import jenkins.model.Jenkins;
 /**
  * provides authentication mechanism for a service account by setting a a .json
  * private key file. the .json file
- * sturcture needs to be:
+ * structure needs to be:
  * <p/>
  * <code>
  * <pre>
@@ -50,15 +54,16 @@ import jenkins.model.Jenkins;
  * </pre>
  * </code>
  */
-public class JsonKeyType extends KeyType {
+public class JsonServiceAccountConfig extends ServiceAccountConfig {
   private static final long serialVersionUID = 6818111194672325387L;
   private static final Logger LOGGER =
-          Logger.getLogger(JsonKeyType.class.getSimpleName());
+          Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
   private String jsonKeyFile;
   private transient JsonKey jsonKey;
 
   @DataBoundConstructor
-  public JsonKeyType(FileItem jsonKeyFile, String prevJsonKeyFile) {
+  public JsonServiceAccountConfig(FileItem jsonKeyFile,
+                                  String prevJsonKeyFile) {
     if (jsonKeyFile != null && jsonKeyFile.getSize() > 0) {
       try {
         JsonKey jsonKey = JsonKey.load(new JacksonFactory(),
@@ -101,16 +106,14 @@ public class JsonKeyType extends KeyType {
       out = new FileOutputStream(file);
       IOUtils.write(jsonKey.toPrettyString(), out);
     } finally {
-      if (out != null) {
-        out.close();
-      }
+      IOUtils.closeQuietly(out);
     }
   }
 
   @Override
   public DescriptorImpl getDescriptor() {
     return (DescriptorImpl) Jenkins.getInstance()
-            .getDescriptorOrDie(JsonKeyType.class);
+            .getDescriptorOrDie(JsonServiceAccountConfig.class);
   }
 
   public String getJsonKeyFile() {
@@ -169,7 +172,7 @@ public class JsonKeyType extends KeyType {
   public static final class DescriptorImpl extends Descriptor {
     @Override
     public String getDisplayName() {
-      return "JSON key";
+      return Messages.JsonServiceAccountConfig_DisplayName();
     }
   }
 }

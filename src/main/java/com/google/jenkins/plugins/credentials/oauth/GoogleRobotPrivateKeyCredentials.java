@@ -17,8 +17,6 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,7 +48,7 @@ public final class GoogleRobotPrivateKeyCredentials
   private static final long serialVersionUID = -6768343254941345944L;
   private static final Logger LOGGER = Logger.getLogger(
           GoogleRobotPrivateKeyCredentials.class.getSimpleName());
-  private KeyType keyType;
+  private ServiceAccountConfig serviceAccountConfig;
   @Deprecated
   private transient String secretsFile;
   @Deprecated
@@ -60,21 +58,23 @@ public final class GoogleRobotPrivateKeyCredentials
    * Construct a set of service account credentials.
    *
    * @param projectId The project id associated with this service account
-   * @param keyType The KeyType to use
+   * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
   @DataBoundConstructor
-  public GoogleRobotPrivateKeyCredentials(String projectId, KeyType keyType,
+  public GoogleRobotPrivateKeyCredentials(String projectId,
+          ServiceAccountConfig serviceAccountConfig,
           @Nullable GoogleRobotCredentialsModule module) throws Exception {
     super(projectId, module);
-    this.keyType = keyType;
+    this.serviceAccountConfig = serviceAccountConfig;
   }
 
   @SuppressWarnings("deprecation")
   public Object readResolve() {
-    if (keyType == null) {
+    if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
-      keyType = new P12KeyType(clientEmail, null, p12File);
+      serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null,
+              p12File);
     }
     return this;
   }
@@ -125,28 +125,33 @@ public final class GoogleRobotPrivateKeyCredentials
     return clientEmail;
   }
 
-  public static List<KeyType.Descriptor> getKeyTypeDescriptors() {
+  /**
+   * Used for populating the configuration for each {@link ServiceAccountConfig}
+   *
+   * @return list of possible {@link ServiceAccountConfig}s
+   */
+  public static List<ServiceAccountConfig.Descriptor>
+  getServiceAccountConfigDescriptors() {
     Jenkins instance = Jenkins.getInstance();
-    return Arrays.asList(
-            (KeyType.Descriptor) instance.getDescriptorOrDie(JsonKeyType.class),
-            (KeyType.Descriptor) instance.getDescriptorOrDie(P12KeyType.class));
+    return ImmutableList.of(
+            (ServiceAccountConfig.Descriptor) instance
+                    .getDescriptorOrDie(JsonServiceAccountConfig.class),
+            (ServiceAccountConfig.Descriptor) instance
+                    .getDescriptorOrDie(P12ServiceAccountConfig.class));
   }
 
   @NonNull
   @Override
   public String getUsername() throws KeyTypeNotSetException,
-          AccountIdNotSetException, PrivateKeyNotSetException {
-    GoogleCredential credential = getGoogleCredential(
-            new GoogleOAuth2ScopeRequirement() {
-              private static final long serialVersionUID =
-                      -8046870980553756366L;
-
-              @Override
-              public Collection<String> getScopes() {
-                return ImmutableList.of();
-              }
-            });
-    return credential.getServiceAccountId();
+          AccountIdNotSetException {
+    if (serviceAccountConfig == null) {
+      throw new KeyTypeNotSetException();
+    }
+    String accountId = serviceAccountConfig.getAccountId();
+    if (accountId == null) {
+      throw new AccountIdNotSetException();
+    }
+    return accountId;
   }
 
   /**
@@ -169,26 +174,26 @@ public final class GoogleRobotPrivateKeyCredentials
           GoogleOAuth2ScopeRequirement requirement)
           throws KeyTypeNotSetException, AccountIdNotSetException,
           PrivateKeyNotSetException {
-    if (keyType == null) {
+    if (serviceAccountConfig == null) {
       throw new KeyTypeNotSetException();
     }
-    if (keyType.getAccountId() == null) {
+    if (serviceAccountConfig.getAccountId() == null) {
       throw new AccountIdNotSetException();
     }
-    if (keyType.getPrivateKey() == null) {
+    if (serviceAccountConfig.getPrivateKey() == null) {
       throw new PrivateKeyNotSetException();
     }
     return new GoogleCredential.Builder()
         .setTransport(getModule().getHttpTransport())
         .setJsonFactory(getModule().getJsonFactory())
         .setServiceAccountScopes(requirement.getScopes())
-        .setServiceAccountId(keyType.getAccountId())
-        .setServiceAccountPrivateKey(keyType.getPrivateKey())
+        .setServiceAccountId(serviceAccountConfig.getAccountId())
+        .setServiceAccountPrivateKey(serviceAccountConfig.getPrivateKey())
         .build();
   }
 
-  public KeyType getKeyType() {
-    return keyType;
+  public ServiceAccountConfig getServiceAccountConfig() {
+    return serviceAccountConfig;
   }
 
   /**
@@ -249,7 +254,7 @@ public final class GoogleRobotPrivateKeyCredentials
   }
 
   /**
-   * Exception that gets thrown if KeyType is not set.
+   * Exception that gets thrown if ServiceAccountConfig is not set.
    */
   public static class KeyTypeNotSetException extends RuntimeException {
   }
