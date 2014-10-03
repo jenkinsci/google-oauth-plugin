@@ -15,27 +15,23 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collection;
-
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-import org.apache.commons.fileupload.FileItem;
+import org.codehaus.jackson.JsonParseException;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.NameWith;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
-import hudson.FilePath;
 import jenkins.model.Jenkins;
 
 /**
@@ -49,87 +45,113 @@ import jenkins.model.Jenkins;
 @NameWith(value = GoogleRobotNameProvider.class, priority = 50)
 public final class GoogleRobotPrivateKeyCredentials
     extends GoogleRobotCredentials {
+  private static final long serialVersionUID = -6768343254941345944L;
+  private static final Logger LOGGER = Logger.getLogger(
+          GoogleRobotPrivateKeyCredentials.class.getSimpleName());
+  private ServiceAccountConfig serviceAccountConfig;
+  @Deprecated
+  private transient String secretsFile;
+  @Deprecated
+  private transient String p12File;
+
   /**
    * Construct a set of service account credentials.
    *
    * @param projectId The project id associated with this service account
-   * @param prevSecretsFile The path to a previously uploaded secrets file
-   * @param secretsFile A new secrets file for this service account
-   * @param prevP12File The path to a previously uploaded private key file
-   * @param p12File A new private key file for this service account
+   * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
   @DataBoundConstructor
   public GoogleRobotPrivateKeyCredentials(String projectId,
-      String prevSecretsFile, FileItem secretsFile,
-      String prevP12File, FileItem p12File,
-      @Nullable GoogleRobotCredentialsModule module)
-      throws Exception {
+          ServiceAccountConfig serviceAccountConfig,
+          @Nullable GoogleRobotCredentialsModule module) throws Exception {
     super(projectId, module);
-
-    FilePath home = checkNotNull(Jenkins.getInstance().getRootPath());
-    // home is assumed to exist...
-
-    FilePath secretsHome = home.child("gauth");
-    secretsHome.mkdirs();
-
-    // Use the hash code to escape the projectId.
-    FilePath thisSecretDir = secretsHome.child("" + projectId.hashCode());
-    thisSecretDir.mkdirs();
-
-    final String theSecretsFile = writeIfNewFileOrReturnOld(
-        prevSecretsFile, secretsFile, thisSecretDir, "client_secrets", "json");
-
-    final String theP12File = writeIfNewFileOrReturnOld(
-        prevP12File, p12File, thisSecretDir, "private", "p12");
-
-    // TODO(mattmoor): we need form validation that something was
-    // specified for each of these REQUIRED fields.
-
-    this.secretsFile = theSecretsFile;
-    this.p12File = theP12File;
+    this.serviceAccountConfig = serviceAccountConfig;
   }
 
-  /**
-   * If a new file is passed, this writes it to a new file on disk  with the
-   * {@code prefix} and {@code extension}.  Otherwise it returns the provided
-   * old file.
-   */
-  private String writeIfNewFileOrReturnOld(String oldFile, FileItem newFile,
-      FilePath containerDir, String prefix, String extension) throws Exception {
-    if (checkNotNull(newFile).getSize() == 0) {
-      return oldFile;
+  @SuppressWarnings("deprecation")
+  public Object readResolve() {
+    if (serviceAccountConfig == null) {
+      String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
+      serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null,
+              p12File);
     }
-
-    FilePath newFilePath =
-        containerDir.createTempFile(prefix + ".", "." + extension);
-    String theNewFile = newFilePath.toString();
-    newFile.write(new java.io.File(theNewFile));
-
-    return theNewFile;
+    return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getUsername() {
+  private String getClientEmailFromSecretsFileAndLogErrors() {
     try {
-      GoogleCredential credential = getGoogleCredential(
-          new GoogleOAuth2ScopeRequirement() {
-            @Override
-            public Collection<String> getScopes() {
-              return ImmutableList.of();
-            }
-          });
-
-      // Retrieve the email to use as a username (the email of the service
-      // account is used as the service account id).
-      return credential.getServiceAccountId();
-    } catch (GeneralSecurityException e) {
-      throw new IllegalStateException(
-          Messages.GoogleRobotPrivateKeyCredentials_BadCredentials(), e);
+      return getClientEmailFromSecretsFile();
+    } catch (MissingSecretsFileException e) {
+      LOGGER.log(Level.WARNING, String.format("SecretsFile is not set. " +
+              "Failed to set Service Account E-Mail Address on upgraded " +
+              "Credentials with Project Id '%s'.", getProjectId()));
+    } catch (SecretsFileNotFoundException e) {
+      LOGGER.log(Level.WARNING, String.format("SecretsFile could not be " +
+              "found. Failed to set Service Account E-Mail Address on " +
+              "upgraded Credentials with Project Id '%s'.", getProjectId()));
+    } catch (InvalidSecretsFileException e) {
+      LOGGER.log(Level.WARNING, String.format("Invalid SecretsFile format. " +
+              "Failed to set Service Account E-Mail Address on upgraded " +
+              "Credentials with Project Id '%s'.", getProjectId()));
     }
+    return null;
+  }
+
+  @SuppressWarnings("deprecation")
+  private String getClientEmailFromSecretsFile()
+          throws MissingSecretsFileException, SecretsFileNotFoundException,
+          InvalidSecretsFileException {
+    if (secretsFile == null) {
+      throw new MissingSecretsFileException();
+    }
+    LegacyJsonKey legacyJsonKey;
+    try {
+      legacyJsonKey = LegacyJsonKey.load(getModule().getJsonFactory(),
+              new FileInputStream(secretsFile));
+    } catch (JsonParseException e) {
+      throw new InvalidSecretsFileException(e);
+    } catch (IOException e) {
+      throw new SecretsFileNotFoundException(e);
+    }
+    LegacyJsonKey.Details web = legacyJsonKey.getWeb();
+    if (web == null) {
+      throw new InvalidSecretsFileException();
+    }
+    String clientEmail = web.getClientEmail();
+    if (clientEmail == null) {
+      throw new InvalidSecretsFileException();
+    }
+    return clientEmail;
+  }
+
+  /**
+   * Used for populating the configuration for each {@link ServiceAccountConfig}
+   *
+   * @return list of possible {@link ServiceAccountConfig}s
+   */
+  public static List<ServiceAccountConfig.Descriptor>
+  getServiceAccountConfigDescriptors() {
+    Jenkins instance = Jenkins.getInstance();
+    return ImmutableList.of(
+            (ServiceAccountConfig.Descriptor) instance
+                    .getDescriptorOrDie(JsonServiceAccountConfig.class),
+            (ServiceAccountConfig.Descriptor) instance
+                    .getDescriptorOrDie(P12ServiceAccountConfig.class));
+  }
+
+  @NonNull
+  @Override
+  public String getUsername() throws KeyTypeNotSetException,
+          AccountIdNotSetException {
+    if (serviceAccountConfig == null) {
+      throw new KeyTypeNotSetException();
+    }
+    String accountId = serviceAccountConfig.getAccountId();
+    if (accountId == null) {
+      throw new AccountIdNotSetException();
+    }
+    return accountId;
   }
 
   /**
@@ -142,60 +164,36 @@ public final class GoogleRobotPrivateKeyCredentials
         .getHelpFile("credentials");
   }
 
-  /**
-   * Return the {@code client_secrets.json} path on the master.
-   */
-  public String getSecretsFile() {
-    return secretsFile;
-  }
-  private final String secretsFile;
-
-  /**
-   * Retrieve the "client_secrets.json" file as a set of service-account
-   * secrets.
-   *
-   * @throws IOException if there are issues interacting with the secrets file.
-   */
-  @VisibleForTesting
-  GoogleRobotSecrets getRobotSecrets() throws IOException {
-    return GoogleRobotSecrets.load(
-        getModule().getJsonFactory(), new FileInputStream(getSecretsFile()));
-  }
-
-  /**
-   * Return the {@code private....p12} path on the master.
-   */
-  public String getP12File() {
-    return p12File;
-  }
-  private final String p12File;
-
   @Override
   public CredentialsScope getScope() {
     return CredentialsScope.GLOBAL;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public GoogleCredential getGoogleCredential(
-      GoogleOAuth2ScopeRequirement requirement)
-      throws GeneralSecurityException {
-    try {
-      GoogleRobotSecrets robotSecrets = getRobotSecrets();
-
-      return new GoogleCredential.Builder()
-          .setTransport(getModule().getHttpTransport())
-          .setJsonFactory(getModule().getJsonFactory())
-          .setServiceAccountScopes(requirement.getScopes())
-          .setServiceAccountPrivateKeyFromP12File(new File(getP12File()))
-          .setServiceAccountId(robotSecrets.getWeb().getClientEmail())
-          .build();
-    } catch (IOException e) {
-      throw new GeneralSecurityException(
-          Messages.GoogleRobotPrivateKeyCredentials_ExceptionString(), e);
+          GoogleOAuth2ScopeRequirement requirement)
+          throws KeyTypeNotSetException, AccountIdNotSetException,
+          PrivateKeyNotSetException {
+    if (serviceAccountConfig == null) {
+      throw new KeyTypeNotSetException();
     }
+    if (serviceAccountConfig.getAccountId() == null) {
+      throw new AccountIdNotSetException();
+    }
+    if (serviceAccountConfig.getPrivateKey() == null) {
+      throw new PrivateKeyNotSetException();
+    }
+    return new GoogleCredential.Builder()
+        .setTransport(getModule().getHttpTransport())
+        .setJsonFactory(getModule().getJsonFactory())
+        .setServiceAccountScopes(requirement.getScopes())
+        .setServiceAccountId(serviceAccountConfig.getAccountId())
+        .setServiceAccountPrivateKey(serviceAccountConfig.getPrivateKey())
+        .build();
+  }
+
+  public ServiceAccountConfig getServiceAccountConfig() {
+    return serviceAccountConfig;
   }
 
   /**
@@ -223,5 +221,53 @@ public final class GoogleRobotPrivateKeyCredentials
     //  - validate secretsFile (prev or new should be specified)
     //  - validate p12File (prev or new should be specified)
     //  - some sort of test connection to validate the credentials?
+  }
+
+  /**
+   * Exception that gets thrown if SecretsFile is not set while upgrading
+   * legacy {@link GoogleRobotPrivateKeyCredentials}
+   */
+  public static class MissingSecretsFileException extends RuntimeException {
+  }
+
+  /**
+   * Exception that gets thrown if an invalid SecretsFile is set while upgrading
+   * legacy {@link GoogleRobotPrivateKeyCredentials}
+   */
+  public static class InvalidSecretsFileException extends RuntimeException {
+    public InvalidSecretsFileException() {
+    }
+
+    public InvalidSecretsFileException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /**
+   * Exception that gets thrown if SecretsFile could not be found while
+   * upgrading legacy {@link GoogleRobotPrivateKeyCredentials}
+   */
+  public static class SecretsFileNotFoundException extends RuntimeException {
+    public SecretsFileNotFoundException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+  /**
+   * Exception that gets thrown if ServiceAccountConfig is not set.
+   */
+  public static class KeyTypeNotSetException extends RuntimeException {
+  }
+
+  /**
+   * Exception that gets thrown if AccountId is not set.
+   */
+  public static class AccountIdNotSetException extends RuntimeException {
+  }
+
+  /**
+   * Exception that gets thrown if PrivateKey is not set.
+   */
+  public static class PrivateKeyNotSetException extends RuntimeException {
   }
 }
