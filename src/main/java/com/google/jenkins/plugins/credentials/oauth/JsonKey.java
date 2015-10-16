@@ -17,14 +17,18 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Key;
 import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
+
+import hudson.util.Secret;
 
 /**
- * the
+ * The
  * <a href="https://console.developers.google.com">Google Developer Console</a>
  * provides private keys for service accounts in two different ways. one of
  * them is a .json file that can be downloaded from the
@@ -50,9 +54,15 @@ public final class JsonKey extends GenericJson {
   private String privateKey;
 
   public static JsonKey load(JsonFactory jsonFactory, InputStream inputStream)
-          throws IOException {
-    return jsonFactory.fromInputStream(inputStream, Charsets.UTF_8,
-            JsonKey.class);
+      throws IOException {
+    InputStreamReader reader = new InputStreamReader(inputStream,
+        Charsets.UTF_8);
+    try {
+      Secret decoded = Secret.fromString(CharStreams.toString(reader));
+      return jsonFactory.fromString(decoded.getPlainText(), JsonKey.class);
+    } finally {
+      inputStream.close();
+    }
   }
 
   public String getClientEmail() {

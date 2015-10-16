@@ -43,8 +43,8 @@
 
   <developers>
     <developer>
-      <id>mattmoor</id>
-      <name>Matt Moore</name>
+      <id>astroilov</id>
+      <name>Andrey Stroilov</name>
     </developer>
   </developers>
 
@@ -96,6 +96,7 @@
 	<configuration>
 	  <includeTestSourceDirectory>true</includeTestSourceDirectory>
 	  <configLocation>checkstyle.xml</configLocation>
+          <headerLocation>checkstyleJavaHeader</headerLocation>
 	  <failsOnError>true</failsOnError>
 	  <violationSeverity>warning</violationSeverity>
           <consoleOutput>true</consoleOutput>
@@ -171,6 +172,13 @@
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>14.0.1</version>
+    </dependency>
+
+    <!-- Apache Commons IO dependency -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.4</version>
     </dependency>
 
     <!-- org.joda.time -->

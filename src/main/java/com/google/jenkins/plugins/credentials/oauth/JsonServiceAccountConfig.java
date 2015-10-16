@@ -17,7 +17,6 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.KeyFactory;
@@ -29,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import com.google.api.client.json.jackson.JacksonFactory;
@@ -38,7 +36,7 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 /**
- * provides authentication mechanism for a service account by setting a a .json
+ * Provides authentication mechanism for a service account by setting a .json
  * private key file. the .json file
  * structure needs to be:
  * <p/>
@@ -57,13 +55,13 @@ import jenkins.model.Jenkins;
 public class JsonServiceAccountConfig extends ServiceAccountConfig {
   private static final long serialVersionUID = 6818111194672325387L;
   private static final Logger LOGGER =
-          Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
+      Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
   private String jsonKeyFile;
   private transient JsonKey jsonKey;
 
   @DataBoundConstructor
   public JsonServiceAccountConfig(FileItem jsonKeyFile,
-                                  String prevJsonKeyFile) {
+      String prevJsonKeyFile) {
     if (jsonKeyFile != null && jsonKeyFile.getSize() > 0) {
       try {
         JsonKey jsonKey = JsonKey.load(new JacksonFactory(),
@@ -85,35 +83,15 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   private String writeJsonKeyToFile(JsonKey jsonKey) throws IOException {
-    File jsonKeyFile = createJsonKeyFile();
-    writeJsonKeyToFile(jsonKey, jsonKeyFile);
+    File jsonKeyFile = KeyUtils.createKeyFile("key", ".json");
+    KeyUtils.writeKeyToFileEncoded(jsonKey.toPrettyString(), jsonKeyFile);
     return jsonKeyFile.getAbsolutePath();
-  }
-
-  private File createJsonKeyFile() throws IOException {
-    File keyFolder = new File(Jenkins.getInstance().getRootDir(), "gauth");
-    if (keyFolder.exists() || keyFolder.mkdirs()) {
-      return File.createTempFile("key", ".json", keyFolder);
-    } else {
-      throw new IOException("Failed to create key folder");
-    }
-  }
-
-  private void writeJsonKeyToFile(JsonKey jsonKey, File file)
-          throws IOException {
-    FileOutputStream out = null;
-    try {
-      out = new FileOutputStream(file);
-      IOUtils.write(jsonKey.toPrettyString(), out);
-    } finally {
-      IOUtils.closeQuietly(out);
-    }
   }
 
   @Override
   public DescriptorImpl getDescriptor() {
     return (DescriptorImpl) Jenkins.getInstance()
-            .getDescriptorOrDie(JsonServiceAccountConfig.class);
+        .getDescriptorOrDie(JsonServiceAccountConfig.class);
   }
 
   public String getJsonKeyFile() {
@@ -139,7 +117,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
         try {
           PemReader.Section section = pemReader.readNextSection();
           PKCS8EncodedKeySpec keySpec =
-                  new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
+              new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
           return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
         } catch (IOException e) {
           LOGGER.log(Level.SEVERE, "Failed to read private key", e);
@@ -157,7 +135,11 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     if (jsonKey == null && jsonKeyFile != null && !jsonKeyFile.isEmpty()) {
       try {
         jsonKey = JsonKey.load(new JacksonFactory(),
-                new FileInputStream(jsonKeyFile));
+            new FileInputStream(jsonKeyFile));
+        File jsonKeyFileObject = new File(jsonKeyFile);
+        KeyUtils.updatePermissions(jsonKeyFileObject);
+        KeyUtils.writeKeyToFileEncoded(jsonKey.toPrettyString(),
+            jsonKeyFileObject);
         return jsonKey;
       } catch (IOException ignored) {
       }

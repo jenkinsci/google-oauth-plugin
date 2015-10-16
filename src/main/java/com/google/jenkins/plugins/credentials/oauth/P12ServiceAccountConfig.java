@@ -17,7 +17,6 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -65,32 +64,14 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   private String writeP12KeyToFile(FileItem p12KeyFileItem) throws IOException {
-    File p12KeyFile = createP12KeyFile();
-    writeP12KeyToFile(p12KeyFileItem, p12KeyFile);
-    return p12KeyFile.toString();
-  }
-
-  private void writeP12KeyToFile(FileItem p12KeyFileItem, File p12KeyFile)
-          throws IOException {
-    InputStream in = null;
-    FileOutputStream out = null;
+    File p12KeyFileObject = KeyUtils.createKeyFile("key", ".p12");
+    InputStream stream = p12KeyFileItem.getInputStream();
     try {
-      in = p12KeyFileItem.getInputStream();
-      out = new FileOutputStream(p12KeyFile);
-      IOUtils.copy(in, out);
+      KeyUtils.writeKeyToFile(stream, p12KeyFileObject);
     } finally {
-      IOUtils.closeQuietly(in);
-      IOUtils.closeQuietly(out);
+      IOUtils.closeQuietly(stream);
     }
-  }
-
-  private File createP12KeyFile() throws IOException {
-    File keyFolder = new File(Jenkins.getInstance().getRootDir(), "gauth");
-    if (keyFolder.exists() || keyFolder.mkdirs()) {
-      return File.createTempFile("key", ".p12", keyFolder);
-    } else {
-      throw new IOException("Failed to create key folder");
-    }
+    return p12KeyFileObject.toString();
   }
 
   @Override
@@ -133,6 +114,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     FileInputStream in = null;
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
+      KeyUtils.updatePermissions(new File(p12KeyFile));
       in = new FileInputStream(p12KeyFile);
       keyStore.load(in, DEFAULT_P12_SECRET.toCharArray());
       return keyStore;

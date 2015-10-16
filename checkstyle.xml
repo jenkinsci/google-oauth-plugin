@@ -12,22 +12,11 @@ by Joshua Bloch in his book Effective Java -->
 
 <module name="Checker">
   <!-- java file header needs to contain the license -->
-  <module name="Header">
-    <property name="header" value="/*\n
-* Copyright 2013 Google Inc. All Rights Reserved.\n
-*\n
-* Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);\n
-* you may not use this file except in compliance with the License.\n
-* You may obtain a copy of the License at\n
-*\n
-*     http://www.apache.org/licenses/LICENSE-2.0\n
-*\n
-* Unless required by applicable law or agreed to in writing, software\n
-* distributed under the License is distributed on an &quot;AS IS&quot; BASIS,\n
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n
-* See the License for the specific language governing permissions and\n
-* limitations under the License.\n
-*/\n"/>
+  <module name="RegexpHeader">
+    <!-- This file makes minimal use of regular expression; only the year of
+         the copy right date has any flexibility outside a strict character-by
+         character direct match. -->
+    <property name="headerFile" value="${checkstyle.header.file}"/>
     <property name="fileExtensions" value="java"/>
   </module>
 
