@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.521</version>
+    <version>1.645</version>
   </parent>
 
   <!--
@@ -158,7 +158,7 @@
 
   <!-- Bring some sanity to version numbering... -->
   <properties>
-    <google.api.version>1.17.0-rc</google.api.version>
+    <google.api.version>1.22.0</google.api.version>
   </properties>
 
   <dependencies>
@@ -240,7 +240,7 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-oauth2</artifactId>
-      <version>v2-rev51-${google.api.version}</version>
+      <version>v2-rev124-${google.api.version}</version>
     </dependency>
 
     <!-- plugin dependencies -->
