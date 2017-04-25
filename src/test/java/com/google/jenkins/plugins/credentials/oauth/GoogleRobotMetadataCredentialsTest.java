@@ -36,11 +36,13 @@ import org.mockito.MockitoAnnotations;
 
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_OK;
+import static com.google.common.collect.Iterables.getOnlyElement;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.OAuth2Utils;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.api.client.testing.http.MockLowLevelHttpRequest;
@@ -90,10 +92,8 @@ public class GoogleRobotMetadataCredentialsTest {
     private void verifyRequest(String url) throws IOException {
       verify(transport).buildRequest("GET", url);
       verify(request).execute();
-      // TODO(mattmoor): When ComputeCredentials switches to the v1 endpoint
-      // it will have to specify this header.
-      // assertEquals("true", getOnlyElement(request.getHeaderValues(
-      //     "X-Google-Metadata-Request")));
+      assertEquals("Google", getOnlyElement(request.getHeaderValues(
+           "Metadata-Flavor")));
     }
 
     @Override
@@ -338,7 +338,7 @@ public class GoogleRobotMetadataCredentialsTest {
   }
 
   private static String METADATA_ENDPOINT =
-      "http://metadata/computeMetadata/v1beta1/"
+      OAuth2Utils.getMetadataServerUrl() + "/computeMetadata/v1/"
       + "instance/service-accounts/default/token";
   private static final String USERNAME = "bazinga";
   private static final long EXPIRATION_SECONDS = 1234;
