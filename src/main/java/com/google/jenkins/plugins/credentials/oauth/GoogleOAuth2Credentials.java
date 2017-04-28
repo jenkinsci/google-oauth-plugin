@@ -32,7 +32,7 @@ public interface GoogleOAuth2Credentials
    *
    * @param requirement The set of required OAuth 2.0 scopes
    * @return The Credential authorizing usage of the API scopes
-   * @throws {@link GeneralSecurityException} when the authentication fails
+   * @throws GeneralSecurityException when the authentication fails
    */
   Credential getGoogleCredential(GoogleOAuth2ScopeRequirement requirement)
       throws GeneralSecurityException;

@@ -37,11 +37,9 @@ import jenkins.model.Jenkins;
 
 /**
  * Provides authentication mechanism for a service account by setting a .json
- * private key file. the .json file
- * structure needs to be:
- * <p/>
+ * private key file. The .json file structure needs to be:
+ * <p>
  * <code>
- * <pre>
  *     {
  *       "private_key":"-----BEGIN PRIVATE KEY-----\n
  *                      ...
@@ -49,7 +47,6 @@ import jenkins.model.Jenkins;
  *       "client_email":"...@developer.gserviceaccount.com",
  *       ...
  *     }
- * </pre>
  * </code>
  */
 public class JsonServiceAccountConfig extends ServiceAccountConfig {

@@ -33,10 +33,9 @@ import hudson.util.Secret;
  * provides private keys for service accounts in two different ways. one of
  * them is a .json file that can be downloaded from the
  * <a href="https://console.developers.google.com">Google Developer Console</a>.
- * <p/>
- * the structure of this json file is:
+ * <p>
+ * The structure of this json file is:
  * <code>
- *   <pre>
  *     {
  *       "private_key":"-----BEGIN PRIVATE KEY-----\n
  *                      ...
@@ -44,7 +43,6 @@ import hudson.util.Secret;
  *       "client_email":"...@developer.gserviceaccount.com",
  *       ...
  *     }
- *   </pre>
  * </code>
  */
 public final class JsonKey extends GenericJson {

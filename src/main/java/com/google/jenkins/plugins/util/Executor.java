@@ -60,7 +60,7 @@ public abstract class Executor {
    * @return a Json object of the given type
    * @throws IOException if anything goes wrong
    */
-  public abstract <T> T execute(RequestCallable<T> block)
+  public abstract <T> T execute(RequestCallable<T> request)
       throws IOException, ExecutorException;
 
   /**

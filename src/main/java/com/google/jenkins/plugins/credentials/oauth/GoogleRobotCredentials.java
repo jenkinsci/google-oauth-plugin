@@ -45,7 +45,8 @@ public abstract class GoogleRobotCredentials
    * Base constructor for populating the name and id for Google credentials.
    *
    * @param projectId The project id with which this credential is associated.
-   * @param id The unique identifier to use for referencing this credential.
+   * @param module The module to use for instantiating the dependencies of
+   * credentials.
    */
   protected GoogleRobotCredentials(String projectId,
       GoogleRobotCredentialsModule module) {
