@@ -33,7 +33,7 @@ import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRe
 import com.google.api.client.http.HttpResponseException;
 
 /**
- * Tests for {@link Executor$Default}.
+ * Tests for {@link Executor}.
  */
 public class ExecutorTest {
 
