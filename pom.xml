@@ -26,7 +26,7 @@
   -->
   <artifactId>google-oauth-plugin</artifactId>
   <packaging>hpi</packaging>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.5</version>
 
   <name>Google OAuth Credentials plugin</name>
   <description>
@@ -52,7 +52,7 @@
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}.git</developerConnection>
     <url>http://github.com/jenkinsci/${project.artifactId}</url>
-    <tag>HEAD</tag>
+    <tag>google-oauth-plugin-0.5</tag>
   </scm>
 
   <repositories>
