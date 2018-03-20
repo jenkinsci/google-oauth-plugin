@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>2.5</version>
+    <version>3.5</version>
   </parent>
 
   <!--
@@ -32,7 +32,7 @@
   <description>
     This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.
   </description>
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Google+OAuth+Plugin</url>
+  <url>https://wiki.jenkins.io/display/JENKINS/Google+OAuth+Plugin</url>
   <licenses>
     <license>
       <name>The Apache V2 License</name>
@@ -58,37 +58,19 @@
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>repo.jenkins-ci.org</id>
-      <url>http://repo.jenkins-ci.org/public/</url>
+      <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
 
   <build>
     <plugins>
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-compiler-plugin</artifactId>
-	<version>3.1</version>
-	<configuration>
-	  <source>1.6</source>
-	  <target>1.6</target>
-        </configuration>
-      </plugin>
-      <plugin>
-	<groupId>org.jenkins-ci.tools</groupId>
-	<artifactId>maven-hpi-plugin</artifactId>
-	<version>1.96</version>
-	<extensions>true</extensions>
-	<configuration>
-	  <disabledTestInjection>true</disabledTestInjection>
-	</configuration>
-      </plugin>
       <plugin>
 	<groupId>org.apache.maven.plugins</groupId>
 	<artifactId>maven-checkstyle-plugin</artifactId>
@@ -112,7 +94,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.5</version>
         <configuration>
           <effort>Max</effort>
           <threshold>Medium</threshold>
@@ -160,6 +142,7 @@
   <properties>
     <jenkins.version>1.653</jenkins.version>
     <google.api.version>1.22.0</google.api.version>
+    <java.level>7</java.level>
   </properties>
 
   <dependencies>
@@ -200,7 +183,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
