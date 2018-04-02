@@ -2,9 +2,7 @@ Jenkins Google OAuth Credentials Plugin
 =====================
 Google-specific implementation of the OAuth Credentials interfaces.
 
-[![Build Status](https://jenkins.ci.cloudbees.com/buildStatus/icon?job=plugins/google-oauth-plugin)](https://jenkins.ci.cloudbees.com/job/plugins/job/google-oauth-plugin/)
-
-Read more: [http://wiki.jenkins-ci.org/display/JENKINS/Google+OAuth+Plugin](http://wiki.jenkins-ci.org/display/JENKINS/Google+OAuth+Plugin)
+Read more: [https://wiki.jenkins.io/display/JENKINS/Google+OAuth+Plugin](https://wiki.jenkins.io/display/JENKINS/Google+OAuth+Plugin)
 
 Development
 ===========
