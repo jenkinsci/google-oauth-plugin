@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.5</version>
+    <version>3.8</version>
   </parent>
 
   <!--
@@ -143,6 +143,8 @@
     <jenkins.version>1.653</jenkins.version>
     <google.api.version>1.22.0</google.api.version>
     <java.level>7</java.level>
+    <!-- TODO: Currently checkstyle fails even for the 'master' branch code. It also prohibits code not Copyrighted by Google-->
+    <checkstyle.skip>true</checkstyle.skip>
   </properties>
 
   <dependencies>
