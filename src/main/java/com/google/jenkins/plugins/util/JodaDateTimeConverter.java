@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
-import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
@@ -43,8 +42,7 @@ public class JodaDateTimeConverter implements Converter {
     @Initializer(before = InitMilestone.PLUGINS_LISTED)
     public static void initConverter() {
         // Overrides the default converters, runs before the JEP-200 blacklist
-        Jenkins.XSTREAM2.registerConverter(new JodaDateTimeConverter(),
-                XStream.PRIORITY_VERY_HIGH + 1);
+        Jenkins.XSTREAM2.registerConverter(new JodaDateTimeConverter());
     }
 
     @Override
