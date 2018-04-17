@@ -121,6 +121,29 @@ public class RemotableGoogleCredentialsIntegrationTest {
                 read.isTokenExpired());
     }
 
+    @Test
+    @Issue("JENKINS-50216")
+    public void shouldRoundtripNulls() throws Exception {
+        File file = new File(tmp.getRoot(), "remotableGoogleCredentials.xml");
+        try (InputStream istream =
+                     RemotableGoogleCredentialsTest.class.getResourceAsStream(
+                             "jodaDateTimeNull.xml");
+             OutputStream ostream = new FileOutputStream(file)) {
+            org.apache.commons.io.IOUtils.copy(istream, ostream);
+        }
+
+        XmlFile xml = new XmlFile(Jenkins.XSTREAM2, file);
+        RemotableGoogleCredentials read =
+                (RemotableGoogleCredentials) xml.read();
+        DateTime expiration = read.getTokenExpirationTime();
+        assertNull("Expiration token should be null", expiration);
+        assertTrue("Deserialized token should be considered as expired",
+                read.isTokenExpired());
+
+        // Write it back
+        xml.write(read);
+    }
+
     private static class Requirement extends GoogleOAuth2ScopeRequirement {
 
         @Override
