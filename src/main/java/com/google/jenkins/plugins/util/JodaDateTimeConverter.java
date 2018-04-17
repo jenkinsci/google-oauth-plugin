@@ -1,5 +1,24 @@
+/*
+ * Copyright 2018 CloudBees, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.jenkins.plugins.util;
 
+import java.util.logging.Logger;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
@@ -9,20 +28,16 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import hudson.init.InitMilestone;
 import hudson.init.Initializer;
 import jenkins.model.Jenkins;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.slf4j.event.Level;
-
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 /**
+ * Performs JEP-200-safe conversion of {@link DateTime} classes.
  * @author Oleg Nenashev
- * @since TODO
+ * @since TODO(oleg_nenashev): Add once the target release is defined.
  */
 public class JodaDateTimeConverter implements Converter {
 
-    private static final Logger LOGGER = Logger.getLogger(JodaDateTimeConverter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(
+            JodaDateTimeConverter.class.getName());
 
     @Initializer(before = InitMilestone.PLUGINS_LISTED)
     public static void initConverter() {
@@ -31,28 +46,40 @@ public class JodaDateTimeConverter implements Converter {
     }
 
     @Override
-    public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {
-        DateTime value = (DateTime)source;
-        writer.addAttribute("millis", Long.toString(value.getMillis()));
-        writer.addAttribute("timezone", value.getChronology().getZone().getID());
+    public void marshal(Object source, HierarchicalStreamWriter writer,
+                        MarshallingContext context) {
+        DateTime value = (DateTime) source;
+        writer.addAttribute("millis",
+                Long.toString(value.getMillis()));
+        writer.addAttribute("timezone",
+                value.getChronology().getZone().getID());
     }
 
     @Override
-    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
+    public Object unmarshal(HierarchicalStreamReader reader,
+                            UnmarshallingContext context) {
         String millis = reader.getAttribute("millis");
         if (millis != null) { // new format
             String timezone = reader.getAttribute("timezone");
             Long val = Long.parseLong(millis);
-            DateTimeZone tz = timezone != null ? DateTimeZone.forID(timezone) : null;
+            DateTimeZone tz = timezone != null
+                    ? DateTimeZone.forID(timezone) : null;
             return new DateTime(val, tz);
         }
 
-        //TODO: this thing may not work for other ISOChronology implementations, but in such case we will get null
+        //TODO(oleg-nenashev): this thing may not work for other
+        // ISOChronology implementations, but in such case we will get null.
+        // Null will enforce the token refresh
+
         // Old format
         // <iMillis>1523889095013</iMillis>
-        // <iChronology class="org.joda.time.chrono.ISOChronology" resolves-to="org.joda.time.chrono.ISOChronology$Stub" serialization="custom">
+        // <iChronology class="org.joda.time.chrono.ISOChronology"
+        //              resolves-to="org.joda.time.chrono.ISOChronology$Stub"
+        //              serialization="custom">
         //   <org.joda.time.chrono.ISOChronology_-Stub>
-        //     <org.joda.time.tz.CachedDateTimeZone resolves-to="org.joda.time.DateTimeZone$Stub" serialization="custom">
+        //     <org.joda.time.tz.CachedDateTimeZone
+        //              resolves-to="org.joda.time.DateTimeZone$Stub"
+        //              serialization="custom">
         //       <org.joda.time.DateTimeZone_-Stub>
         //         <string>Europe/Zurich</string>
         //       </org.joda.time.DateTimeZone_-Stub>
@@ -86,8 +113,9 @@ public class JodaDateTimeConverter implements Converter {
             return new DateTime(val, tz);
         }
 
-        //TODO: throw something meaningful?
-        throw new IllegalStateException("Unsupported format for: " + DateTime.class + " in " + context.currentObject());
+        //TODO(oleg-nenashev): throw something meaningful?
+        throw new IllegalStateException("Unsupported format for: " +
+                DateTime.class + " in " + context.currentObject());
     }
 
     @Override

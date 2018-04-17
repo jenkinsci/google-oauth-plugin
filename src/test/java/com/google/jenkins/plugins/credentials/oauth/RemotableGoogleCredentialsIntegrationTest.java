@@ -22,9 +22,12 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import hudson.XmlFile;
-import jenkins.model.Jenkins;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,11 +36,9 @@ import org.jvnet.hudson.test.For;
 import org.jvnet.hudson.test.Issue;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import hudson.XmlFile;
+import jenkins.model.Jenkins;
 
 /**
  * Tests which involve real Jenkins instance.
@@ -61,30 +62,41 @@ public class RemotableGoogleCredentialsIntegrationTest {
 
         GoogleCredential googleCredential = new GoogleCredential();
         googleCredential.setExpiresInSeconds(120L);
-        GoogleRobotCredentials creds = new GoogleRobotCredentialsTest.FakeGoogleCredentials(
+        GoogleRobotCredentials creds =
+                new GoogleRobotCredentialsTest.FakeGoogleCredentials(
                 "myproject", googleCredential);
 
-        RemotableGoogleCredentials credentials = new RemotableGoogleCredentials(creds, new Requirement(), new GoogleRobotCredentialsModule(), true);
+        RemotableGoogleCredentials credentials =
+                new RemotableGoogleCredentials(creds, new Requirement(),
+                        new GoogleRobotCredentialsModule(), true);
         xml.write(credentials);
 
         // now Reload it
-        RemotableGoogleCredentials read = (RemotableGoogleCredentials) xml.read();
-        assertFalse("Deserialized token should not be considered as expired", read.isTokenExpired());
+        RemotableGoogleCredentials read =
+                (RemotableGoogleCredentials) xml.read();
+        assertFalse(
+                "Deserialized token should not be considered as expired",
+                read.isTokenExpired());
     }
 
     @Test
     @Issue("JENKINS-50216")
     public void shouldDeserializeOldFormat() throws Exception {
         File file = new File(tmp.getRoot(), "remotableGoogleCredentials.xml");
-        try (InputStream istream = RemotableGoogleCredentialsTest.class.getResourceAsStream("jodaDateTimeXML.xml");
+        try (InputStream istream =
+                     RemotableGoogleCredentialsTest.class.getResourceAsStream(
+                             "jodaDateTimeXML.xml");
             OutputStream ostream = new FileOutputStream(file)) {
             org.apache.commons.io.IOUtils.copy(istream, ostream);
         }
 
         XmlFile xml = new XmlFile(Jenkins.XSTREAM2, file);
-        RemotableGoogleCredentials read = (RemotableGoogleCredentials) xml.read();
+        RemotableGoogleCredentials read =
+                (RemotableGoogleCredentials) xml.read();
         DateTime expiration = read.getTokenExpirationTime();
-        assertNotNull("Expiration token should be read from the Old XML format", expiration);
+        assertNotNull(
+                "Expiration token should be read from the Old XML format",
+                expiration);
         assertEquals(1523889095013L, expiration.getMillis());
         assertEquals("Europe/Zurich", expiration.getZone().getID());
     }
@@ -93,16 +105,20 @@ public class RemotableGoogleCredentialsIntegrationTest {
     @Issue("JENKINS-50216")
     public void shouldDeserializeBrokenXMLAsNull() throws Exception {
         File file = new File(tmp.getRoot(), "remotableGoogleCredentials.xml");
-        try (InputStream istream = RemotableGoogleCredentialsTest.class.getResourceAsStream("jodaDateTimeBroken.xml");
+        try (InputStream istream =
+                     RemotableGoogleCredentialsTest.class.getResourceAsStream(
+                             "jodaDateTimeBroken.xml");
             OutputStream ostream = new FileOutputStream(file)) {
             org.apache.commons.io.IOUtils.copy(istream, ostream);
         }
 
         XmlFile xml = new XmlFile(Jenkins.XSTREAM2, file);
-        RemotableGoogleCredentials read = (RemotableGoogleCredentials) xml.read();
+        RemotableGoogleCredentials read =
+                (RemotableGoogleCredentials) xml.read();
         DateTime expiration = read.getTokenExpirationTime();
         assertNull("Expiration token should be null", expiration);
-        assertTrue("Deserialized token should be considered as expired", read.isTokenExpired());
+        assertTrue("Deserialized token should be considered as expired",
+                read.isTokenExpired());
     }
 
     private static class Requirement extends GoogleOAuth2ScopeRequirement {

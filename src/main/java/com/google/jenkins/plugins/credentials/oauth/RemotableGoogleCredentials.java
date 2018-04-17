@@ -79,7 +79,9 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       throw new GeneralSecurityException(
           Messages.RemotableGoogleCredentials_NoAccessToken(), e);
     }
-    this.accessToken = mock ? "MOCKED" : checkNotNull(credential.getAccessToken());
+    this.accessToken = mock
+            ? "MOCKED"
+            : checkNotNull(credential.getAccessToken());
     this.expiration = new DateTime().plusSeconds(
         checkNotNull(credential.getExpiresInSeconds()).intValue());
   }
@@ -111,7 +113,8 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
 
   /**
    * Gets expiration time of the credentials token.
-   * @return Expiration time. {@code null} if time is not set, Token will be considered as expired.
+   * @return Expiration time. {@code null} if time is not set,
+   *         token will be considered as expired.
    * @since TODO
    */
   @CheckForNull
@@ -122,7 +125,8 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
   /**
    * Check if token is expired.
    * @return {@code true} if token is expired.
-   *         If {@link #expiration} deserialization fails, the token is always expired
+   *         If {@link #expiration} deserialization fails,
+   *         the token is always expired
    * @since TODO
    */
   public boolean isTokenExpired() {
