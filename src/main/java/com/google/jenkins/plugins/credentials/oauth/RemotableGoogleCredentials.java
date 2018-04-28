@@ -17,7 +17,6 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import javax.annotation.CheckForNull;
 
 import org.joda.time.DateTime;
 
@@ -50,14 +49,6 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       GoogleRobotCredentials credentials,
       GoogleOAuth2ScopeRequirement requirement,
       GoogleRobotCredentialsModule module) throws GeneralSecurityException {
-      this(credentials, requirement, module, false);
-  }
-
-  /* package */ RemotableGoogleCredentials(
-          GoogleRobotCredentials credentials,
-          GoogleOAuth2ScopeRequirement requirement,
-          GoogleRobotCredentialsModule module,
-          boolean mock) throws GeneralSecurityException {
     super(checkNotNull(credentials).getProjectId(), checkNotNull(module));
 
     this.username = credentials.getUsername();
@@ -68,7 +59,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
     try {
       Long rawExpiration = credential.getExpiresInSeconds();
 
-      if (!mock && Ordering.natural().nullsFirst().compare(
+      if (Ordering.natural().nullsFirst().compare(
           rawExpiration, MINIMUM_DURATION_SECONDS) < 0) {
         if (!credential.refreshToken()) {
           throw new GeneralSecurityException(
@@ -79,11 +70,10 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       throw new GeneralSecurityException(
           Messages.RemotableGoogleCredentials_NoAccessToken(), e);
     }
-    this.accessToken = mock
-            ? "MOCKED"
-            : checkNotNull(credential.getAccessToken());
+    this.accessToken = checkNotNull(credential.getAccessToken());
     this.expiration = new DateTime().plusSeconds(
-        checkNotNull(credential.getExpiresInSeconds()).intValue());
+        checkNotNull(credential.getExpiresInSeconds()).intValue()).
+            getMillis();
   }
 
   /**
@@ -112,32 +102,6 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
   }
 
   /**
-   * Gets expiration time of the credentials token.
-   * @return Expiration time. {@code null} if time is not set,
-   *         token will be considered as expired.
-   * @since TODO
-   */
-  @CheckForNull
-  public DateTime getTokenExpirationTime() {
-    return expiration;
-  }
-
-  /**
-   * Check if token is expired.
-   * @return {@code true} if token is expired.
-   *         If {@link #expiration} deserialization fails,
-   *         the token is always expired
-   * @since TODO
-   */
-  public boolean isTokenExpired() {
-    if (expiration != null) {
-      return expiration.getMillis() - new DateTime().getMillis() <= 0;
-    } else {
-      return true;
-    }
-  }
-
-    /**
    * {@inheritDoc}
    */
   @Override
@@ -149,9 +113,8 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
     //
     // TODO(mattmoor): Consider throwing an exception if the access token
     // has expired.
-    long lifetimeSeconds = expiration != null
-            ? (expiration.getMillis() - new DateTime().getMillis()) / 1000
-            : 0; // If we fail to deserialize time, the token is expired
+    long lifetimeSeconds =
+        (expiration - new DateTime().getMillis()) / 1000;
 
     return new GoogleCredential.Builder()
         .setTransport(getModule().getHttpTransport())
@@ -174,7 +137,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
   /**
    * The time at which the accessToken will expire.
    */
-  private final DateTime expiration;
+  private final long expiration;
 
   /**
    * The minimum duration to allow for an access token before attempting to
