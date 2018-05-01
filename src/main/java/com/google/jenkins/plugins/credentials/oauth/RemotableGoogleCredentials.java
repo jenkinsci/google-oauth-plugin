@@ -72,7 +72,8 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
     }
     this.accessToken = checkNotNull(credential.getAccessToken());
     this.expiration = new DateTime().plusSeconds(
-        checkNotNull(credential.getExpiresInSeconds()).intValue());
+        checkNotNull(credential.getExpiresInSeconds()).intValue()).
+            getMillis();
   }
 
   /**
@@ -113,7 +114,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
     // TODO(mattmoor): Consider throwing an exception if the access token
     // has expired.
     long lifetimeSeconds =
-        (expiration.getMillis() - new DateTime().getMillis()) / 1000;
+        (expiration - new DateTime().getMillis()) / 1000;
 
     return new GoogleCredential.Builder()
         .setTransport(getModule().getHttpTransport())
@@ -136,7 +137,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
   /**
    * The time at which the accessToken will expire.
    */
-  private final DateTime expiration;
+  private final long expiration;
 
   /**
    * The minimum duration to allow for an access token before attempting to
