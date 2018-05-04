@@ -67,12 +67,14 @@ public class KeyUtils {
     }
     // Set world read/write permissions to false.
     // Set owner read/write permissions to true.
+/*
     if (!file.setReadable(false, false)
         || !file.setWritable(false, false)
         || !file.setReadable(true, true)
         || !file.setWritable(true, true)) {
       throw new IOException("Failed to update key file permissions");
     }
+*/
   }
 
   /**
