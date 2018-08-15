@@ -23,12 +23,17 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 
+import com.cloudbees.plugins.credentials.SecretBytes;
+
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 
 /**
  * Utility methods for handling key files.
+ *
+ * @deprecated Consider to use {@link SecretBytes} instead.
  */
+@Deprecated
 public class KeyUtils {
   /**
    * Utility class should never be instantiated.
@@ -38,6 +43,7 @@ public class KeyUtils {
   /**
    * Creates a file with the given prefix/suffix in a standard Google auth
    * directory, and sets the permissions of the file to owner-only read/write.
+   * Note: this doesn't work on Windows.
    *
    * @throws IOException if filesystem interaction fails.
    */
@@ -58,6 +64,7 @@ public class KeyUtils {
 
   /**
    * Sets the permissions of the file to owner-only read/write.
+   * Note: this doesn't work on Windows.
    *
    * @throws IOException if filesystem interaction fails.
    */

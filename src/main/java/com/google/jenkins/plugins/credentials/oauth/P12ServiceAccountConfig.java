@@ -15,8 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -28,10 +28,19 @@ import java.security.cert.CertificateException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import com.cloudbees.plugins.credentials.SecretBytes;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -46,32 +55,76 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private static final String DEFAULT_P12_SECRET = "notasecret";
   private static final String DEFAULT_P12_ALIAS = "privatekey";
   private final String emailAddress;
-  private String p12KeyFile;
+  @Nonnull
+  private final String filename;
+  @Nonnull
+  private final SecretBytes secretP12Key;
+  @Deprecated   // for migration purpose
+  @CheckForNull
+  private transient String p12KeyFile;
 
+  /**
+   * @param emailAddress email address
+   * @param p12KeyFile uploaded p12 key file
+   * @param filename previous json key file name. used if p12KeyFile is not provided.
+   * @param secretP12Key previous p12 key file content. used if p12KeyFile is not provided.
+   * @since 0.7
+   */
   @DataBoundConstructor
   public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFile,
-                                 String prevP12KeyFile) {
+                                 String filename, SecretBytes secretP12Key) {
     this.emailAddress = emailAddress;
     if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
-      try {
-        this.p12KeyFile = writeP12KeyToFile(p12KeyFile);
-      } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to write json key to file", e);
+      this.filename = extractFilename(p12KeyFile.getName());
+      this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
+    } else {
+      if (filename == null || secretP12Key == null) {
+        throw new IllegalArgumentException("No content provided or resolved.");
       }
-    } else if (prevP12KeyFile != null && !prevP12KeyFile.isEmpty()) {
-      this.p12KeyFile = prevP12KeyFile;
+      this.filename = extractFilename(filename);
+      this.secretP12Key = secretP12Key;
     }
   }
 
-  private String writeP12KeyToFile(FileItem p12KeyFileItem) throws IOException {
-    File p12KeyFileObject = KeyUtils.createKeyFile("key", ".p12");
-    InputStream stream = p12KeyFileItem.getInputStream();
-    try {
-      KeyUtils.writeKeyToFile(stream, p12KeyFileObject);
-    } finally {
-      IOUtils.closeQuietly(stream);
+  @Deprecated
+  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFile,
+                                 String prevP12KeyFile) {
+    this(emailAddress, p12KeyFile,
+        prevP12KeyFile, getSecretBytesFromFile(prevP12KeyFile));
+  }
+
+  @Deprecated   // used only for compatibility purpose
+  @CheckForNull
+  private static SecretBytes getSecretBytesFromFile(@CheckForNull String filename) {
+    if (filename == null || filename.isEmpty()) {
+      return null;
     }
-    return p12KeyFileObject.toString();
+    try {
+      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filename)));
+    } catch (IOException e) {
+      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filename), e);
+      return null;
+    }
+  }
+
+  private static String extractFilename(String path) {
+    if (path == null) {
+      return null;
+    }
+    return path.replaceFirst("^.+[/\\\\]", "");
+  }
+
+  @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+  private Object readResolve() {
+    if (secretP12Key == null) {
+      // google-oauth-plugin < 0.7
+      return new P12ServiceAccountConfig(
+        getEmailAddress(),
+        null,
+        getP12KeyFile()
+      );
+    }
+    return this;
   }
 
   @Override
@@ -84,6 +137,20 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     return emailAddress;
   }
 
+  /**
+   * @return Original uploaded file name
+   * @since 0.7
+   */
+  public String getFilename() {
+    return filename;
+  }
+
+  @Restricted(DoNotUse.class)   // for UI purpose only
+  public SecretBytes getSecretP12Key() {
+    return secretP12Key;
+  }
+
+  @Deprecated
   public String getP12KeyFile() {
     return p12KeyFile;
   }
@@ -95,27 +162,24 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   @Override
   public PrivateKey getPrivateKey() {
-    if (p12KeyFile != null) {
-      try {
-        KeyStore p12KeyStore = getP12KeyStore();
-        return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
-                DEFAULT_P12_SECRET.toCharArray());
-      } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-      } catch (GeneralSecurityException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-      }
+    try {
+      KeyStore p12KeyStore = getP12KeyStore();
+      return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
+              DEFAULT_P12_SECRET.toCharArray());
+    } catch (IOException e) {
+      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+    } catch (GeneralSecurityException e) {
+      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
     }
     return null;
   }
 
   private KeyStore getP12KeyStore() throws KeyStoreException,
           IOException, CertificateException, NoSuchAlgorithmException {
-    FileInputStream in = null;
+    InputStream in = null;
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      KeyUtils.updatePermissions(new File(p12KeyFile));
-      in = new FileInputStream(p12KeyFile);
+      in = new ByteArrayInputStream(secretP12Key.getPlainData());
       keyStore.load(in, DEFAULT_P12_SECRET.toCharArray());
       return keyStore;
     } finally {

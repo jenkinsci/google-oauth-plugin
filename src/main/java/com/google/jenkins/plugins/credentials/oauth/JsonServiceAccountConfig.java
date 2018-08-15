@@ -15,8 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.KeyFactory;
@@ -27,11 +27,20 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
+import org.kohsuke.accmod.Restricted;
+import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
 
+import com.cloudbees.plugins.credentials.SecretBytes;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.client.util.PemReader;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
@@ -53,36 +62,83 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   private static final long serialVersionUID = 6818111194672325387L;
   private static final Logger LOGGER =
       Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
-  private String jsonKeyFile;
+  @Nonnull
+  private final String filename;
+  @Nonnull
+  private final SecretBytes secretJsonKey;
+  @Deprecated   // for migration purpose
+  @CheckForNull
+  private transient String jsonKeyFile;
   private transient JsonKey jsonKey;
 
+  /**
+   * @param jsonKeyFile uploaded json key file
+   * @param filename previous json key file name. used if jsonKeyFile is not provided.
+   * @param secretJsonKey previous json key file content. used if jsonKeyFile is not provided.
+   * @since 0.7
+   */
   @DataBoundConstructor
   public JsonServiceAccountConfig(FileItem jsonKeyFile,
-      String prevJsonKeyFile) {
+      String filename, SecretBytes secretJsonKey) {
     if (jsonKeyFile != null && jsonKeyFile.getSize() > 0) {
       try {
         JsonKey jsonKey = JsonKey.load(new JacksonFactory(),
                 jsonKeyFile.getInputStream());
-        if (jsonKey.getClientEmail() != null &&
-                jsonKey.getPrivateKey() != null) {
-          try {
-            this.jsonKeyFile = writeJsonKeyToFile(jsonKey);
-          } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to write json key to file", e);
-          }
+        if (jsonKey.getClientEmail() == null ||
+                jsonKey.getPrivateKey() == null) {
+          throw new IllegalArgumentException("Invalid json key file");
         }
+        this.filename = extractFilename(jsonKeyFile.getName());
+        this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFile.get());
       } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read json key from file", e);
+          throw new IllegalArgumentException("Failed to read json key from file", e);
       }
-    } else if (prevJsonKeyFile != null && !prevJsonKeyFile.isEmpty()) {
-      this.jsonKeyFile = prevJsonKeyFile;
+    } else {
+      if (filename == null || secretJsonKey == null) {
+        throw new IllegalArgumentException("No content provided or resolved.");
+      }
+      this.filename = extractFilename(filename);
+      this.secretJsonKey = secretJsonKey;
     }
   }
 
-  private String writeJsonKeyToFile(JsonKey jsonKey) throws IOException {
-    File jsonKeyFile = KeyUtils.createKeyFile("key", ".json");
-    KeyUtils.writeKeyToFileEncoded(jsonKey.toPrettyString(), jsonKeyFile);
-    return jsonKeyFile.getAbsolutePath();
+  @Deprecated
+  public JsonServiceAccountConfig(FileItem jsonKeyFile,
+      String prevJsonKeyFile) {
+    this(null, prevJsonKeyFile, getSecretBytesFromFile(prevJsonKeyFile));
+  }
+
+  @Deprecated   // used only for compatibility purpose
+  @CheckForNull
+  private static SecretBytes getSecretBytesFromFile(@CheckForNull String filename) {
+    if (filename == null || filename.isEmpty()) {
+      return null;
+    }
+    try {
+      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filename)));
+    } catch (IOException e) {
+      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filename), e);
+      return null;
+    }
+  }
+
+  private static String extractFilename(String path) {
+    if (path == null) {
+      return null;
+    }
+    return path.replaceFirst("^.+[/\\\\]", "");
+  }
+
+  @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+  private Object readResolve() {
+    if (secretJsonKey == null) {
+      // google-oauth-plugin < 0.7
+      return new JsonServiceAccountConfig(
+        null,
+        getJsonKeyFile()
+      );
+    }
+    return this;
   }
 
   @Override
@@ -91,6 +147,22 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
         .getDescriptorOrDie(JsonServiceAccountConfig.class);
   }
 
+  /**
+   * @return Original uploaded file name
+   * @since 0.7
+   */
+  @Nonnull
+  public String getFilename() {
+    return filename;
+  }
+
+  @Restricted(DoNotUse.class)   // for UI purpose only
+  @Nonnull
+  public SecretBytes getSecretJsonKey() {
+    return secretJsonKey;
+  }
+
+  @Deprecated
   public String getJsonKeyFile() {
     return jsonKeyFile;
   }
@@ -129,15 +201,10 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   private JsonKey getJsonKey() {
-    if (jsonKey == null && jsonKeyFile != null && !jsonKeyFile.isEmpty()) {
+    if (jsonKey == null) {
       try {
         jsonKey = JsonKey.load(new JacksonFactory(),
-            new FileInputStream(jsonKeyFile));
-        File jsonKeyFileObject = new File(jsonKeyFile);
-        KeyUtils.updatePermissions(jsonKeyFileObject);
-        KeyUtils.writeKeyToFileEncoded(jsonKey.toPrettyString(),
-            jsonKeyFileObject);
-        return jsonKey;
+            new ByteArrayInputStream(secretJsonKey.getPlainData()));
       } catch (IOException ignored) {
       }
     }
