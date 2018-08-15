@@ -105,15 +105,14 @@ public class RemotableGoogleCredentialsTest {
         closeTo(EXPIRATION_SECONDS, 2));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testUnsupportedName() throws Exception {
+  public void testName() throws Exception {
     fakeCredential.setAccessToken(ACCESS_TOKEN);
     fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
     GoogleRobotCredentials credentials =
         new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
 
-    CredentialsNameProvider.name(credentials);
+    assertEquals("RemotableGoogleCredentials", CredentialsNameProvider.name(credentials));
   }
 
 
