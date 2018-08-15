@@ -119,10 +119,12 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     when(mockFileItem.getName()).thenReturn(jsonKeyPath);
     when(mockFileItem.getInputStream())
             .thenReturn(new FileInputStream(jsonKeyPath));
-    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    when(mockFileItem.get())
+            .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID,
-                    new JsonServiceAccountConfig(mockFileItem, null, null), module);
+                    new JsonServiceAccountConfig(
+                            mockFileItem, null, null), module);
 
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, credentials.getUsername());
@@ -151,7 +153,8 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     when(mockFileItem.getName()).thenReturn(p12KeyPath);
     when(mockFileItem.getInputStream())
             .thenReturn(new FileInputStream(p12KeyPath));
-    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+    when(mockFileItem.get())
+            .thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig keyType = new P12ServiceAccountConfig(
             SERVICE_ACCOUNT_EMAIL_ADDRESS, mockFileItem, null, null);
     GoogleRobotPrivateKeyCredentials credentials =
@@ -378,10 +381,12 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     when(mockFileItem.getName()).thenReturn(jsonKeyPath);
     when(mockFileItem.getInputStream())
             .thenReturn(new FileInputStream(jsonKeyPath));
-    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    when(mockFileItem.get())
+            .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID,
-                    new JsonServiceAccountConfig(mockFileItem, null, null), null);
+                    new JsonServiceAccountConfig(
+                            mockFileItem, null, null), null);
 
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 

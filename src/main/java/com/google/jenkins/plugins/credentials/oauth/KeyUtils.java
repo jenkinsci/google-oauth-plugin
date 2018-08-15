@@ -23,15 +23,14 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 
-import com.cloudbees.plugins.credentials.SecretBytes;
-
 import hudson.util.Secret;
 import jenkins.model.Jenkins;
 
 /**
  * Utility methods for handling key files.
  *
- * @deprecated Consider to use {@link SecretBytes} instead.
+ * @deprecated Consider to use
+ *   {@link com.cloudbees.plugins.credentials.SecretBytes} instead.
  */
 @Deprecated
 public class KeyUtils {

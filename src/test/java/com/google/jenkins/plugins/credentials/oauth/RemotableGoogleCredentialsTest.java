@@ -112,7 +112,8 @@ public class RemotableGoogleCredentialsTest {
     GoogleRobotCredentials credentials =
         new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
 
-    assertEquals("RemotableGoogleCredentials", CredentialsNameProvider.name(credentials));
+    assertEquals("RemotableGoogleCredentials",
+        CredentialsNameProvider.name(credentials));
   }
 
 

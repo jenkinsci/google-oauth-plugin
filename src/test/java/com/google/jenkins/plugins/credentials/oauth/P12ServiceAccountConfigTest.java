@@ -81,7 +81,8 @@ public class P12ServiceAccountConfigTest {
 
   @Test
   public void testCreateWithNullAccountId() throws Exception {
-    SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+    SecretBytes prev = SecretBytes.fromBytes(
+        FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(null, null, p12KeyPath, prev);
 
@@ -137,7 +138,8 @@ public class P12ServiceAccountConfigTest {
 
   @Test
   public void testCreateWithPrevP12KeyFile() throws Exception {
-    SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+    SecretBytes prev = SecretBytes.fromBytes(
+            FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
             p12KeyPath, prev);
