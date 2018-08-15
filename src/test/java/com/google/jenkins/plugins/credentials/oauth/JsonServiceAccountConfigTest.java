@@ -107,7 +107,8 @@ public class JsonServiceAccountConfigTest {
   }
 
   @Test
-  public void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility() throws Exception {
+  public void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility()
+      throws Exception {
     JsonServiceAccountConfig jsonServiceAccountConfig =
         new JsonServiceAccountConfig(null, jsonKeyPath);
 
@@ -118,7 +119,8 @@ public class JsonServiceAccountConfigTest {
 
   @Test
   public void testCreateJsonKeyTypeWithPrevJsonKeyFile() throws Exception {
-    SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    SecretBytes prev = SecretBytes
+            .fromBytes(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     JsonServiceAccountConfig jsonServiceAccountConfig =
         new JsonServiceAccountConfig(null, jsonKeyPath, prev);
 
