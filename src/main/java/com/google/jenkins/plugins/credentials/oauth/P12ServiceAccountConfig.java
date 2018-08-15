@@ -66,8 +66,12 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   /**
    * @param emailAddress email address
    * @param p12KeyFile uploaded p12 key file
-   * @param filename previous json key file name. used if p12KeyFile is not provided.
-   * @param secretP12Key previous p12 key file content. used if p12KeyFile is not provided.
+   * @param filename
+   *     previous json key file name.
+   *     used if p12KeyFile is not provided.
+   * @param secretP12Key
+   *     previous p12 key file content.
+   *     used if p12KeyFile is not provided.
    * @since 0.7
    */
   @DataBoundConstructor
@@ -95,14 +99,19 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   @Deprecated   // used only for compatibility purpose
   @CheckForNull
-  private static SecretBytes getSecretBytesFromFile(@CheckForNull String filename) {
+  private static SecretBytes getSecretBytesFromFile(
+      @CheckForNull String filename) {
     if (filename == null || filename.isEmpty()) {
       return null;
     }
     try {
-      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filename)));
+      return SecretBytes.fromBytes(
+          FileUtils.readFileToByteArray(new File(filename)));
     } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filename), e);
+      LOGGER.log(
+          Level.SEVERE,
+          String.format("Failed to read previous key from %s", filename),
+          e);
       return null;
     }
   }
