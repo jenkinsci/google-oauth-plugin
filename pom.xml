@@ -123,7 +123,8 @@
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <jenkins.version>1.653</jenkins.version>
-    <google.api.version>1.22.0</google.api.version>
+    <google.api.version>1.24.1</google.api.version>
+    <!-- <google.api.version>1.22.0</google.api.version> -->
     <java.level>7</java.level>
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
@@ -203,7 +204,7 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-oauth2</artifactId>
-      <version>v2-rev124-${google.api.version}</version>
+      <version>v2-rev140-${google.api.version}</version>
     </dependency>
 
     <!-- plugin dependencies -->
