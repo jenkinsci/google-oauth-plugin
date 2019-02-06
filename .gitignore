@@ -1,2 +1,10 @@
+# Maven
 target
 work
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Jenkins
+work/
