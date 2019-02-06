@@ -46,6 +46,11 @@
       <id>astroilov</id>
       <name>Andrey Stroilov</name>
     </developer>
+    <developer>
+      <id>craigatgoogle</id>
+      <name>Craig Barber</name>
+      <email>craigbarber@google.com</email>
+    </developer>
   </developers>
 
   <scm>
