@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  ### Changed
 	- Upgraded google.api.version to 1.24.1
 	- Updated joda-time to 2.9.5
-	- add git ignore for intellij and emacs
+	- Added git ignore for intellij and emacs
+	- Added travis file
 				
  ### Removed
 				 
