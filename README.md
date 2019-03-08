@@ -16,7 +16,7 @@ Please see [Google OAuth Plugin](docs/home.md) for complete documentation.
 See [Plugin Source Build Installation](docs/source_build_installation.md) to build and install from source.
 
 ## Feature requests and bug reports
-Please file feature requests and bug reports as [github issues](https://github.com/jenkinsci/google-oauth-plugin/issues).
+Please file feature requests and bug reports as [GitHub Issues](https://github.com/jenkinsci/google-oauth-plugin/issues).
 
 ## License
 See [LICENSE](LICENSE)
