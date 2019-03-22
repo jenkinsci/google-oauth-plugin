@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
  Copyright 2013 Google LLC
 
@@ -20,18 +21,14 @@
     <artifactId>plugin</artifactId>
     <version>3.8</version>
   </parent>
-
   <!--
       Lots of boilerplate from: https://wiki.jenkins-ci.org/display/JENKINS/Hosting+Plugins
   -->
   <artifactId>google-oauth-plugin</artifactId>
   <packaging>hpi</packaging>
   <version>0.8-SNAPSHOT</version>
-
   <name>Google OAuth Credentials plugin</name>
-  <description>
-    This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.
-  </description>
+  <description>This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.</description>
   <url>https://wiki.jenkins.io/display/JENKINS/Google+OAuth+Plugin</url>
   <licenses>
     <license>
@@ -40,7 +37,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
   <developers>
     <developer>
       <id>astroilov</id>
@@ -62,69 +58,81 @@
       <email>stephenshank@google.com</email>
     </developer>
   </developers>
-
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}.git</developerConnection>
     <url>http://github.com/jenkinsci/${project.artifactId}</url>
     <tag>HEAD</tag>
   </scm>
-
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </repository>
   </repositories>
-
   <pluginRepositories>
     <pluginRepository>
       <id>repo.jenkins-ci.org</id>
       <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
-
   <build>
     <plugins>
       <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-checkstyle-plugin</artifactId>
-	<version>2.9</version>
-	<configuration>
-	  <includeTestSourceDirectory>true</includeTestSourceDirectory>
-	  <configLocation>checkstyle.xml</configLocation>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <configLocation>checkstyle.xml</configLocation>
           <headerLocation>checkstyleJavaHeader</headerLocation>
-	  <failsOnError>true</failsOnError>
-	  <violationSeverity>warning</violationSeverity>
+          <failsOnError>true</failsOnError>
+          <violationSeverity>warning</violationSeverity>
           <consoleOutput>true</consoleOutput>
-	</configuration>
-       <executions>
-         <execution>
-           <goals>
-             <goal>check</goal>
-           </goals>
-         </execution>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <plugin>
-	<groupId>org.codehaus.mojo</groupId>
-	<artifactId>cobertura-maven-plugin</artifactId>
-	<version>2.5.2</version>
-	<configuration>
+        <groupId>au.com.acegi</groupId>
+        <artifactId>xml-format-maven-plugin</artifactId>
+        <version>3.0.7</version>
+        <executions>
+          <execution>
+            <id>validate</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>xml-format</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <includes>pom.xml</includes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.5.2</version>
+        <configuration>
           <instrumentation>
             <excludes>
               <exclude>com/google/jenkins/plugins/**/Messages.class</exclude>
             </excludes>
           </instrumentation>
-	  <formats>
-	    <format>html</format>
-	    <format>xml</format>
-	  </formats>
-	</configuration>
+          <formats>
+            <format>html</format>
+            <format>xml</format>
+          </formats>
+        </configuration>
       </plugin>
     </plugins>
   </build>
-
   <reporting>
     <plugins>
       <plugin>
@@ -134,7 +142,6 @@
       </plugin>
     </plugins>
   </reporting>
-
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <jenkins.version>1.653</jenkins.version>
@@ -144,7 +151,6 @@
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.threshold>Medium</findbugs.threshold>
   </properties>
-
   <dependencies>
     <dependency>
       <groupId>net.sourceforge.findbugs</groupId>
@@ -157,14 +163,12 @@
       <artifactId>guava</artifactId>
       <version>14.0.1</version>
     </dependency>
-
     <!-- Apache Commons IO dependency -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>2.4</version>
     </dependency>
-
     <!-- org.joda.time -->
     <dependency>
       <groupId>joda-time</groupId>
@@ -172,7 +176,6 @@
       <!-- XStream has deserialization warnings for Jodatime 2.0 or later -->
       <version>2.9.5</version>
     </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -186,14 +189,12 @@
       <version>1.8.4</version>
       <scope>test</scope>
     </dependency>
-
     <!-- OAuth Credentials dependency -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>oauth-credentials</artifactId>
       <version>0.3</version>
     </dependency>
-
     <!-- com.google.http-client -->
     <dependency>
       <groupId>com.google.http-client</groupId>
@@ -205,14 +206,12 @@
       <artifactId>google-http-client-jackson</artifactId>
       <version>${google.api.version}</version>
     </dependency>
-
     <!-- com.google.api-client -->
     <dependency>
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
       <version>${google.api.version}</version>
     </dependency>
-
     <!-- com.google.apis -->
     <!-- https://code.google.com/p/google-api-java-client/wiki/APIs -->
     <dependency>
@@ -220,7 +219,6 @@
       <artifactId>google-api-services-oauth2</artifactId>
       <version>v2-rev140-${google.api.version}</version>
     </dependency>
-
     <!-- plugin dependencies -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
@@ -240,5 +238,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
 </project>
