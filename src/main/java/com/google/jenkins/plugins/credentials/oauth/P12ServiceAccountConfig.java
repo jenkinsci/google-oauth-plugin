@@ -170,23 +170,28 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   @Override
   public PrivateKey getPrivateKey() {
-    if (secretP12Key != null) {
-      try {
-        KeyStore p12KeyStore = getP12KeyStore();
-        return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
-                DEFAULT_P12_SECRET.toCharArray());
-      } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-      } catch (GeneralSecurityException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+    try {
+      KeyStore p12KeyStore = getP12KeyStore();
+      if (p12KeyStore == null) {
+        return null;
       }
+      return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
+              DEFAULT_P12_SECRET.toCharArray());
+    } catch (IOException e) {
+      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+    } catch (GeneralSecurityException e) {
+      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
     }
     return null;
   }
 
+  @CheckForNull
   private KeyStore getP12KeyStore() throws KeyStoreException,
           IOException, CertificateException, NoSuchAlgorithmException {
     InputStream in = null;
+    if (secretP12Key == null) {
+      return null;
+    }
     try {
       KeyStore keyStore = KeyStore.getInstance("PKCS12");
       in = new ByteArrayInputStream(secretP12Key.getPlainData());
