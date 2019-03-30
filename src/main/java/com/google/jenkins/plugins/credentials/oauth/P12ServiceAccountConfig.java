@@ -29,7 +29,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
@@ -55,10 +54,10 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private static final String DEFAULT_P12_SECRET = "notasecret";
   private static final String DEFAULT_P12_ALIAS = "privatekey";
   private final String emailAddress;
-  @Nonnull
-  private final String filename;
-  @Nonnull
-  private final SecretBytes secretP12Key;
+  @CheckForNull
+  private String filename;
+  @CheckForNull
+  private SecretBytes secretP12Key;
   @Deprecated   // for migration purpose
   @CheckForNull
   private transient String p12KeyFile;
@@ -82,9 +81,6 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       this.filename = extractFilename(p12KeyFile.getName());
       this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
     } else {
-      if (filename == null || secretP12Key == null) {
-        throw new IllegalArgumentException("No content provided or resolved.");
-      }
       this.filename = extractFilename(filename);
       this.secretP12Key = secretP12Key;
     }
@@ -116,7 +112,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  private static String extractFilename(String path) {
+  @CheckForNull
+  private static String extractFilename(@CheckForNull String path) {
     if (path == null) {
       return null;
     }
@@ -150,11 +147,13 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    * @return Original uploaded file name
    * @since 0.7
    */
+  @CheckForNull
   public String getFilename() {
     return filename;
   }
 
   @Restricted(DoNotUse.class)   // for UI purpose only
+  @CheckForNull
   public SecretBytes getSecretP12Key() {
     return secretP12Key;
   }
@@ -171,14 +170,16 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   @Override
   public PrivateKey getPrivateKey() {
-    try {
-      KeyStore p12KeyStore = getP12KeyStore();
-      return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
-              DEFAULT_P12_SECRET.toCharArray());
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-    } catch (GeneralSecurityException e) {
-      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+    if (secretP12Key != null) {
+      try {
+        KeyStore p12KeyStore = getP12KeyStore();
+        return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
+                DEFAULT_P12_SECRET.toCharArray());
+      } catch (IOException e) {
+        LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+      } catch (GeneralSecurityException e) {
+        LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+      }
     }
     return null;
   }

@@ -28,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
@@ -62,10 +61,10 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   private static final long serialVersionUID = 6818111194672325387L;
   private static final Logger LOGGER =
       Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
-  @Nonnull
-  private final String filename;
-  @Nonnull
-  private final SecretBytes secretJsonKey;
+  @CheckForNull
+  private String filename;
+  @CheckForNull
+  private SecretBytes secretJsonKey;
   @Deprecated   // for migration purpose
   @CheckForNull
   private transient String jsonKeyFile;
@@ -88,20 +87,15 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
       try {
         JsonKey jsonKey = JsonKey.load(new JacksonFactory(),
                 jsonKeyFile.getInputStream());
-        if (jsonKey.getClientEmail() == null ||
-                jsonKey.getPrivateKey() == null) {
-          throw new IllegalArgumentException("Invalid json key file");
+        if (jsonKey.getClientEmail() != null &&
+                jsonKey.getPrivateKey() != null) {
+          this.filename = extractFilename(jsonKeyFile.getName());
+          this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFile.get());
         }
-        this.filename = extractFilename(jsonKeyFile.getName());
-        this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFile.get());
       } catch (IOException e) {
-          throw new IllegalArgumentException(
-              "Failed to read json key from file", e);
+        LOGGER.log(Level.SEVERE, "Failed to read json key from file", e);
       }
     } else {
-      if (filename == null || secretJsonKey == null) {
-        throw new IllegalArgumentException("No content provided or resolved.");
-      }
       this.filename = extractFilename(filename);
       this.secretJsonKey = secretJsonKey;
     }
@@ -132,7 +126,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  private static String extractFilename(String path) {
+  @CheckForNull
+  private static String extractFilename(@CheckForNull String path) {
     if (path == null) {
       return null;
     }
@@ -161,13 +156,13 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
    * @return Original uploaded file name
    * @since 0.7
    */
-  @Nonnull
+  @CheckForNull
   public String getFilename() {
     return filename;
   }
 
   @Restricted(DoNotUse.class)   // for UI purpose only
-  @Nonnull
+  @CheckForNull
   public SecretBytes getSecretJsonKey() {
     return secretJsonKey;
   }
@@ -211,7 +206,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   private JsonKey getJsonKey() {
-    if (jsonKey == null) {
+    if (jsonKey == null && secretJsonKey != null
+        && secretJsonKey.getPlainData().length > 0) {
       try {
         jsonKey = JsonKey.load(new JacksonFactory(),
             new ByteArrayInputStream(secretJsonKey.getPlainData()));
