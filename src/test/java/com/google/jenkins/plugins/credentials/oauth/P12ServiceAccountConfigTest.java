@@ -30,7 +30,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.WithoutJenkins;
 import org.mockito.Mock;
@@ -48,8 +47,6 @@ public class P12ServiceAccountConfigTest {
   private static String p12KeyPath;
   @Rule
   public JenkinsRule jenkinsRule = new JenkinsRule();
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
   @Mock
   private FileItem mockFileItem;
 
@@ -93,20 +90,27 @@ public class P12ServiceAccountConfigTest {
   @Test
   @WithoutJenkins
   public void testCreateWithNullP12KeyFile() throws Exception {
-    exception.expect(IllegalArgumentException.class);
-    new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
-        null, null);
+    P12ServiceAccountConfig p12ServiceAccountConfig =
+        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
+            null, null);
+
+    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+        p12ServiceAccountConfig.getAccountId());
+    assertNull(p12ServiceAccountConfig.getPrivateKey());
   }
 
   @Test
   @WithoutJenkins
   public void testCreateWithEmptyP12KeyFile() throws Exception {
-    exception.expect(IllegalArgumentException.class);
     when(mockFileItem.getSize()).thenReturn(0L);
     when(mockFileItem.get()).thenReturn(new byte[]{});
-    exception.expect(IllegalArgumentException.class);
-    new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS,
-        mockFileItem, null, null);
+    P12ServiceAccountConfig p12ServiceAccountConfig =
+        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+            mockFileItem, null, null);
+
+    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+            p12ServiceAccountConfig.getAccountId());
+    assertNull(p12ServiceAccountConfig.getPrivateKey());
   }
 
   @Test
@@ -164,9 +168,13 @@ public class P12ServiceAccountConfigTest {
   @Test
   @WithoutJenkins
   public void testCreateWithInvalidPrevP12KeyFile() throws Exception {
-    exception.expect(IllegalArgumentException.class);
-    new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
-        "invalidPrevP12KeyFile.p12", null);
+    P12ServiceAccountConfig p12ServiceAccountConfig =
+        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null,
+            "invalidPrevP12KeyFile.p12", null);
+
+    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+        p12ServiceAccountConfig.getAccountId());
+    assertNull(p12ServiceAccountConfig.getPrivateKey());
   }
 
   @Test
