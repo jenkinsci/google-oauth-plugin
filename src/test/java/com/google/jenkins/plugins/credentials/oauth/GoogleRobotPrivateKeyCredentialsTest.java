@@ -37,7 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -68,8 +67,6 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   private static String legacyJsonKeyPath;
   @Rule
   public JenkinsRule jenkins = new JenkinsRule();
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
   private MockHttpTransport transport;
   private MockLowLevelHttpRequest request;
   @Mock
@@ -371,8 +368,18 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     GoogleRobotPrivateKeyCredentials legacyCredentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, null);
     setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyPath);
-    exception.expect(IllegalArgumentException.class);
-    legacyCredentials.readResolve();
+    GoogleRobotPrivateKeyCredentials upgradedCredentials =
+            (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
+
+    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
+            upgradedCredentials.getUsername());
+    try {
+      upgradedCredentials.getGoogleCredential(
+              new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+      fail();
+    } catch (GoogleRobotPrivateKeyCredentials.PrivateKeyNotSetException
+            ignored) {
+    }
   }
 
   @Test
