@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -48,8 +47,6 @@ public class JsonServiceAccountConfigTest {
   private static String jsonKeyPath;
   @Rule
   public JenkinsRule jenkinsRule = new JenkinsRule();
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
   @Mock
   private FileItem mockFileItem;
 
@@ -82,15 +79,22 @@ public class JsonServiceAccountConfigTest {
 
   @Test
   public void testCreateJsonKeyTypeWithNullParameters() throws Exception {
-    exception.expect(IllegalArgumentException.class);
-    new JsonServiceAccountConfig(null, null, null);
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig(null, null, null);
+
+    assertNull(jsonServiceAccountConfig.getAccountId());
+    assertNull(jsonServiceAccountConfig.getPrivateKey());
   }
 
   @Test
   public void testCreateJsonKeyTypeWithEmptyJsonKeyFile() throws Exception {
     when(mockFileItem.getSize()).thenReturn(0L);
-    exception.expect(IllegalArgumentException.class);
-    new JsonServiceAccountConfig(mockFileItem, null, null);
+    JsonServiceAccountConfig jsonKeyType = new JsonServiceAccountConfig
+        (mockFileItem, null);
+
+    assertNull(jsonKeyType.getJsonKeyFile());
+    assertNull(jsonKeyType.getAccountId());
+    assertNull(jsonKeyType.getPrivateKey());
   }
 
   @Test
@@ -102,8 +106,11 @@ public class JsonServiceAccountConfigTest {
         .thenReturn(new ByteArrayInputStream(bytes));
     when(mockFileItem.get())
         .thenReturn(bytes);
-    exception.expect(IllegalArgumentException.class);
-    new JsonServiceAccountConfig(mockFileItem, null, null);
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig(mockFileItem, null, null);
+
+    assertNull(jsonServiceAccountConfig.getAccountId());
+    assertNull(jsonServiceAccountConfig.getPrivateKey());
   }
 
   @Test
@@ -132,7 +139,6 @@ public class JsonServiceAccountConfigTest {
   @Test
   public void testCreateJsonKeyTypeWithEmptyPrevJsonKeyFile() throws Exception {
     SecretBytes prev = SecretBytes.fromString("");
-    exception.expect(IllegalArgumentException.class);
     JsonServiceAccountConfig jsonServiceAccountConfig =
         new JsonServiceAccountConfig(null, "", prev);
 
@@ -143,9 +149,12 @@ public class JsonServiceAccountConfigTest {
   @Test
   public void testCreateJsonKeyTypeWithInvalidPrevJsonKeyFile()
       throws Exception {
-    exception.expect(IllegalArgumentException.class);
     String invalidPrevJsonKeyFile = "invalidPrevJsonKeyFile.json";
-    new JsonServiceAccountConfig(null, invalidPrevJsonKeyFile, null);
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig(null, invalidPrevJsonKeyFile, null);
+
+    assertNull(jsonServiceAccountConfig.getAccountId());
+    assertNull(jsonServiceAccountConfig.getPrivateKey());
   }
 
   @Test
