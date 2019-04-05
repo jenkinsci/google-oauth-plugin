@@ -15,6 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import com.google.api.client.util.Strings;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +44,7 @@ import com.google.api.client.util.PemReader;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * Provides authentication mechanism for a service account by setting a .json
@@ -67,44 +70,53 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   private SecretBytes secretJsonKey;
   @Deprecated   // for migration purpose
   @CheckForNull
-  private transient String jsonKeyFile;
+  private transient String prevJsonKeyFile;
   private transient JsonKey jsonKey;
 
-  /**
-   * @param jsonKeyFile uploaded json key file
-   * @param filename
-   *     previous json key file name.
-   *     used if jsonKeyFile is not provided.
-   * @param secretJsonKey
-   *     previous json key file content.
-   *     used if jsonKeyFile is not provided.
-   * @since 0.7
-   */
   @DataBoundConstructor
-  public JsonServiceAccountConfig(FileItem jsonKeyFile,
-      String filename, SecretBytes secretJsonKey) {
+  public JsonServiceAccountConfig() {}
+
+  /**@param jsonKeyFile uploaded json key file */
+  @DataBoundSetter // Called on form submission, only used when key file is uploaded
+  public void setJsonKeyFile(FileItem jsonKeyFile) {
     if (jsonKeyFile != null && jsonKeyFile.getSize() > 0) {
       try {
         JsonKey jsonKey = JsonKey.load(new JacksonFactory(),
-                jsonKeyFile.getInputStream());
+            jsonKeyFile.getInputStream());
         if (jsonKey.getClientEmail() != null &&
-                jsonKey.getPrivateKey() != null) {
+            jsonKey.getPrivateKey() != null) {
           this.filename = extractFilename(jsonKeyFile.getName());
           this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFile.get());
         }
       } catch (IOException e) {
         LOGGER.log(Level.SEVERE, "Failed to read json key from file", e);
       }
-    } else {
-      this.filename = extractFilename(filename);
+    }
+  }
+
+  /** @param filename json key file name.*/
+  @DataBoundSetter
+  public void setFilename(String filename) {
+    String newFilename = extractFilename(filename);
+    if (!Strings.isNullOrEmpty(newFilename)) {
+      this.filename = newFilename;
+    }
+  }
+
+  /** @param secretJsonKey json key file content.*/
+  @DataBoundSetter
+  public void setSecretJsonKey(SecretBytes secretJsonKey) {
+    if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
       this.secretJsonKey = secretJsonKey;
     }
   }
 
+
   @Deprecated
-  public JsonServiceAccountConfig(FileItem jsonKeyFile,
-      String prevJsonKeyFile) {
-    this(null, prevJsonKeyFile, getSecretBytesFromFile(prevJsonKeyFile));
+  // Used for JsonServiceAccountConfig
+  public JsonServiceAccountConfig(String prevJsonKeyFile) {
+    this.filename = extractFilename(prevJsonKeyFile);
+    this.secretJsonKey = getSecretBytesFromFile(prevJsonKeyFile);
   }
 
   @Deprecated   // used only for compatibility purpose
@@ -139,8 +151,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     if (secretJsonKey == null) {
       // google-oauth-plugin < 0.7
       return new JsonServiceAccountConfig(
-        null,
-        getJsonKeyFile()
+        getPrevJsonKeyFile()
       );
     }
     return this;
@@ -168,8 +179,18 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   @Deprecated
-  public String getJsonKeyFile() {
-    return jsonKeyFile;
+  public String getPrevJsonKeyFile() {
+    return prevJsonKeyFile;
+  }
+
+  /**
+   * For use in UI, do not use.
+   * @return The uploaded json key file
+   */
+  @Deprecated
+  @Restricted(DoNotUse.class) // Required by stapler to call setJsonKeyFile above.
+  public FileItem getJsonKeyFile() {
+    return null;
   }
 
   @Override
@@ -193,11 +214,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
           PKCS8EncodedKeySpec keySpec =
               new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
           return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
-        } catch (IOException e) {
-          LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-        } catch (InvalidKeySpecException e) {
-          LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
           LOGGER.log(Level.SEVERE, "Failed to read private key", e);
         }
       }

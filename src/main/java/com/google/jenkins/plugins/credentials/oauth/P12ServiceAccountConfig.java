@@ -15,6 +15,7 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import com.google.api.client.util.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -42,6 +43,8 @@ import com.cloudbees.plugins.credentials.SecretBytes;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * provides authentication mechanism for a service account by setting a service
@@ -60,37 +63,52 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private SecretBytes secretP12Key;
   @Deprecated   // for migration purpose
   @CheckForNull
-  private transient String p12KeyFile;
+  private transient String prevP12KeyFile;
 
   /**
    * @param emailAddress email address
-   * @param p12KeyFile uploaded p12 key file
-   * @param filename
-   *     previous json key file name.
-   *     used if p12KeyFile is not provided.
-   * @param secretP12Key
-   *     previous p12 key file content.
-   *     used if p12KeyFile is not provided.
    * @since 0.7
    */
   @DataBoundConstructor
-  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFile,
-                                 String filename, SecretBytes secretP12Key) {
+  public P12ServiceAccountConfig(String emailAddress) {
     this.emailAddress = emailAddress;
+  }
+
+  /**
+   * @param emailAddress email address
+   * @param prevP12KeyFile The path of the previous p12 key file
+   */
+  @Deprecated
+  public P12ServiceAccountConfig(String emailAddress, String prevP12KeyFile) {
+    this(emailAddress);
+    this.setFilename(prevP12KeyFile);
+    this.setSecretP12Key(getSecretBytesFromFile(prevP12KeyFile));
+  }
+
+  /** @param p12KeyFile uploaded p12 key file */
+  @Deprecated
+  @DataBoundSetter // Called on form submission, only used when credentials are uploaded.
+  public void setP12KeyFile(FileItem p12KeyFile) {
     if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
       this.filename = extractFilename(p12KeyFile.getName());
       this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
-    } else {
-      this.filename = extractFilename(filename);
-      this.secretP12Key = secretP12Key;
     }
   }
 
-  @Deprecated
-  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFile,
-                                 String prevP12KeyFile) {
-    this(emailAddress, p12KeyFile,
-        prevP12KeyFile, getSecretBytesFromFile(prevP12KeyFile));
+  /** @param filename previous json key file name. */
+  @DataBoundSetter
+  public void setFilename(String filename) {
+    if (!Strings.isNullOrEmpty(filename)) {
+      this.filename = extractFilename(filename);
+    }
+  }
+
+  /** @param secretP12Key previous p12 key file content.*/
+  @DataBoundSetter
+  public void setSecretP12Key(SecretBytes secretP12Key) {
+    if (secretP12Key != null && secretP12Key.getPlainData().length > 0) {
+      this.secretP12Key = secretP12Key;
+    }
   }
 
   @Deprecated   // used only for compatibility purpose
@@ -126,8 +144,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       // google-oauth-plugin < 0.7
       return new P12ServiceAccountConfig(
         getEmailAddress(),
-        null,
-        getP12KeyFile()
+        getPrevP12KeyFile()
       );
     }
     return this;
@@ -152,15 +169,31 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     return filename;
   }
 
-  @Restricted(DoNotUse.class)   // for UI purpose only
+  /**
+   * Do not use, required for UI.
+   *
+   * @return secretP12Key
+   */
+  @Restricted(DoNotUse.class) // Required by stapler for being able to call setSecretP12Key
   @CheckForNull
   public SecretBytes getSecretP12Key() {
     return secretP12Key;
   }
 
+  /** @return the path of the previous p12 key file. */
   @Deprecated
-  public String getP12KeyFile() {
-    return p12KeyFile;
+  public String getPrevP12KeyFile() {
+    return prevP12KeyFile;
+  }
+
+  /**
+   * Do not use, required for UI.
+   * @return The uploaded p12 key file
+   */
+  @Deprecated
+  @Restricted(DoNotUse.class) // Required by stapler for being able to call setP12KeyFile.
+  public FileItem getP12KeyFile() {
+    return null;
   }
 
   @Override
