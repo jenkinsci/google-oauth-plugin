@@ -16,7 +16,6 @@
 package com.google.jenkins.plugins.credentials.oauth;
 
 import com.google.api.client.util.Strings;
-import com.google.common.annotations.VisibleForTesting;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
