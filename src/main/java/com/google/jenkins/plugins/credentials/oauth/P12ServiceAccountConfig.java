@@ -15,7 +15,6 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import com.google.api.client.util.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -37,13 +36,14 @@ import org.apache.commons.io.IOUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
+import com.google.api.client.util.Strings;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * provides authentication mechanism for a service account by setting a service
@@ -83,7 +83,10 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    * @since 0.3
    */
   @Deprecated
-  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFileUpload, String prevP12KeyFile) {
+  public P12ServiceAccountConfig(
+      String emailAddress,
+      FileItem p12KeyFileUpload,
+      String prevP12KeyFile) {
     this(emailAddress);
     this.setP12KeyFileUpload(p12KeyFileUpload);
     if (filename == null && prevP12KeyFile != null) {
@@ -94,7 +97,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   /** @param p12KeyFile uploaded p12 key file */
   @Deprecated
-  @DataBoundSetter // Called on form submission, only used when credentials are uploaded.
+  @DataBoundSetter // Called on form submit, only used when key file is uploaded
   public void setP12KeyFileUpload(FileItem p12KeyFile) {
     if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
       this.filename = extractFilename(p12KeyFile.getName());
@@ -182,7 +185,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    *
    * @return secretP12Key
    */
-  @Restricted(DoNotUse.class) // Required by stapler for being able to call setSecretP12Key
+  @Restricted(DoNotUse.class) // UI:  Required for stapler call of setter.
   @CheckForNull
   public SecretBytes getSecretP12Key() {
     return secretP12Key;
@@ -199,7 +202,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    * @return The uploaded p12 key file
    */
   @Deprecated
-  @Restricted(DoNotUse.class) // Required by stapler for being able to call setP12KeyFileUpload.
+  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
   public FileItem getP12KeyFileUpload() {
     return null;
   }

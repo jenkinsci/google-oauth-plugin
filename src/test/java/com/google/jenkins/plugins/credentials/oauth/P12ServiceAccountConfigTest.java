@@ -133,7 +133,8 @@ public class P12ServiceAccountConfigTest {
   @Test
   public void testCreateWithPrevP12KeyFileForCompatibility() {
     P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null, p12KeyPath);
+        new P12ServiceAccountConfig(
+            SERVICE_ACCOUNT_EMAIL_ADDRESS, null, p12KeyPath);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
         p12ServiceAccountConfig.getAccountId());

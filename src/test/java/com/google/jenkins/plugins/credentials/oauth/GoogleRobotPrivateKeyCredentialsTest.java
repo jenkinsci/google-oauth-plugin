@@ -118,10 +118,12 @@ public class GoogleRobotPrivateKeyCredentialsTest {
             .thenReturn(new FileInputStream(jsonKeyPath));
     when(mockFileItem.get())
             .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig();
     jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
-            new GoogleRobotPrivateKeyCredentials(PROJECT_ID, jsonServiceAccountConfig, module);
+        new GoogleRobotPrivateKeyCredentials(
+            PROJECT_ID, jsonServiceAccountConfig, module);
 
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, credentials.getUsername());
@@ -391,10 +393,12 @@ public class GoogleRobotPrivateKeyCredentialsTest {
             .thenReturn(new FileInputStream(jsonKeyPath));
     when(mockFileItem.get())
             .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig();
     jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
-        new GoogleRobotPrivateKeyCredentials(PROJECT_ID, jsonServiceAccountConfig, null);
+        new GoogleRobotPrivateKeyCredentials(
+            PROJECT_ID, jsonServiceAccountConfig, null);
 
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 

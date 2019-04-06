@@ -41,7 +41,8 @@ import com.cloudbees.plugins.credentials.SecretBytes;
  * Tests for {@link JsonServiceAccountConfig}.
  */
 public class JsonServiceAccountConfigTest {
-  private static final String SERVICE_ACCOUNT_EMAIL_ADDRESS = "service@account.com";
+  private static final String SERVICE_ACCOUNT_EMAIL_ADDRESS =
+      "service@account.com";
   private static PrivateKey privateKey;
   private static String jsonKeyPath;
   @Rule
@@ -78,7 +79,8 @@ public class JsonServiceAccountConfigTest {
 
   @Test
   public void testCreateJsonKeyTypeWithNullParameters() {
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig();
 
     assertNull(jsonServiceAccountConfig.getAccountId());
     assertNull(jsonServiceAccountConfig.getPrivateKey());
@@ -114,7 +116,8 @@ public class JsonServiceAccountConfigTest {
 
   @Test
   public void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility() {
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig(null, jsonKeyPath);
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig(null, jsonKeyPath);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
         jsonServiceAccountConfig.getAccountId());
@@ -125,7 +128,8 @@ public class JsonServiceAccountConfigTest {
   public void testCreateJsonKeyTypeWithPrevJsonKeyFile() throws Exception {
     SecretBytes prev = SecretBytes
             .fromBytes(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig();
     jsonServiceAccountConfig.setFilename(jsonKeyPath);
     jsonServiceAccountConfig.setSecretJsonKey(prev);
 
@@ -137,7 +141,8 @@ public class JsonServiceAccountConfigTest {
   @Test
   public void testCreateJsonKeyTypeWithEmptyPrevJsonKeyFile() {
     SecretBytes prev = SecretBytes.fromString("");
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig();
     jsonServiceAccountConfig.setFilename("");
     jsonServiceAccountConfig.setSecretJsonKey(prev);
 
@@ -162,7 +167,8 @@ public class JsonServiceAccountConfigTest {
         .thenReturn(new FileInputStream(jsonKeyPath));
     when(mockFileItem.get())
         .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
-    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    JsonServiceAccountConfig jsonServiceAccountConfig =
+        new JsonServiceAccountConfig();
     jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -15,7 +15,6 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import com.google.api.client.util.Strings;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -35,15 +34,16 @@ import org.apache.commons.io.FileUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
 import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.client.util.PemReader;
+import com.google.api.client.util.Strings;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
-import org.kohsuke.stapler.DataBoundSetter;
 
 /**
  * Provides authentication mechanism for a service account by setting a .json
@@ -85,7 +85,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
    * @since 0.3
    */
   @Deprecated
-  public JsonServiceAccountConfig(FileItem jsonKeyFile, String prevJsonKeyFile) {
+  public JsonServiceAccountConfig(
+      FileItem jsonKeyFile, String prevJsonKeyFile) {
     this.setJsonKeyFileUpload(jsonKeyFile);
     if (filename == null && prevJsonKeyFile != null) {
       this.filename = extractFilename(prevJsonKeyFile);
@@ -94,7 +95,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**@param jsonKeyFileUpload uploaded json key file */
-  @DataBoundSetter // Called on form submission, only used when key file is uploaded
+  @DataBoundSetter // Called on form submit, only used when key file is uploaded
   public void setJsonKeyFileUpload(FileItem jsonKeyFileUpload) {
     if (jsonKeyFileUpload != null && jsonKeyFileUpload.getSize() > 0) {
       try {
@@ -182,7 +183,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     return filename;
   }
 
-  @Restricted(DoNotUse.class)   // for UI purpose only
+  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
   @CheckForNull
   public SecretBytes getSecretJsonKey() {
     return secretJsonKey;
@@ -198,7 +199,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
    * @return The uploaded json key file
    */
   @Deprecated
-  @Restricted(DoNotUse.class) // Required by stapler to call setJsonKeyFileUpload above.
+  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
   public FileItem getJsonKeyFileUpload() {
     return null;
   }
@@ -228,7 +229,9 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
           } else {
             LOGGER.severe("The provided private key is malformed.");
           }
-        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+        } catch (IOException
+            | InvalidKeySpecException
+            | NoSuchAlgorithmException e) {
           LOGGER.log(Level.SEVERE, "Failed to read private key", e);
         }
       }
