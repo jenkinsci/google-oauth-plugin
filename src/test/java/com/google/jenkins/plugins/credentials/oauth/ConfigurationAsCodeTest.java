@@ -34,7 +34,6 @@ public class ConfigurationAsCodeTest {
 
   @Rule public JenkinsConfiguredWithCodeRule r = new JenkinsConfiguredWithCodeRule();
 
-
   @Test
   @ConfiguredWithCode("json-service-account-config.yml")
   public void supportsConfigurationWithJsonServiceAccountConfig() throws IOException {
@@ -46,8 +45,8 @@ public class ConfigurationAsCodeTest {
     JsonServiceAccountConfig config = (JsonServiceAccountConfig) credentials.getServiceAccountConfig();
     assertNotNull(config);
     assertNull(config.getFilename());
-    assertNull(config.getPrevJsonKeyFile());
     assertNull(config.getJsonKeyFile());
+    assertNull(config.getJsonKeyFileUpload());
     assertNotNull(config.getPrivateKey());
     SecretBytes bytes = config.getSecretJsonKey();
     assertEquals("casc-test@jenkins-g-oauth-plugin.iam.gserviceaccount.com", config.getAccountId());

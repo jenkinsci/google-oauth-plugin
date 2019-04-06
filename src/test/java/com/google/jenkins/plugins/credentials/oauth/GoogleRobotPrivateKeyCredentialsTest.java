@@ -119,7 +119,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     when(mockFileItem.get())
             .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
-    jsonServiceAccountConfig.setJsonKeyFile(mockFileItem);
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID, jsonServiceAccountConfig, module);
 
@@ -392,7 +392,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     when(mockFileItem.get())
             .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
-    jsonServiceAccountConfig.setJsonKeyFile(mockFileItem);
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
         new GoogleRobotPrivateKeyCredentials(PROJECT_ID, jsonServiceAccountConfig, null);
 

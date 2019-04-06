@@ -69,23 +69,41 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   private SecretBytes secretJsonKey;
   @Deprecated   // for migration purpose
   @CheckForNull
-  private transient String prevJsonKeyFile;
+  private transient String jsonKeyFile;
   private transient JsonKey jsonKey;
 
+  /** @since 0.8 */
   @DataBoundConstructor
   public JsonServiceAccountConfig() {}
 
-  /**@param jsonKeyFile uploaded json key file */
+  /**
+   * For being able to load credentials created with versions < 0.8
+   * and backwards compatibility with external callers.
+   *
+   * @param jsonKeyFile The uploaded json key file
+   * @param prevJsonKeyFile The path of the previous json key file
+   * @since 0.3
+   */
+  @Deprecated
+  public JsonServiceAccountConfig(FileItem jsonKeyFile, String prevJsonKeyFile) {
+    this.setJsonKeyFileUpload(jsonKeyFile);
+    if (filename == null && prevJsonKeyFile != null) {
+      this.filename = extractFilename(prevJsonKeyFile);
+      this.secretJsonKey = getSecretBytesFromFile(prevJsonKeyFile);
+    }
+  }
+
+  /**@param jsonKeyFileUpload uploaded json key file */
   @DataBoundSetter // Called on form submission, only used when key file is uploaded
-  public void setJsonKeyFile(FileItem jsonKeyFile) {
-    if (jsonKeyFile != null && jsonKeyFile.getSize() > 0) {
+  public void setJsonKeyFileUpload(FileItem jsonKeyFileUpload) {
+    if (jsonKeyFileUpload != null && jsonKeyFileUpload.getSize() > 0) {
       try {
         JsonKey jsonKey = JsonKey.load(new JacksonFactory(),
-            jsonKeyFile.getInputStream());
+            jsonKeyFileUpload.getInputStream());
         if (jsonKey.getClientEmail() != null &&
             jsonKey.getPrivateKey() != null) {
-          this.filename = extractFilename(jsonKeyFile.getName());
-          this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFile.get());
+          this.filename = extractFilename(jsonKeyFileUpload.getName());
+          this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFileUpload.get());
         }
       } catch (IOException e) {
         LOGGER.log(Level.SEVERE, "Failed to read json key from file", e);
@@ -108,14 +126,6 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
       this.secretJsonKey = secretJsonKey;
     }
-  }
-
-
-  @Deprecated
-  // Used for JsonServiceAccountConfig
-  public JsonServiceAccountConfig(String prevJsonKeyFile) {
-    this.filename = extractFilename(prevJsonKeyFile);
-    this.secretJsonKey = getSecretBytesFromFile(prevJsonKeyFile);
   }
 
   @Deprecated   // used only for compatibility purpose
@@ -150,7 +160,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     if (secretJsonKey == null) {
       // google-oauth-plugin < 0.7
       return new JsonServiceAccountConfig(
-        getPrevJsonKeyFile()
+          null,
+        getJsonKeyFile()
       );
     }
     return this;
@@ -178,8 +189,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   @Deprecated
-  public String getPrevJsonKeyFile() {
-    return prevJsonKeyFile;
+  public String getJsonKeyFile() {
+    return jsonKeyFile;
   }
 
   /**
@@ -187,8 +198,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
    * @return The uploaded json key file
    */
   @Deprecated
-  @Restricted(DoNotUse.class) // Required by stapler to call setJsonKeyFile above.
-  public FileItem getJsonKeyFile() {
+  @Restricted(DoNotUse.class) // Required by stapler to call setJsonKeyFileUpload above.
+  public FileItem getJsonKeyFileUpload() {
     return null;
   }
 
