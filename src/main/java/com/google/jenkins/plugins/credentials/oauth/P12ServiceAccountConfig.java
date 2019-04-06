@@ -62,11 +62,11 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private SecretBytes secretP12Key;
   @Deprecated   // for migration purpose
   @CheckForNull
-  private transient String prevP12KeyFile;
+  private transient String p12KeyFile;
 
   /**
    * @param emailAddress email address
-   * @since 0.7
+   * @since 0.8
    */
   @DataBoundConstructor
   public P12ServiceAccountConfig(String emailAddress) {
@@ -74,20 +74,28 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
+   * For being able to load credentials created with versions < 0.8
+   * and backwards compatibility with external callers.
+   *
    * @param emailAddress email address
+   * @param p12KeyFileUpload The uploaded p12 key file.
    * @param prevP12KeyFile The path of the previous p12 key file
+   * @since 0.3
    */
   @Deprecated
-  public P12ServiceAccountConfig(String emailAddress, String prevP12KeyFile) {
+  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFileUpload, String prevP12KeyFile) {
     this(emailAddress);
-    this.setFilename(prevP12KeyFile);
-    this.setSecretP12Key(getSecretBytesFromFile(prevP12KeyFile));
+    this.setP12KeyFileUpload(p12KeyFileUpload);
+    if (filename == null && prevP12KeyFile != null) {
+      this.setFilename(prevP12KeyFile);
+      this.setSecretP12Key(getSecretBytesFromFile(prevP12KeyFile));
+    }
   }
 
   /** @param p12KeyFile uploaded p12 key file */
   @Deprecated
   @DataBoundSetter // Called on form submission, only used when credentials are uploaded.
-  public void setP12KeyFile(FileItem p12KeyFile) {
+  public void setP12KeyFileUpload(FileItem p12KeyFile) {
     if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
       this.filename = extractFilename(p12KeyFile.getName());
       this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
@@ -143,7 +151,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       // google-oauth-plugin < 0.7
       return new P12ServiceAccountConfig(
         getEmailAddress(),
-        getPrevP12KeyFile()
+        null, // p12KeyFileUpload
+        getP12KeyFile()
       );
     }
     return this;
@@ -181,8 +190,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   /** @return the path of the previous p12 key file. */
   @Deprecated
-  public String getPrevP12KeyFile() {
-    return prevP12KeyFile;
+  public String getP12KeyFile() {
+    return p12KeyFile;
   }
 
   /**
@@ -190,8 +199,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    * @return The uploaded p12 key file
    */
   @Deprecated
-  @Restricted(DoNotUse.class) // Required by stapler for being able to call setP12KeyFile.
-  public FileItem getP12KeyFile() {
+  @Restricted(DoNotUse.class) // Required by stapler for being able to call setP12KeyFileUpload.
+  public FileItem getP12KeyFileUpload() {
     return null;
   }
 

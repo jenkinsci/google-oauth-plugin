@@ -154,7 +154,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
             .thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig keyType = new P12ServiceAccountConfig(
             SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    keyType.setP12KeyFile(mockFileItem);
+    keyType.setP12KeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID, keyType, module);
 

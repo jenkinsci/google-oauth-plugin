@@ -67,7 +67,7 @@ public class ConfigurationAsCodeTest {
     assertNotNull(config);
     assertNull(config.getFilename());
     assertNull(config.getP12KeyFile());
-    assertNull(config.getPrevP12KeyFile());
+    assertNull(config.getP12KeyFileUpload());
     assertNotNull(config.getPrivateKey());
     assertEquals("casc-test@jenkins-g-oauth-plugin.iam.gserviceaccount.com", config.getEmailAddress());
     assertEquals(config.getEmailAddress(), config.getAccountId());

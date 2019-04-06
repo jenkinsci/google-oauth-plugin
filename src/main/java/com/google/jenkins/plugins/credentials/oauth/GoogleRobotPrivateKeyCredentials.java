@@ -73,7 +73,7 @@ public final class GoogleRobotPrivateKeyCredentials
   public Object readResolve() {
     if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
-      serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, p12File);
+      serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
     }
     return this;
   }

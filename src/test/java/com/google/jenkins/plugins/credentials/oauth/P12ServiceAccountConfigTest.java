@@ -69,7 +69,7 @@ public class P12ServiceAccountConfigTest {
         .thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFile(mockFileItem);
+    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig
         .getAccountId());
@@ -107,7 +107,7 @@ public class P12ServiceAccountConfigTest {
     when(mockFileItem.get()).thenReturn(new byte[]{});
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFile(mockFileItem);
+    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
             p12ServiceAccountConfig.getAccountId());
@@ -123,7 +123,7 @@ public class P12ServiceAccountConfigTest {
         .thenReturn(bytes);
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFile(mockFileItem);
+    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
         p12ServiceAccountConfig.getAccountId());
@@ -133,7 +133,7 @@ public class P12ServiceAccountConfigTest {
   @Test
   public void testCreateWithPrevP12KeyFileForCompatibility() {
     P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12KeyPath);
+        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null, p12KeyPath);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
         p12ServiceAccountConfig.getAccountId());
@@ -187,7 +187,7 @@ public class P12ServiceAccountConfigTest {
         .thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFile(mockFileItem);
+    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     SerializationUtil.serialize(p12ServiceAccountConfig, out);
