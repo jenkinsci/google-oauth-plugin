@@ -47,9 +47,9 @@ public class ConfigurationAsCodeTest {
     assertNull(config.getFilename());
     assertNull(config.getJsonKeyFile());
     assertNull(config.getJsonKeyFileUpload());
-    assertNotNull(config.getPrivateKey());
+    assertNull(config.getPrivateKey()); // Because private_key is not valid.
     SecretBytes bytes = config.getSecretJsonKey();
-    assertEquals("casc-test@jenkins-g-oauth-plugin.iam.gserviceaccount.com", config.getAccountId());
+    assertEquals("test-account@test-project.iam.gserviceaccount.com", config.getAccountId());
     String actualBytes = new String(bytes.getPlainData(), StandardCharsets.UTF_8);
     String expectedBytes = IOUtils.toString(this.getClass().getResourceAsStream("test-key.json"));
     assertEquals("Failed to configure secretJsonKey correctly.", expectedBytes, actualBytes);
@@ -57,7 +57,7 @@ public class ConfigurationAsCodeTest {
 
   @Test
   @ConfiguredWithCode("p12-service-account-config.yml")
-  public void supportsConfigurationWithP12ServiceAccountConfig() throws IOException {
+  public void supportsConfigurationWithP12ServiceAccountConfig() {
     List<GoogleRobotPrivateKeyCredentials> credentialsList = CredentialsProvider.lookupCredentials(GoogleRobotPrivateKeyCredentials.class);
     assertNotNull(credentialsList);
     assertEquals("No credentials created", 1, credentialsList.size());
@@ -68,12 +68,12 @@ public class ConfigurationAsCodeTest {
     assertNull(config.getFilename());
     assertNull(config.getP12KeyFile());
     assertNull(config.getP12KeyFileUpload());
-    assertNotNull(config.getPrivateKey());
-    assertEquals("casc-test@jenkins-g-oauth-plugin.iam.gserviceaccount.com", config.getEmailAddress());
+    assertNull(config.getPrivateKey()); // Because the bytes do not form a valid p12 key file.
+    assertEquals("test-account@test-project.iam.gserviceaccount.com", config.getEmailAddress());
     assertEquals(config.getEmailAddress(), config.getAccountId());
     SecretBytes bytes = config.getSecretP12Key();
     String actualBytes = new String(bytes.getPlainData(), StandardCharsets.UTF_8);
-    String expectedBytes = IOUtils.toString(this.getClass().getResourceAsStream("test-key.p12"));
+    String expectedBytes = "test-p12-key";
     assertEquals("Failed to configure secretP12Key correctly", expectedBytes, actualBytes);
   }
 }

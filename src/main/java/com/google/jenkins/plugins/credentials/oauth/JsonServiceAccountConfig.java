@@ -221,9 +221,13 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
         PemReader pemReader = new PemReader(new StringReader(privateKey));
         try {
           PemReader.Section section = pemReader.readNextSection();
-          PKCS8EncodedKeySpec keySpec =
-              new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
-          return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+          if (section != null) {
+            PKCS8EncodedKeySpec keySpec =
+                new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
+            return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+          } else {
+            LOGGER.severe("The provided private key is malformed.");
+          }
         } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
           LOGGER.log(Level.SEVERE, "Failed to read private key", e);
         }
