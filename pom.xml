@@ -101,15 +101,15 @@
 	<artifactId>cobertura-maven-plugin</artifactId>
 	<version>2.5.2</version>
 	<configuration>
-          <instrumentation>
-            <excludes>
-              <exclude>com/google/jenkins/plugins/**/Messages.class</exclude>
-            </excludes>
-          </instrumentation>
-	  <formats>
+    <instrumentation>
+      <excludes>
+        <exclude>com/google/jenkins/plugins/**/Messages.class</exclude>
+      </excludes>
+    </instrumentation>
+    <formats>
 	    <format>html</format>
-	    <format>xml</format>
-	  </formats>
+      <format>xml</format>
+    </formats>
     <check/>
 	</configuration>
       </plugin>
@@ -130,11 +130,12 @@
   <properties>
     <jenkins.version>2.60.3</jenkins.version>
     <google.api.version>1.24.1</google.api.version>
+    <configuration-as-code.version>1.9</configuration-as-code.version>
+    <credentials.version>2.1.16</credentials.version>
     <java.level>8</java.level>
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.threshold>Medium</findbugs.threshold>
-    <configuration-as-code.version>1.9</configuration-as-code.version>
   </properties>
 
   <dependencies>
@@ -183,6 +184,8 @@
       <artifactId>configuration-as-code</artifactId>
       <version>${configuration-as-code.version}</version>
       <scope>test</scope>
+      <!--Marked as optional so hpi:run does not include it. -->
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.jenkins</groupId>
@@ -190,12 +193,28 @@
       <version>${configuration-as-code.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>configuration-as-code-support</artifactId>
       <version>${configuration-as-code.version}</version>
       <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>plain-credentials</artifactId>
+      <version>1.5</version>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>ssh-credentials</artifactId>
+      <version>1.13</version>
+      <scope>test</scope>
+      <optional>true</optional>
     </dependency>
 
     <!-- OAuth Credentials dependency -->
@@ -235,18 +254,8 @@
     <!-- plugin dependencies -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>plain-credentials</artifactId>
-      <version>1.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>ssh-credentials</artifactId>
-      <version>1.13</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>credentials</artifactId>
-      <version>2.1.16</version>
+      <version>${credentials.version}</version>
     </dependency>
     <dependency>
       <!-- Required to run P12ServiceAccountConfigTestUtil-dependent tests against newer Jenkins core versions.
