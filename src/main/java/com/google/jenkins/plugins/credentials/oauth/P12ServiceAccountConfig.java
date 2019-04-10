@@ -50,6 +50,11 @@ import jenkins.model.Jenkins;
  * account email address and .p12 private key file.
  */
 public class P12ServiceAccountConfig extends ServiceAccountConfig {
+  /*
+   * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
+   *    google-auth-library.
+   */
+
   private static final long serialVersionUID = 8706353638974721795L;
   private static final Logger LOGGER =
           Logger.getLogger(P12ServiceAccountConfig.class.getSimpleName());

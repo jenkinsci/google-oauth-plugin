@@ -60,6 +60,11 @@ import jenkins.model.Jenkins;
  * </code>
  */
 public class JsonServiceAccountConfig extends ServiceAccountConfig {
+  /*
+   * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
+   *    google-auth-library.
+   */
+
   private static final long serialVersionUID = 6818111194672325387L;
   private static final Logger LOGGER =
       Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
