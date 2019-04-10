@@ -46,8 +46,8 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 /**
- * provides authentication mechanism for a service account by setting a service
- * account email address and .p12 private key file
+ * Provides authentication mechanism for a service account by setting a service
+ * account email address and .p12 private key file.
  */
 public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private static final long serialVersionUID = 8706353638974721795L;
@@ -65,7 +65,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private transient String p12KeyFile;
 
   /**
-   * @param emailAddress email address
+   * @param emailAddress The service account email address.
    * @since 0.8
    */
   @DataBoundConstructor
@@ -77,9 +77,9 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    * For being able to load credentials created with versions < 0.8
    * and backwards compatibility with external callers.
    *
-   * @param emailAddress email address
+   * @param emailAddress The service account email address.
    * @param p12KeyFileUpload The uploaded p12 key file.
-   * @param prevP12KeyFile The path of the previous p12 key file
+   * @param prevP12KeyFile The path of the previous p12 key file.
    * @since 0.3
    */
   @Deprecated
@@ -95,7 +95,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param p12KeyFile uploaded p12 key file */
+  /** @param p12KeyFile The uploaded p12 key file. */
   @Deprecated
   @DataBoundSetter // Called on form submit, only used when key file is uploaded
   public void setP12KeyFileUpload(FileItem p12KeyFile) {
@@ -105,7 +105,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param filename previous json key file name. */
+  /** @param filename The previous p12 key file name. */
   @DataBoundSetter
   public void setFilename(String filename) {
     if (!Strings.isNullOrEmpty(filename)) {
@@ -113,7 +113,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param secretP12Key previous p12 key file content.*/
+  /** @param secretP12Key The previous p12 key file content. */
   @DataBoundSetter
   public void setSecretP12Key(SecretBytes secretP12Key) {
     if (secretP12Key != null && secretP12Key.getPlainData().length > 0) {
@@ -172,7 +172,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * @return Original uploaded file name
+   * @return Original uploaded file name.
    * @since 0.7
    */
   @CheckForNull
@@ -183,7 +183,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   /**
    * Do not use, required for UI.
    *
-   * @return secretP12Key
+   * @return The secret p12 key.
    */
   @Restricted(DoNotUse.class) // UI:  Required for stapler call of setter.
   @CheckForNull
@@ -191,7 +191,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     return secretP12Key;
   }
 
-  /** @return the path of the previous p12 key file. */
+  /** @return The path of the previous p12 key file. */
   @Deprecated
   public String getP12KeyFile() {
     return p12KeyFile;
@@ -199,7 +199,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   /**
    * Do not use, required for UI.
-   * @return The uploaded p12 key file
+   *
+   * @return The uploaded p12 key file.
    */
   @Deprecated
   @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
@@ -247,7 +248,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * descriptor for .p12 service account authentication
+   * Descriptor for .p12 service account authentication.
    */
   @Extension
   public static final class DescriptorImpl extends Descriptor {

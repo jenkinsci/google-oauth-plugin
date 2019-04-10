@@ -80,8 +80,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
    * For being able to load credentials created with versions < 0.8
    * and backwards compatibility with external callers.
    *
-   * @param jsonKeyFile The uploaded json key file
-   * @param prevJsonKeyFile The path of the previous json key file
+   * @param jsonKeyFile The uploaded json key file.
+   * @param prevJsonKeyFile The path of the previous json key file.
    * @since 0.3
    */
   @Deprecated
@@ -94,7 +94,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /**@param jsonKeyFileUpload uploaded json key file */
+  /** @param jsonKeyFileUpload The uploaded json key file. */
   @DataBoundSetter // Called on form submit, only used when key file is uploaded
   public void setJsonKeyFileUpload(FileItem jsonKeyFileUpload) {
     if (jsonKeyFileUpload != null && jsonKeyFileUpload.getSize() > 0) {
@@ -112,7 +112,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param filename json key file name.*/
+  /** @param filename The json key file name. */
   @DataBoundSetter
   public void setFilename(String filename) {
     String newFilename = extractFilename(filename);
@@ -121,7 +121,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param secretJsonKey json key file content.*/
+  /** @param secretJsonKey The json key file content. */
   @DataBoundSetter
   public void setSecretJsonKey(SecretBytes secretJsonKey) {
     if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
@@ -175,7 +175,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * @return Original uploaded file name
+   * @return Original uploaded file name.
    * @since 0.7
    */
   @CheckForNull
@@ -196,7 +196,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
 
   /**
    * For use in UI, do not use.
-   * @return The uploaded json key file
+   * @return The uploaded json key file.
    */
   @Deprecated
   @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
@@ -204,6 +204,13 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     return null;
   }
 
+  /**
+   * In this context the service account id is represented by the email address
+   * for that service account, which should be contained in the json key.
+   *
+   * @return The service account identifier. Null if no json key has been
+   *    provided.
+   */
   @Override
   public String getAccountId() {
     JsonKey jsonKey = getJsonKey();
@@ -213,6 +220,10 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     return null;
   }
 
+  /**
+   * @return The {@link PrivateKey} that comes from the secret json key. Null if
+   *    this service account config contains no key or if the key is malformed.
+   */
   @Override
   public PrivateKey getPrivateKey() {
     JsonKey jsonKey = getJsonKey();
@@ -252,7 +263,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * descriptor for .json service account authentication
+   * Descriptor for .json service account authentication.
    */
   @Extension
   public static final class DescriptorImpl extends Descriptor {

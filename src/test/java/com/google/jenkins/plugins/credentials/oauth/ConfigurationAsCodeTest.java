@@ -35,7 +35,7 @@ import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
 
 /**
  * Tests that the credentials are correctly processed by the Configuration as
- * Code plugin
+ * Code plugin.
  */
 public class ConfigurationAsCodeTest {
 
