@@ -139,11 +139,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>net.sourceforge.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-      <version>1.3.2</version>
-    </dependency>
     <!-- com.google.guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
