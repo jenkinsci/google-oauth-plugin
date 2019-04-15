@@ -15,15 +15,13 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import hudson.Extension;
 import java.util.Collection;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import hudson.Extension;
-
 /**
- * A Google-specific implementation of the {@link OAuth2ScopeSpecification}
- * that limits its application to Google-specific {@link OAuth2ScopeRequirement}
+ * A Google-specific implementation of the {@link OAuth2ScopeSpecification} that limits its
+ * application to Google-specific {@link OAuth2ScopeRequirement}
  */
 public class GoogleOAuth2ScopeSpecification
     extends OAuth2ScopeSpecification<GoogleOAuth2ScopeRequirement> {
@@ -33,19 +31,16 @@ public class GoogleOAuth2ScopeSpecification
   }
 
   /**
-   * Denoted this class is a {@code DomainSpecification} plugin, in particular
-   * for {@link OAuth2ScopeSpecification}
+   * Denoted this class is a {@code DomainSpecification} plugin, in particular for {@link
+   * OAuth2ScopeSpecification}
    */
   @Extension
-  public static class DescriptorImpl
-      extends OAuth2ScopeSpecification.Descriptor {
+  public static class DescriptorImpl extends OAuth2ScopeSpecification.Descriptor {
     public DescriptorImpl() {
       super(GoogleOAuth2ScopeRequirement.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getDisplayName() {
       return Messages.GoogleOAuth2ScopeSpecification_DisplayName();

@@ -17,15 +17,9 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 
-/**
- * Retrieve a user-friendly name to be used when listing the credential
- * for use by plugins.
- */
-public class GoogleRobotNameProvider
-    extends CredentialsNameProvider<GoogleRobotCredentials> {
-  /**
-   * {@inheritDoc}
-   */
+/** Retrieve a user-friendly name to be used when listing the credential for use by plugins. */
+public class GoogleRobotNameProvider extends CredentialsNameProvider<GoogleRobotCredentials> {
+  /** {@inheritDoc} */
   @Override
   public String getName(GoogleRobotCredentials credentials) {
     return credentials.getProjectId();

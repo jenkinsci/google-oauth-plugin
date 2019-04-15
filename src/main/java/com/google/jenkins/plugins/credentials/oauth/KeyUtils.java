@@ -15,39 +15,32 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import hudson.util.Secret;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-
-import org.apache.commons.io.IOUtils;
-
-import hudson.util.Secret;
 import jenkins.model.Jenkins;
+import org.apache.commons.io.IOUtils;
 
 /**
  * Utility methods for handling key files.
  *
- * @deprecated Consider to use
- *   {@link com.cloudbees.plugins.credentials.SecretBytes} instead.
+ * @deprecated Consider to use {@link com.cloudbees.plugins.credentials.SecretBytes} instead.
  */
 @Deprecated
 public class KeyUtils {
-  /**
-   * Utility class should never be instantiated.
-   */
+  /** Utility class should never be instantiated. */
   private KeyUtils() {}
 
   /**
-   * Creates a file with the given prefix/suffix in a standard Google auth
-   * directory, and sets the permissions of the file to owner-only read/write.
-   * Note: this doesn't work on Windows.
+   * Creates a file with the given prefix/suffix in a standard Google auth directory, and sets the
+   * permissions of the file to owner-only read/write. Note: this doesn't work on Windows.
    *
    * @throws IOException if filesystem interaction fails.
    */
-  public static File createKeyFile(String prefix, String suffix)
-      throws IOException {
+  public static File createKeyFile(String prefix, String suffix) throws IOException {
     File keyFolder = new File(Jenkins.getInstance().getRootDir(), "gauth");
     if (keyFolder.exists() || keyFolder.mkdirs()) {
       File result = File.createTempFile(prefix, suffix, keyFolder);
@@ -62,8 +55,7 @@ public class KeyUtils {
   }
 
   /**
-   * Sets the permissions of the file to owner-only read/write.
-   * Note: this doesn't work on Windows.
+   * Sets the permissions of the file to owner-only read/write. Note: this doesn't work on Windows.
    *
    * @throws IOException if filesystem interaction fails.
    */
@@ -82,28 +74,25 @@ public class KeyUtils {
   }
 
   /**
-   * Writes the given key to the given keyfile, passing it through
-   * {@link Secret} to encode the string. Note that, per the documentation of
-   * {@link Secret}, this does not protect against an attacker who has full
-   * access to the local file system, but reduces the chance of accidental
+   * Writes the given key to the given keyfile, passing it through {@link Secret} to encode the
+   * string. Note that, per the documentation of {@link Secret}, this does not protect against an
+   * attacker who has full access to the local file system, but reduces the chance of accidental
    * exposure.
    */
-  public static void writeKeyToFileEncoded(String key, File file)
-      throws IOException {
+  public static void writeKeyToFileEncoded(String key, File file) throws IOException {
     if (key == null || file == null) {
       return;
     }
     Secret encoded = Secret.fromString(key);
-    writeKeyToFile(IOUtils.toInputStream(encoded.getEncryptedValue(),
-        StandardCharsets.UTF_8), file);
+    writeKeyToFile(
+        IOUtils.toInputStream(encoded.getEncryptedValue(), StandardCharsets.UTF_8), file);
   }
 
   /**
-   * Writes the key contained in the given {@link InputStream} to the given
-   * keyfile. Does not close the input stream.
+   * Writes the key contained in the given {@link InputStream} to the given keyfile. Does not close
+   * the input stream.
    */
-  public static void writeKeyToFile(InputStream keyStream, File file)
-      throws IOException {
+  public static void writeKeyToFile(InputStream keyStream, File file) throws IOException {
     if (keyStream == null || file == null) {
       return;
     }

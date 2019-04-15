@@ -16,29 +16,24 @@
 package com.google.jenkins.plugins.credentials.oauth;
 
 import com.google.jenkins.plugins.credentials.domains.RequiresDomain;
-
 import hudson.model.Descriptor;
 import hudson.tasks.Builder;
 
 /**
- * This is a trivial implementation of a {@link Builder} that
- * consumes {@link GoogleRobotCredentials}.
+ * This is a trivial implementation of a {@link Builder} that consumes {@link
+ * GoogleRobotCredentials}.
  */
 @RequiresDomain(value = TestGoogleOAuth2DomainRequirement.class)
 public class TestRobotBuilder extends Builder {
-  public TestRobotBuilder() {
-  }
+  public TestRobotBuilder() {}
 
   @Override
   public DescriptorImpl getDescriptor() {
     return DESCRIPTOR;
   }
 
-  /**
-   * Descriptor for our trivial builder
-   */
-  public static final class DescriptorImpl
-      extends Descriptor<Builder> {
+  /** Descriptor for our trivial builder */
+  public static final class DescriptorImpl extends Descriptor<Builder> {
     @Override
     public String getDisplayName() {
       return "Test Robot Builder";

@@ -15,14 +15,6 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.NameWith;
 import com.cloudbees.plugins.credentials.domains.Domain;
@@ -35,35 +27,35 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.jenkins.plugins.util.ExecutorException;
-
 import hudson.Extension;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.List;
+import javax.annotation.Nullable;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * An implementation of {@link GoogleRobotCredentials} that produces
- * OAuth2 access tokens using the metadata service attached to Google
- * Compute instances.  These Credentials are inherently limited to
- * the set of OAuth2 scopes that a Google Compute instance is bound
- * to at startup.
+ * An implementation of {@link GoogleRobotCredentials} that produces OAuth2 access tokens using the
+ * metadata service attached to Google Compute instances. These Credentials are inherently limited
+ * to the set of OAuth2 scopes that a Google Compute instance is bound to at startup.
  *
- * NOTE: This plugin is only available to Jenkins masters running on
- * a Google Compute Engine virtual machine.
+ * <p>NOTE: This plugin is only available to Jenkins masters running on a Google Compute Engine
+ * virtual machine.
  *
  * @author Matt Moore
  */
 @NameWith(value = GoogleRobotNameProvider.class, priority = 50)
-public final class GoogleRobotMetadataCredentials
-    extends GoogleRobotCredentials
+public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     implements DomainRestrictedCredentials {
   /**
    * Construct a set of service account credentials.
    *
-   * @param projectId The Pantheon project id associated with this
-   *                  service account
+   * @param projectId The Pantheon project id associated with this service account
    * @param module The module for instantiating dependent objects, or null.
    */
   @DataBoundConstructor
-  public GoogleRobotMetadataCredentials(String projectId,
-      @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
+  public GoogleRobotMetadataCredentials(
+      String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
     super(projectId, module);
   }
 
@@ -78,19 +70,19 @@ public final class GoogleRobotMetadataCredentials
   @Override
   public synchronized boolean matches(List<DomainRequirement> requirements) {
     if (metadataScopes == null) {
-      metadataScopes = new Domain("metadata", "",
-          ImmutableList.<DomainSpecification>of(
-              new GoogleOAuth2ScopeSpecification(
-                  getDescriptor().defaultScopes())));
+      metadataScopes =
+          new Domain(
+              "metadata",
+              "",
+              ImmutableList.<DomainSpecification>of(
+                  new GoogleOAuth2ScopeSpecification(getDescriptor().defaultScopes())));
     }
     return metadataScopes.test(requirements);
   }
-  @Nullable
-  private transient Domain metadataScopes;
 
-  /**
-   * {@inheritDoc}
-   */
+  @Nullable private transient Domain metadataScopes;
+
+  /** {@inheritDoc} */
   @Override
   public String getUsername() {
     try {
@@ -105,50 +97,37 @@ public final class GoogleRobotMetadataCredentials
   }
 
   /**
-   * The endpoint of the {@code METADATA_SERVER} for resolving the identity
-   * (email) of the service account.
+   * The endpoint of the {@code METADATA_SERVER} for resolving the identity (email) of the service
+   * account.
    */
-  private static final String IDENTITY_PATH =
-      "/instance/service-accounts/default/email";
+  private static final String IDENTITY_PATH = "/instance/service-accounts/default/email";
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public CredentialsScope getScope() {
     return CredentialsScope.GLOBAL;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public ComputeCredential getGoogleCredential(
-      GoogleOAuth2ScopeRequirement requirement)
+  public ComputeCredential getGoogleCredential(GoogleOAuth2ScopeRequirement requirement)
       throws GeneralSecurityException {
     // Ideally GCE would allow us to down-scope the metadata credentials we are
     // providing a given library.
-    return new ComputeCredential(
-        getModule().getHttpTransport(), getModule().getJsonFactory());
+    return new ComputeCredential(getModule().getHttpTransport(), getModule().getJsonFactory());
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public Descriptor getDescriptor() {
     return (Descriptor) super.getDescriptor();
   }
 
-  /**
-   * Descriptor for our unlimited service account extension.
-   */
-  public static class Descriptor
-      extends AbstractGoogleRobotCredentialsDescriptor {
+  /** Descriptor for our unlimited service account extension. */
+  public static class Descriptor extends AbstractGoogleRobotCredentialsDescriptor {
     /**
-     * This factory method determines whether the host machine
-     * has an associated metadata server, and if so registers
-     * the metadata-based robot credential.
+     * This factory method determines whether the host machine has an associated metadata server,
+     * and if so registers the metadata-based robot credential.
      */
     @Extension
     @Nullable
@@ -171,12 +150,8 @@ public final class GoogleRobotMetadataCredentials
       return null;
     }
 
-    /**
-     * Used by unit testing to take control of how the descriptor is
-     * instantiated by Jenkins.
-     */
-    @VisibleForTesting
-    static boolean disableForTesting = false;
+    /** Used by unit testing to take control of how the descriptor is instantiated by Jenkins. */
+    @VisibleForTesting static boolean disableForTesting = false;
 
     @VisibleForTesting
     Descriptor(GoogleRobotMetadataCredentialsModule module) {
@@ -196,12 +171,13 @@ public final class GoogleRobotMetadataCredentials
     }
 
     /**
-     * When we are running on GCE, we should be able to pre-populate the
-     * {@code projectId} field with the "right" project id.
+     * When we are running on GCE, we should be able to pre-populate the {@code projectId} field
+     * with the "right" project id.
      *
      * @return the project associated with this GCE instance, or null.
      */
-    @Nullable public String defaultProject() {
+    @Nullable
+    public String defaultProject() {
       try {
         return getModule().getMetadataReader().readMetadata(PROJECT_ID_PATH);
       } catch (ExecutorException e) {
@@ -212,18 +188,16 @@ public final class GoogleRobotMetadataCredentials
     }
 
     /**
-     * When we are running on GCE, we should be able to pre-populate the
-     * {@code projectId} field with the "right" project id.
+     * When we are running on GCE, we should be able to pre-populate the {@code projectId} field
+     * with the "right" project id.
      *
      * @return the project associated with this GCE instance, or null.
      */
     public List<String> defaultScopes() {
       try {
-        String scopes =
-            getModule().getMetadataReader().readMetadata(SCOPES_PATH);
+        String scopes = getModule().getMetadataReader().readMetadata(SCOPES_PATH);
 
-        return Lists.newArrayList(
-            Splitter.on('\n').trimResults().omitEmptyStrings().split(scopes));
+        return Lists.newArrayList(Splitter.on('\n').trimResults().omitEmptyStrings().split(scopes));
       } catch (ExecutorException e) {
         return ImmutableList.of();
       } catch (IOException e) {
@@ -231,22 +205,16 @@ public final class GoogleRobotMetadataCredentials
       }
     }
 
-    /**
-     * This is the metadata endpoint for retrieving the project-id.
-     */
-    private static final String PROJECT_ID_PATH =
-        "/project/project-id";
+    /** This is the metadata endpoint for retrieving the project-id. */
+    private static final String PROJECT_ID_PATH = "/project/project-id";
 
     /**
-     * This is the metadata endpoint for retrieving the set of oauth scopes
-     * to which the host instance is limited.
+     * This is the metadata endpoint for retrieving the set of oauth scopes to which the host
+     * instance is limited.
      */
-    private static final String SCOPES_PATH =
-        "/instance/service-accounts/default/scopes";
+    private static final String SCOPES_PATH = "/instance/service-accounts/default/scopes";
   }
 
-  /**
-   * For {@link Serializable}
-   */
+  /** For {@link Serializable} */
   private static final long serialVersionUID = 1L;
 }

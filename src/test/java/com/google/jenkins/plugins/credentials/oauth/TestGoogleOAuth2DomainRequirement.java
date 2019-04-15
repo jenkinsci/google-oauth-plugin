@@ -18,11 +18,8 @@ package com.google.jenkins.plugins.credentials.oauth;
 import java.util.Arrays;
 import java.util.Collection;
 
-/**
- * This is a trivial implementation of a {@link GoogleOAuth2ScopeRequirement}.
- */
-public class TestGoogleOAuth2DomainRequirement
-    extends GoogleOAuth2ScopeRequirement {
+/** This is a trivial implementation of a {@link GoogleOAuth2ScopeRequirement}. */
+public class TestGoogleOAuth2DomainRequirement extends GoogleOAuth2ScopeRequirement {
   private static final long serialVersionUID = 2234181311205118742L;
 
   public TestGoogleOAuth2DomainRequirement(String scope) {

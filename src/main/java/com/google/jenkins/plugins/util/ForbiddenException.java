@@ -15,15 +15,11 @@
  */
 package com.google.jenkins.plugins.util;
 
-/**
- * This exception is used to wrap and propagate 403 (Forbidden) HTTP exceptions
- * up the stack.
- */
+/** This exception is used to wrap and propagate 403 (Forbidden) HTTP exceptions up the stack. */
 public class ForbiddenException extends ExecutorException {
   public ForbiddenException(Throwable throwable) {
     super(throwable);
   }
 
-  public ForbiddenException() {
-  }
+  public ForbiddenException() {}
 }

@@ -15,28 +15,22 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import hudson.model.Describable;
 import java.io.Serializable;
 import java.security.PrivateKey;
 
-import hudson.model.Describable;
-
 /**
- * general abstraction for providing google service account authentication
- * mechanism. subclasses need to provide an accountId and a private key to use
- * for authenticating a service account
+ * general abstraction for providing google service account authentication mechanism. subclasses
+ * need to provide an accountId and a private key to use for authenticating a service account
  */
 public abstract class ServiceAccountConfig
-        implements Describable<ServiceAccountConfig>, Serializable {
+    implements Describable<ServiceAccountConfig>, Serializable {
   private static final long serialVersionUID = 6355493019938144806L;
 
   public abstract String getAccountId();
 
   public abstract PrivateKey getPrivateKey();
 
-  /**
-   * abstract descriptor for service account authentication
-   */
-  public abstract static class Descriptor
-          extends hudson.model.Descriptor<ServiceAccountConfig> {
-  }
+  /** abstract descriptor for service account authentication */
+  public abstract static class Descriptor extends hudson.model.Descriptor<ServiceAccountConfig> {}
 }

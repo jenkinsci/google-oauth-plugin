@@ -19,16 +19,13 @@ import static org.junit.Assert.assertSame;
 
 import org.junit.Test;
 
-/**
- * Tests for {@link NameValuePair}
- */
+/** Tests for {@link NameValuePair} */
 public class NameValuePairTest {
   @Test
   public void testBasicString() {
     final String first = "a";
     final String second = "b";
-    NameValuePair<String, String> pair =
-        new NameValuePair<String, String>(first, second);
+    NameValuePair<String, String> pair = new NameValuePair<String, String>(first, second);
 
     assertSame(first, pair.getName());
     assertSame(second, pair.getValue());
@@ -38,8 +35,7 @@ public class NameValuePairTest {
   public void testBasicWithObject() {
     final String first = "a";
     final Object second = new Object();
-    NameValuePair<String, Object> pair =
-        new NameValuePair<String, Object>(first, second);
+    NameValuePair<String, Object> pair = new NameValuePair<String, Object>(first, second);
 
     assertSame(first, pair.getName());
     assertSame(second, pair.getValue());

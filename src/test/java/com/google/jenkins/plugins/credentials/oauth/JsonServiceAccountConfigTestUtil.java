@@ -15,6 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import com.google.api.client.json.JsonGenerator;
+import com.google.api.client.json.jackson.JacksonFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,39 +28,30 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.Security;
-
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMWriter;
 
-import com.google.api.client.json.JsonGenerator;
-import com.google.api.client.json.jackson.JacksonFactory;
-
-/**
- * Util class for {@link JsonServiceAccountConfigTest}.
- */
+/** Util class for {@link JsonServiceAccountConfigTest}. */
 public class JsonServiceAccountConfigTestUtil {
   private static File tempFolder;
 
   public static PrivateKey generatePrivateKey()
-          throws NoSuchProviderException, NoSuchAlgorithmException {
+      throws NoSuchProviderException, NoSuchAlgorithmException {
     Security.addProvider(new BouncyCastleProvider());
-    final KeyPairGenerator keyPairGenerator =
-            KeyPairGenerator.getInstance("RSA", "BC");
+    final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
     keyPairGenerator.initialize(1024);
     final KeyPair keyPair = keyPairGenerator.generateKeyPair();
     return keyPair.getPrivate();
   }
 
-  public static String createTempJsonKeyFile(String clientEmail,
-                                             PrivateKey privateKey) throws
-          IOException {
-    final File tempJsonKey = File.createTempFile("temp-key", ".json",
-            getTempFolder());
+  public static String createTempJsonKeyFile(String clientEmail, PrivateKey privateKey)
+      throws IOException {
+    final File tempJsonKey = File.createTempFile("temp-key", ".json", getTempFolder());
     JsonGenerator jsonGenerator = null;
     try {
-      jsonGenerator = new JacksonFactory()
-              .createJsonGenerator(new FileOutputStream(tempJsonKey),
-                      Charset.forName("UTF-8"));
+      jsonGenerator =
+          new JacksonFactory()
+              .createJsonGenerator(new FileOutputStream(tempJsonKey), Charset.forName("UTF-8"));
       jsonGenerator.enablePrettyPrint();
       jsonGenerator.serialize(createJsonKey(clientEmail, privateKey));
     } finally {
@@ -71,32 +64,27 @@ public class JsonServiceAccountConfigTestUtil {
 
   private static File getTempFolder() throws IOException {
     if (tempFolder == null) {
-      tempFolder = File.createTempFile("temp",
-              Long.toString(System.nanoTime()));
+      tempFolder = File.createTempFile("temp", Long.toString(System.nanoTime()));
       if (!tempFolder.delete()) {
-        throw new IOException("Could not delete temp file: " +
-                tempFolder.getAbsolutePath());
+        throw new IOException("Could not delete temp file: " + tempFolder.getAbsolutePath());
       }
       if (!tempFolder.mkdir()) {
-        throw new IOException("Could not create temp directory: " +
-                tempFolder.getAbsolutePath());
+        throw new IOException("Could not create temp directory: " + tempFolder.getAbsolutePath());
       }
       tempFolder.deleteOnExit();
     }
     return tempFolder;
   }
 
-  private static JsonKey createJsonKey(String clientEmail,
-                                       PrivateKey privateKey) throws
-          IOException {
+  private static JsonKey createJsonKey(String clientEmail, PrivateKey privateKey)
+      throws IOException {
     final JsonKey jsonKey = new JsonKey();
     jsonKey.setClientEmail(clientEmail);
     jsonKey.setPrivateKey(getInPemFormat(privateKey));
     return jsonKey;
   }
 
-  private static String getInPemFormat(PrivateKey privateKey)
-          throws IOException {
+  private static String getInPemFormat(PrivateKey privateKey) throws IOException {
     final StringWriter stringWriter = new StringWriter();
     final PEMWriter pemWriter = new PEMWriter(stringWriter);
     pemWriter.writeObject(privateKey);

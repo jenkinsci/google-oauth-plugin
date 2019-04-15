@@ -15,19 +15,16 @@
  */
 package com.google.jenkins.plugins.util;
 
-import java.util.Collections;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.Collections;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
-/**
- * Tests for {@link Resolve}'s static methods.
- */
+/** Tests for {@link Resolve}'s static methods. */
 public class ResolveTest {
 
   @Before
@@ -39,24 +36,26 @@ public class ResolveTest {
   public void testBasicResolve() {
     String basicInput = "la dee da $BUILD_NUMBER";
 
-    assertThat(Resolve.resolveBuiltin(basicInput),
-        Matchers.not(Matchers.containsString("BUILD_NUMBER")));
+    assertThat(
+        Resolve.resolveBuiltin(basicInput), Matchers.not(Matchers.containsString("BUILD_NUMBER")));
   }
 
   @Test
   public void testUserOverride() {
     String basicInput = "$BUILD_NUMBER";
 
-    assertEquals(OVERRIDE, Resolve.resolveBuiltinWithCustom(
-        basicInput, Collections.singletonMap("BUILD_NUMBER", OVERRIDE)));
+    assertEquals(
+        OVERRIDE,
+        Resolve.resolveBuiltinWithCustom(
+            basicInput, Collections.singletonMap("BUILD_NUMBER", OVERRIDE)));
   }
 
   @Test
   public void testJustUserOverrides() {
     String basicInput = "$bar";
 
-    assertEquals(OVERRIDE, Resolve.resolveCustom(
-        basicInput, Collections.singletonMap("bar", OVERRIDE)));
+    assertEquals(
+        OVERRIDE, Resolve.resolveCustom(basicInput, Collections.singletonMap("bar", OVERRIDE)));
   }
 
   @Test

@@ -15,9 +15,5 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-/**
- * Used to type filter Google-specific {@link OAuth2ScopeRequirement}s.
- */
-public abstract class GoogleOAuth2ScopeRequirement
-    extends OAuth2ScopeRequirement {
-}
+/** Used to type filter Google-specific {@link OAuth2ScopeRequirement}s. */
+public abstract class GoogleOAuth2ScopeRequirement extends OAuth2ScopeRequirement {}

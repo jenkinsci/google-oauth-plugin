@@ -15,26 +15,21 @@
  */
 package com.google.jenkins.plugins.util;
 
-import java.net.SocketTimeoutException;
-
+import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_FORBIDDEN;
+import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
+import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_SERVER_ERROR;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
+import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest;
+import com.google.api.client.http.HttpResponseException;
+import java.net.SocketTimeoutException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_FORBIDDEN;
-import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
-import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_SERVER_ERROR;
-
-import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest;
-import com.google.api.client.http.HttpResponseException;
-
-/**
- * Tests for {@link Executor}.
- */
+/** Tests for {@link Executor}. */
 public class ExecutorTest {
 
   private HttpResponseException notFoundJsonException;
@@ -43,11 +38,9 @@ public class ExecutorTest {
   private HttpResponseException errorJsonException;
   private SocketTimeoutException timeoutException;
 
-  @Mock
-  private com.google.api.client.http.HttpHeaders headers;
+  @Mock private com.google.api.client.http.HttpHeaders headers;
 
-  @Mock
-  private AbstractGoogleJsonClientRequest<Void> mockRequest;
+  @Mock private AbstractGoogleJsonClientRequest<Void> mockRequest;
 
   private Executor underTest;
 
@@ -55,23 +48,26 @@ public class ExecutorTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    notFoundJsonException = new HttpResponseException.Builder(
-        STATUS_CODE_NOT_FOUND, STATUS_MESSAGE, headers).build();
-    conflictJsonException = new HttpResponseException.Builder(
-        409 /* STATUS_CODE_CONFLICT */, STATUS_MESSAGE, headers).build();
-    forbiddenJsonException = new HttpResponseException.Builder(
-        STATUS_CODE_FORBIDDEN, STATUS_MESSAGE, headers).build();
-    errorJsonException = new HttpResponseException.Builder(
-        STATUS_CODE_SERVER_ERROR, STATUS_MESSAGE, headers).build();
+    notFoundJsonException =
+        new HttpResponseException.Builder(STATUS_CODE_NOT_FOUND, STATUS_MESSAGE, headers).build();
+    conflictJsonException =
+        new HttpResponseException.Builder(409 /* STATUS_CODE_CONFLICT */, STATUS_MESSAGE, headers)
+            .build();
+    forbiddenJsonException =
+        new HttpResponseException.Builder(STATUS_CODE_FORBIDDEN, STATUS_MESSAGE, headers).build();
+    errorJsonException =
+        new HttpResponseException.Builder(STATUS_CODE_SERVER_ERROR, STATUS_MESSAGE, headers)
+            .build();
 
     timeoutException = new SocketTimeoutException(STATUS_MESSAGE);
 
-    underTest = new Executor.Default() {
-        @Override
-        public void sleep() {
-          // Don't really sleep...
-        }
-      };
+    underTest =
+        new Executor.Default() {
+          @Override
+          public void sleep() {
+            // Don't really sleep...
+          }
+        };
   }
 
   @Test

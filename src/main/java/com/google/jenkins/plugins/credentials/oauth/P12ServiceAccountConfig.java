@@ -15,6 +15,10 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import com.cloudbees.plugins.credentials.SecretBytes;
+import com.google.api.client.util.Strings;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import hudson.Extension;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +31,8 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.annotation.CheckForNull;
-
+import jenkins.model.Jenkins;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -38,16 +41,9 @@ import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
-import com.cloudbees.plugins.credentials.SecretBytes;
-import com.google.api.client.util.Strings;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import hudson.Extension;
-import jenkins.model.Jenkins;
-
 /**
- * Provides authentication mechanism for a service account by setting a service
- * account email address and P12 private key file.
+ * Provides authentication mechanism for a service account by setting a service account email
+ * address and P12 private key file.
  */
 public class P12ServiceAccountConfig extends ServiceAccountConfig {
   /*
@@ -57,15 +53,14 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   private static final long serialVersionUID = 8706353638974721795L;
   private static final Logger LOGGER =
-          Logger.getLogger(P12ServiceAccountConfig.class.getSimpleName());
+      Logger.getLogger(P12ServiceAccountConfig.class.getSimpleName());
   private static final String DEFAULT_P12_SECRET = "notasecret";
   private static final String DEFAULT_P12_ALIAS = "privatekey";
   private final String emailAddress;
-  @CheckForNull
-  private String filename;
-  @CheckForNull
-  private SecretBytes secretP12Key;
-  @Deprecated   // for migration purpose
+  @CheckForNull private String filename;
+  @CheckForNull private SecretBytes secretP12Key;
+
+  @Deprecated // for migration purpose
   @CheckForNull
   private transient String p12KeyFile;
 
@@ -79,8 +74,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * For being able to load credentials created with versions < 0.8
-   * and backwards compatibility with external callers.
+   * For being able to load credentials created with versions < 0.8 and backwards compatibility with
+   * external callers.
    *
    * @param emailAddress The service account email address.
    * @param p12KeyFileUpload The uploaded p12 key file.
@@ -89,9 +84,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
    */
   @Deprecated
   public P12ServiceAccountConfig(
-      String emailAddress,
-      FileItem p12KeyFileUpload,
-      String prevP12KeyFile) {
+      String emailAddress, FileItem p12KeyFileUpload, String prevP12KeyFile) {
     this(emailAddress);
     this.setP12KeyFileUpload(p12KeyFileUpload);
     if (filename == null && prevP12KeyFile != null) {
@@ -126,21 +119,16 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  @Deprecated   // used only for compatibility purpose
+  @Deprecated // used only for compatibility purpose
   @CheckForNull
-  private static SecretBytes getSecretBytesFromFile(
-      @CheckForNull String filename) {
+  private static SecretBytes getSecretBytesFromFile(@CheckForNull String filename) {
     if (filename == null || filename.isEmpty()) {
       return null;
     }
     try {
-      return SecretBytes.fromBytes(
-          FileUtils.readFileToByteArray(new File(filename)));
+      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filename)));
     } catch (IOException e) {
-      LOGGER.log(
-          Level.SEVERE,
-          String.format("Failed to read previous key from %s", filename),
-          e);
+      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filename), e);
       return null;
     }
   }
@@ -158,18 +146,16 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     if (secretP12Key == null) {
       // google-oauth-plugin < 0.7
       return new P12ServiceAccountConfig(
-        getEmailAddress(),
-        null, // p12KeyFileUpload
-        getP12KeyFile()
-      );
+          getEmailAddress(),
+          null, // p12KeyFileUpload
+          getP12KeyFile());
     }
     return this;
   }
 
   @Override
   public DescriptorImpl getDescriptor() {
-    return (DescriptorImpl) Jenkins.getInstance()
-            .getDescriptorOrDie(P12ServiceAccountConfig.class);
+    return (DescriptorImpl) Jenkins.getInstance().getDescriptorOrDie(P12ServiceAccountConfig.class);
   }
 
   public String getEmailAddress() {
@@ -225,8 +211,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       if (p12KeyStore == null) {
         return null;
       }
-      return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
-              DEFAULT_P12_SECRET.toCharArray());
+      return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS, DEFAULT_P12_SECRET.toCharArray());
     } catch (IOException | GeneralSecurityException e) {
       LOGGER.log(Level.SEVERE, "Failed to read private key", e);
     }
@@ -234,8 +219,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   @CheckForNull
-  private KeyStore getP12KeyStore() throws KeyStoreException,
-          IOException, CertificateException, NoSuchAlgorithmException {
+  private KeyStore getP12KeyStore()
+      throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
     InputStream in = null;
     if (secretP12Key == null) {
       return null;
@@ -250,9 +235,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /**
-   * Descriptor for P12 service account authentication.
-   */
+  /** Descriptor for P12 service account authentication. */
   @Extension
   public static final class DescriptorImpl extends Descriptor {
     @Override
