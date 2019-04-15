@@ -46,8 +46,8 @@ import hudson.Extension;
 import jenkins.model.Jenkins;
 
 /**
- * Provides authentication mechanism for a service account by setting a .json
- * private key file. The .json file structure needs to be:
+ * Provides authentication mechanism for a service account by setting a JSON
+ * private key file. The JSON file structure needs to be:
  * <p>
  * <code>
  *     {
@@ -85,8 +85,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
    * For being able to load credentials created with versions < 0.8
    * and backwards compatibility with external callers.
    *
-   * @param jsonKeyFile The uploaded json key file.
-   * @param prevJsonKeyFile The path of the previous json key file.
+   * @param jsonKeyFile The uploaded JSON key file.
+   * @param prevJsonKeyFile The path of the previous JSON key file.
    * @since 0.3
    */
   @Deprecated
@@ -99,7 +99,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param jsonKeyFileUpload The uploaded json key file. */
+  /** @param jsonKeyFileUpload The uploaded JSON key file. */
   @DataBoundSetter // Called on form submit, only used when key file is uploaded
   public void setJsonKeyFileUpload(FileItem jsonKeyFileUpload) {
     if (jsonKeyFileUpload != null && jsonKeyFileUpload.getSize() > 0) {
@@ -112,12 +112,12 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
           this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFileUpload.get());
         }
       } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read json key from file", e);
+        LOGGER.log(Level.SEVERE, "Failed to read JSON key from file", e);
       }
     }
   }
 
-  /** @param filename The json key file name. */
+  /** @param filename The JSON key file name. */
   @DataBoundSetter
   public void setFilename(String filename) {
     String newFilename = extractFilename(filename);
@@ -126,7 +126,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
     }
   }
 
-  /** @param secretJsonKey The json key file content. */
+  /** @param secretJsonKey The JSON key file content. */
   @DataBoundSetter
   public void setSecretJsonKey(SecretBytes secretJsonKey) {
     if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
@@ -201,7 +201,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
 
   /**
    * For use in UI, do not use.
-   * @return The uploaded json key file.
+   * @return The uploaded JSON key file.
    */
   @Deprecated
   @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
@@ -211,9 +211,9 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
 
   /**
    * In this context the service account id is represented by the email address
-   * for that service account, which should be contained in the json key.
+   * for that service account, which should be contained in the JSON key.
    *
-   * @return The service account identifier. Null if no json key has been
+   * @return The service account identifier. Null if no JSON key has been
    *    provided.
    */
   @Override
@@ -226,7 +226,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * @return The {@link PrivateKey} that comes from the secret json key. Null if
+   * @return The {@link PrivateKey} that comes from the secret JSON key. Null if
    *    this service account config contains no key or if the key is malformed.
    */
   @Override
@@ -268,7 +268,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * Descriptor for .json service account authentication.
+   * Descriptor for JSON service account authentication.
    */
   @Extension
   public static final class DescriptorImpl extends Descriptor {

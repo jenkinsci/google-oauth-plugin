@@ -47,7 +47,7 @@ import jenkins.model.Jenkins;
 
 /**
  * Provides authentication mechanism for a service account by setting a service
- * account email address and .p12 private key file.
+ * account email address and P12 private key file.
  */
 public class P12ServiceAccountConfig extends ServiceAccountConfig {
   /*
@@ -227,9 +227,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       }
       return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
               DEFAULT_P12_SECRET.toCharArray());
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-    } catch (GeneralSecurityException e) {
+    } catch (IOException | GeneralSecurityException e) {
       LOGGER.log(Level.SEVERE, "Failed to read private key", e);
     }
     return null;
@@ -253,7 +251,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * Descriptor for .p12 service account authentication.
+   * Descriptor for P12 service account authentication.
    */
   @Extension
   public static final class DescriptorImpl extends Descriptor {
