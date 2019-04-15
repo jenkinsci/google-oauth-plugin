@@ -58,7 +58,7 @@ public class JsonServiceAccountConfigTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
   }
 
@@ -70,17 +70,17 @@ public class JsonServiceAccountConfigTest {
     when(mockFileItem.getName()).thenReturn(jsonKeyPath);
     when(mockFileItem.get())
         .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
-    JsonServiceAccountConfig jsonKeyType =
-        new JsonServiceAccountConfig(mockFileItem, null, null);
+    JsonServiceAccountConfig jsonKeyType = new JsonServiceAccountConfig();
+    jsonKeyType.setJsonKeyFileUpload(mockFileItem);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, jsonKeyType.getAccountId());
     assertEquals(privateKey, jsonKeyType.getPrivateKey());
   }
 
   @Test
-  public void testCreateJsonKeyTypeWithNullParameters() throws Exception {
+  public void testCreateJsonKeyTypeWithNullParameters() {
     JsonServiceAccountConfig jsonServiceAccountConfig =
-        new JsonServiceAccountConfig(null, null, null);
+        new JsonServiceAccountConfig();
 
     assertNull(jsonServiceAccountConfig.getAccountId());
     assertNull(jsonServiceAccountConfig.getPrivateKey());
@@ -89,8 +89,8 @@ public class JsonServiceAccountConfigTest {
   @Test
   public void testCreateJsonKeyTypeWithEmptyJsonKeyFile() throws Exception {
     when(mockFileItem.getSize()).thenReturn(0L);
-    JsonServiceAccountConfig jsonKeyType = new JsonServiceAccountConfig
-        (mockFileItem, null);
+    JsonServiceAccountConfig jsonKeyType = new JsonServiceAccountConfig();
+    jsonKeyType.setJsonKeyFileUpload(mockFileItem);
 
     assertNull(jsonKeyType.getJsonKeyFile());
     assertNull(jsonKeyType.getAccountId());
@@ -107,15 +107,15 @@ public class JsonServiceAccountConfigTest {
     when(mockFileItem.get())
         .thenReturn(bytes);
     JsonServiceAccountConfig jsonServiceAccountConfig =
-        new JsonServiceAccountConfig(mockFileItem, null, null);
+        new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
     assertNull(jsonServiceAccountConfig.getAccountId());
     assertNull(jsonServiceAccountConfig.getPrivateKey());
   }
 
   @Test
-  public void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility()
-      throws Exception {
+  public void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility() {
     JsonServiceAccountConfig jsonServiceAccountConfig =
         new JsonServiceAccountConfig(null, jsonKeyPath);
 
@@ -129,7 +129,9 @@ public class JsonServiceAccountConfigTest {
     SecretBytes prev = SecretBytes
             .fromBytes(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     JsonServiceAccountConfig jsonServiceAccountConfig =
-        new JsonServiceAccountConfig(null, jsonKeyPath, prev);
+        new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setFilename(jsonKeyPath);
+    jsonServiceAccountConfig.setSecretJsonKey(prev);
 
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS,
         jsonServiceAccountConfig.getAccountId());
@@ -137,21 +139,21 @@ public class JsonServiceAccountConfigTest {
   }
 
   @Test
-  public void testCreateJsonKeyTypeWithEmptyPrevJsonKeyFile() throws Exception {
+  public void testCreateJsonKeyTypeWithEmptyPrevJsonKeyFile() {
     SecretBytes prev = SecretBytes.fromString("");
     JsonServiceAccountConfig jsonServiceAccountConfig =
-        new JsonServiceAccountConfig(null, "", prev);
+        new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setFilename("");
+    jsonServiceAccountConfig.setSecretJsonKey(prev);
 
     assertNull(jsonServiceAccountConfig.getAccountId());
     assertNull(jsonServiceAccountConfig.getPrivateKey());
   }
 
   @Test
-  public void testCreateJsonKeyTypeWithInvalidPrevJsonKeyFile()
-      throws Exception {
-    String invalidPrevJsonKeyFile = "invalidPrevJsonKeyFile.json";
+  public void testCreateJsonKeyTypeWithInvalidPrevJsonKeyFile() {
     JsonServiceAccountConfig jsonServiceAccountConfig =
-        new JsonServiceAccountConfig(null, invalidPrevJsonKeyFile, null);
+        new JsonServiceAccountConfig(null, "invalidPrevJsonKeyFile.json");
 
     assertNull(jsonServiceAccountConfig.getAccountId());
     assertNull(jsonServiceAccountConfig.getPrivateKey());
@@ -166,7 +168,8 @@ public class JsonServiceAccountConfigTest {
     when(mockFileItem.get())
         .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     JsonServiceAccountConfig jsonServiceAccountConfig =
-        new JsonServiceAccountConfig(mockFileItem, null, null);
+        new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     SerializationUtil.serialize(jsonServiceAccountConfig, out);

@@ -36,18 +36,25 @@ import org.apache.commons.io.IOUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
+import com.google.api.client.util.Strings;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import jenkins.model.Jenkins;
 
 /**
- * provides authentication mechanism for a service account by setting a service
- * account email address and .p12 private key file
+ * Provides authentication mechanism for a service account by setting a service
+ * account email address and P12 private key file.
  */
 public class P12ServiceAccountConfig extends ServiceAccountConfig {
+  /*
+   * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
+   *    google-auth-library.
+   */
+
   private static final long serialVersionUID = 8706353638974721795L;
   private static final Logger LOGGER =
           Logger.getLogger(P12ServiceAccountConfig.class.getSimpleName());
@@ -63,34 +70,60 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   private transient String p12KeyFile;
 
   /**
-   * @param emailAddress email address
-   * @param p12KeyFile uploaded p12 key file
-   * @param filename
-   *     previous json key file name.
-   *     used if p12KeyFile is not provided.
-   * @param secretP12Key
-   *     previous p12 key file content.
-   *     used if p12KeyFile is not provided.
-   * @since 0.7
+   * @param emailAddress The service account email address.
+   * @since 0.8
    */
   @DataBoundConstructor
-  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFile,
-                                 String filename, SecretBytes secretP12Key) {
+  public P12ServiceAccountConfig(String emailAddress) {
     this.emailAddress = emailAddress;
-    if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
-      this.filename = extractFilename(p12KeyFile.getName());
-      this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
-    } else {
-      this.filename = extractFilename(filename);
-      this.secretP12Key = secretP12Key;
+  }
+
+  /**
+   * For being able to load credentials created with versions < 0.8
+   * and backwards compatibility with external callers.
+   *
+   * @param emailAddress The service account email address.
+   * @param p12KeyFileUpload The uploaded p12 key file.
+   * @param prevP12KeyFile The path of the previous p12 key file.
+   * @since 0.3
+   */
+  @Deprecated
+  public P12ServiceAccountConfig(
+      String emailAddress,
+      FileItem p12KeyFileUpload,
+      String prevP12KeyFile) {
+    this(emailAddress);
+    this.setP12KeyFileUpload(p12KeyFileUpload);
+    if (filename == null && prevP12KeyFile != null) {
+      this.setFilename(prevP12KeyFile);
+      this.setSecretP12Key(getSecretBytesFromFile(prevP12KeyFile));
     }
   }
 
+  /** @param p12KeyFile The uploaded p12 key file. */
   @Deprecated
-  public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFile,
-                                 String prevP12KeyFile) {
-    this(emailAddress, p12KeyFile,
-        prevP12KeyFile, getSecretBytesFromFile(prevP12KeyFile));
+  @DataBoundSetter // Called on form submit, only used when key file is uploaded
+  public void setP12KeyFileUpload(FileItem p12KeyFile) {
+    if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
+      this.filename = extractFilename(p12KeyFile.getName());
+      this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
+    }
+  }
+
+  /** @param filename The previous p12 key file name. */
+  @DataBoundSetter
+  public void setFilename(String filename) {
+    if (!Strings.isNullOrEmpty(filename)) {
+      this.filename = extractFilename(filename);
+    }
+  }
+
+  /** @param secretP12Key The previous p12 key file content. */
+  @DataBoundSetter
+  public void setSecretP12Key(SecretBytes secretP12Key) {
+    if (secretP12Key != null && secretP12Key.getPlainData().length > 0) {
+      this.secretP12Key = secretP12Key;
+    }
   }
 
   @Deprecated   // used only for compatibility purpose
@@ -126,7 +159,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       // google-oauth-plugin < 0.7
       return new P12ServiceAccountConfig(
         getEmailAddress(),
-        null,
+        null, // p12KeyFileUpload
         getP12KeyFile()
       );
     }
@@ -144,7 +177,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * @return Original uploaded file name
+   * @return Original uploaded file name.
    * @since 0.7
    */
   @CheckForNull
@@ -152,15 +185,32 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
     return filename;
   }
 
-  @Restricted(DoNotUse.class)   // for UI purpose only
+  /**
+   * Do not use, required for UI.
+   *
+   * @return The secret p12 key.
+   */
+  @Restricted(DoNotUse.class) // UI:  Required for stapler call of setter.
   @CheckForNull
   public SecretBytes getSecretP12Key() {
     return secretP12Key;
   }
 
+  /** @return The path of the previous p12 key file. */
   @Deprecated
   public String getP12KeyFile() {
     return p12KeyFile;
+  }
+
+  /**
+   * Do not use, required for UI.
+   *
+   * @return The uploaded p12 key file.
+   */
+  @Deprecated
+  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
+  public FileItem getP12KeyFileUpload() {
+    return null;
   }
 
   @Override
@@ -177,9 +227,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
       }
       return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS,
               DEFAULT_P12_SECRET.toCharArray());
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-    } catch (GeneralSecurityException e) {
+    } catch (IOException | GeneralSecurityException e) {
       LOGGER.log(Level.SEVERE, "Failed to read private key", e);
     }
     return null;
@@ -203,7 +251,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * descriptor for .p12 service account authentication
+   * Descriptor for P12 service account authentication.
    */
   @Extension
   public static final class DescriptorImpl extends Descriptor {
