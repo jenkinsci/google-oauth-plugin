@@ -18,21 +18,15 @@ package com.google.jenkins.plugins.credentials.oauth;
 import com.google.jenkins.plugins.util.MetadataReader;
 
 /**
- * An abstraction interface for instantiating the dependencies of
- * the {@code GoogleRobotMetadataCredentials}.
+ * An abstraction interface for instantiating the dependencies of the {@code
+ * GoogleRobotMetadataCredentials}.
  */
-public class GoogleRobotMetadataCredentialsModule
-    extends GoogleRobotCredentialsModule {
-  /**
-   * Retrieve a MetadataReader for accessing stuff encoded in the
-   * instance metadata.
-   */
+public class GoogleRobotMetadataCredentialsModule extends GoogleRobotCredentialsModule {
+  /** Retrieve a MetadataReader for accessing stuff encoded in the instance metadata. */
   public MetadataReader getMetadataReader() {
     return new MetadataReader.Default();
   }
 
-  /**
-   * For {@link java.io.Serializable}
-   */
+  /** For {@link java.io.Serializable} */
   private static final long serialVersionUID = 1L;
 }

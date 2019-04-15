@@ -15,14 +15,16 @@
  */
 package com.google.jenkins.plugins.util;
 
-import java.io.IOException;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
+import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest;
+import com.google.common.base.Predicates;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,31 +33,20 @@ import org.junit.rules.Verifier;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
-import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest;
-import com.google.common.base.Predicates;
-
-/**
- * Tests for the {@link MockExecutor}.
- */
+/** Tests for the {@link MockExecutor}. */
 public class MockExecutorTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  @Rule public ExpectedException thrown = ExpectedException.none();
 
-  @Mock
-  private AbstractGoogleJsonClientRequest<String> mockRequest;
+  @Mock private AbstractGoogleJsonClientRequest<String> mockRequest;
 
-  private static class FakeRequest
-      extends AbstractGoogleJsonClientRequest<String> {
-    private FakeRequest(AbstractGoogleJsonClient client, String s,
-        String t, Object o) {
+  private static class FakeRequest extends AbstractGoogleJsonClientRequest<String> {
+    private FakeRequest(AbstractGoogleJsonClient client, String s, String t, Object o) {
       super(client, s, t, o, String.class);
     }
   };
 
-  @Mock
-  private FakeRequest otherMockRequest;
+  @Mock private FakeRequest otherMockRequest;
 
   private static final String theString = "tHe StRiNg!";
   private static final String theOtherString = "tHe OtHeR sTrInG!";
@@ -63,12 +54,13 @@ public class MockExecutorTest {
   private MockExecutor executor = new MockExecutor();
 
   @Rule
-  public Verifier verifySawAll = new Verifier() {
-      @Override
-      public void verify() {
-        assertTrue(executor.sawAll());
-      }
-    };
+  public Verifier verifySawAll =
+      new Verifier() {
+        @Override
+        public void verify() {
+          assertTrue(executor.sawAll());
+        }
+      };
 
   @Before
   public void setUp() throws Exception {
@@ -91,7 +83,9 @@ public class MockExecutorTest {
   public void testFailingPredicate() throws Exception {
     // Make sure that when a false predicate occurs, we throw
     // an exception
-    executor.when(mockRequest.getClass(), theOtherString,
+    executor.when(
+        mockRequest.getClass(),
+        theOtherString,
         Predicates.<AbstractGoogleJsonClientRequest<String>>alwaysFalse());
 
     thrown.expect(IllegalStateException.class);

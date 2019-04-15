@@ -16,14 +16,13 @@
 package com.google.jenkins.plugins.util;
 
 /**
- * This exception is used to signify that the maximum number of retries has
- * been exceeded, that we shouldn't make further attempt.
+ * This exception is used to signify that the maximum number of retries has been exceeded, that we
+ * shouldn't make further attempt.
  */
 public class MaxRetryExceededException extends ExecutorException {
   public MaxRetryExceededException(Throwable throwable) {
     super(throwable);
   }
 
-  public MaxRetryExceededException() {
-  }
+  public MaxRetryExceededException() {}
 }

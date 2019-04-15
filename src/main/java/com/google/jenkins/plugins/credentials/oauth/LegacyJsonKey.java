@@ -15,20 +15,18 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Key;
 import com.google.common.base.Charsets;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * For "Robot" service account client secrets a key piece of information is the
- * email address contained within "client_secrets.json", which the existing
- * {@code GoogleClientSecrets} class does not parse.  This makeshift partial
- * copy of {@code GoogleClientSecrets} implements *just* the "client_email"
- * parsing.
+ * For "Robot" service account client secrets a key piece of information is the email address
+ * contained within "client_secrets.json", which the existing {@code GoogleClientSecrets} class does
+ * not parse. This makeshift partial copy of {@code GoogleClientSecrets} implements *just* the
+ * "client_email" parsing.
  *
  * @author Matt Moore
  */
@@ -37,8 +35,7 @@ import com.google.common.base.Charsets;
 public final class LegacyJsonKey extends GenericJson {
 
   /** Details for web applications. */
-  @Key
-  private Details web;
+  @Key private Details web;
 
   /** Returns the details for web applications. */
   public Details getWeb() {
@@ -49,10 +46,7 @@ public final class LegacyJsonKey extends GenericJson {
     this.web = web;
   }
 
-  /**
-   * Container for our new field, modeled after:
-   *   {@code GoogleClientSecrets.Details}
-   */
+  /** Container for our new field, modeled after: {@code GoogleClientSecrets.Details} */
   public static final class Details extends GenericJson {
     /** Client email. */
     @Key("client_email")
@@ -69,10 +63,8 @@ public final class LegacyJsonKey extends GenericJson {
   }
 
   /** Loads the {@code client_secrets.json} file from the given input stream. */
-  public static LegacyJsonKey load(
-      JsonFactory jsonFactory, InputStream inputStream)
+  public static LegacyJsonKey load(JsonFactory jsonFactory, InputStream inputStream)
       throws IOException {
-    return jsonFactory.fromInputStream(
-        inputStream, Charsets.UTF_8, LegacyJsonKey.class);
+    return jsonFactory.fromInputStream(inputStream, Charsets.UTF_8, LegacyJsonKey.class);
   }
 }

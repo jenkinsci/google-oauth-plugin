@@ -15,34 +15,27 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.Serializable;
-
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson.JacksonFactory;
+import java.io.Serializable;
 
 /**
- * An abstraction interface for instantiating the dependencies of
- * the {@code GoogleRobotCredentials}.
+ * An abstraction interface for instantiating the dependencies of the {@code
+ * GoogleRobotCredentials}.
  */
 public class GoogleRobotCredentialsModule implements Serializable {
-  /**
-   * The HttpTransport to use for credential related requests.
-   */
+  /** The HttpTransport to use for credential related requests. */
   public HttpTransport getHttpTransport() {
     return new NetHttpTransport();
   }
 
-  /**
-   * The HttpTransport to use for credential related requests.
-   */
+  /** The HttpTransport to use for credential related requests. */
   public JsonFactory getJsonFactory() {
     return new JacksonFactory();
   }
 
-  /**
-   * For {@link Serializable}
-   */
+  /** For {@link Serializable} */
   private static final long serialVersionUID = 1L;
 }

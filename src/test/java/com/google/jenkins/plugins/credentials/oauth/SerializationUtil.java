@@ -17,12 +17,9 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import java.io.*;
 
-/**
- * Helper class for Serialization
- */
+/** Helper class for Serialization */
 public class SerializationUtil {
-  public static void serialize(Object object, OutputStream out)
-          throws IOException {
+  public static void serialize(Object object, OutputStream out) throws IOException {
     ObjectOutputStream objectOut = null;
     try {
       objectOut = new ObjectOutputStream(out);
@@ -38,7 +35,7 @@ public class SerializationUtil {
   }
 
   public static <T> T deserialize(Class<T> clazz, InputStream in)
-          throws IOException, ClassNotFoundException, ClassCastException {
+      throws IOException, ClassNotFoundException, ClassCastException {
     ObjectInputStream objectIn = null;
     try {
       objectIn = new ObjectInputStream(in);

@@ -15,15 +15,14 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.security.GeneralSecurityException;
-
 import com.google.api.client.auth.oauth2.Credential;
+import java.security.GeneralSecurityException;
 
 /**
  * Google-specific username / access token combination.
  *
- * <p>Implementations surface an API for obtaining the Google-standard
- * {@link Credential} object for interacting with OAuth2 APIs.
+ * <p>Implementations surface an API for obtaining the Google-standard {@link Credential} object for
+ * interacting with OAuth2 APIs.
  */
 public interface GoogleOAuth2Credentials
     extends StandardUsernameOAuth2Credentials<GoogleOAuth2ScopeRequirement> {

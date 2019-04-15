@@ -15,9 +15,6 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
@@ -26,30 +23,27 @@ import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
-
 import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import jenkins.model.Jenkins;
 
 /**
- * The base implementation of service account (aka robot) credentials using
- * OAuth2.  These robot credentials can be used to access Google APIs as the
- * robot user.
+ * The base implementation of service account (aka robot) credentials using OAuth2. These robot
+ * credentials can be used to access Google APIs as the robot user.
  *
  * @author Matt Moore
  */
-public abstract class GoogleRobotCredentials
-    implements GoogleOAuth2Credentials {
+public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials {
   /**
    * Base constructor for populating the name and id for Google credentials.
    *
    * @param projectId The project id with which this credential is associated.
-   * @param module The module to use for instantiating the dependencies of
-   * credentials.
+   * @param module The module to use for instantiating the dependencies of credentials.
    */
-  protected GoogleRobotCredentials(String projectId,
-      GoogleRobotCredentialsModule module) {
+  protected GoogleRobotCredentials(String projectId, GoogleRobotCredentialsModule module) {
     this.projectId = checkNotNull(projectId);
 
     if (module != null) {
@@ -59,50 +53,39 @@ public abstract class GoogleRobotCredentials
     }
   }
 
-  /**
-   * Fetch the module used for instantiating the dependencies
-   * of credentials
-   */
+  /** Fetch the module used for instantiating the dependencies of credentials */
   public GoogleRobotCredentialsModule getModule() {
     return module;
   }
+
   private final GoogleRobotCredentialsModule module;
 
-  /**
-   * Retrieve a unique identifier that should be used to link to this object.
-   */
+  /** Retrieve a unique identifier that should be used to link to this object. */
   public String getId() {
     return getProjectId();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public String getDescription() {
     return Messages.GoogleRobotCredentials_Description();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public AbstractGoogleRobotCredentialsDescriptor getDescriptor() {
-    return (AbstractGoogleRobotCredentialsDescriptor) Jenkins.getInstance()
-        .getDescriptorOrDie(getClass());
+    return (AbstractGoogleRobotCredentialsDescriptor)
+        Jenkins.getInstance().getDescriptorOrDie(getClass());
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public Secret getAccessToken(GoogleOAuth2ScopeRequirement requirement) {
     try {
       Credential credential = getGoogleCredential(requirement);
 
       Long rawExpiration = credential.getExpiresInSeconds();
-      if ((rawExpiration == null)
-          || (rawExpiration < MINIMUM_DURATION_SECONDS)) {
+      if ((rawExpiration == null) || (rawExpiration < MINIMUM_DURATION_SECONDS)) {
         // Access token expired or is near expiration.
         if (!credential.refreshToken()) {
           return null;
@@ -117,43 +100,35 @@ public abstract class GoogleRobotCredentials
     }
   }
 
-  /**
-   * The minimum duration to allow for an access token before attempting to
-   * refresh it.
-   */
-  private static final Long MINIMUM_DURATION_SECONDS =
-      new Long(3 * 60 /* 3 minutes*/);
+  /** The minimum duration to allow for an access token before attempting to refresh it. */
+  private static final Long MINIMUM_DURATION_SECONDS = new Long(3 * 60 /* 3 minutes*/);
 
   /**
-   * A trivial tuple for wrapping the list box of matched credentials with the
-   * requirements that were used to filter them.
+   * A trivial tuple for wrapping the list box of matched credentials with the requirements that
+   * were used to filter them.
    */
   public static class CredentialsListBoxModel extends ListBoxModel {
     public CredentialsListBoxModel(GoogleOAuth2ScopeRequirement requirement) {
       this.requirement = requirement;
     }
 
-    /**
-     * Retrieve the set of scopes for our requirement.
-     */
+    /** Retrieve the set of scopes for our requirement. */
     public Iterable<String> getScopes() {
       return requirement.getScopes();
     }
+
     private final GoogleOAuth2ScopeRequirement requirement;
   }
 
   /**
-   * Helper utility for populating a jelly list box with matching
-   * {@link GoogleRobotCredentials} to avoid listing credentials that avoids
-   * surfacing those with insufficient permissions.
+   * Helper utility for populating a jelly list box with matching {@link GoogleRobotCredentials} to
+   * avoid listing credentials that avoids surfacing those with insufficient permissions.
    *
-   * Modeled after:
-   *    http://developer-blog.cloudbees.com/2012/10/using-ssh-from-jenkins.html
+   * <p>Modeled after: http://developer-blog.cloudbees.com/2012/10/using-ssh-from-jenkins.html
    *
-   * @param clazz The class annotated with @RequiresDomain indicating its scope
-   * requirements.
-   * @return a list box populated solely with credentials compatible for the
-   *         extension being configured.
+   * @param clazz The class annotated with @RequiresDomain indicating its scope requirements.
+   * @return a list box populated solely with credentials compatible for the extension being
+   *     configured.
    */
   public static CredentialsListBoxModel getCredentialsListBox(Class<?> clazz) {
     GoogleOAuth2ScopeRequirement requirement =
@@ -167,7 +142,9 @@ public abstract class GoogleRobotCredentials
     CredentialsListBoxModel listBox = new CredentialsListBoxModel(requirement);
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
-            GoogleRobotCredentials.class, Jenkins.getInstance(), ACL.SYSTEM,
+            GoogleRobotCredentials.class,
+            Jenkins.getInstance(),
+            ACL.SYSTEM,
             ImmutableList.<DomainRequirement>of(requirement));
 
     for (GoogleRobotCredentials credentials : allGoogleCredentials) {
@@ -177,9 +154,7 @@ public abstract class GoogleRobotCredentials
     return listBox;
   }
 
-  /**
-   * Retrieves the {@link GoogleRobotCredentials} identified by {@code id}.
-   */
+  /** Retrieves the {@link GoogleRobotCredentials} identified by {@code id}. */
   public static GoogleRobotCredentials getById(String id) {
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
@@ -193,11 +168,8 @@ public abstract class GoogleRobotCredentials
     return null;
   }
 
-  /**
-   * Retrieve a version of the credential that can be used on a remote machine.
-   */
-  public GoogleRobotCredentials forRemote(
-      GoogleOAuth2ScopeRequirement requirement)
+  /** Retrieve a version of the credential that can be used on a remote machine. */
+  public GoogleRobotCredentials forRemote(GoogleOAuth2ScopeRequirement requirement)
       throws GeneralSecurityException {
     if (this instanceof RemotableGoogleCredentials) {
       return this;
@@ -206,11 +178,10 @@ public abstract class GoogleRobotCredentials
     }
   }
 
-  /**
-   * Retrieve the project id for this credential
-   */
+  /** Retrieve the project id for this credential */
   public String getProjectId() {
     return projectId;
   }
+
   private final String projectId;
 }

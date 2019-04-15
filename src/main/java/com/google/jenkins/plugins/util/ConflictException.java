@@ -15,15 +15,11 @@
  */
 package com.google.jenkins.plugins.util;
 
-/**
- * This exception is used to wrap and propagate 409 (Conflict) HTTP exceptions
- * up the stack.
- */
+/** This exception is used to wrap and propagate 409 (Conflict) HTTP exceptions up the stack. */
 public class ConflictException extends ExecutorException {
   public ConflictException(Throwable throwable) {
     super(throwable);
   }
 
-  public ConflictException() {
-  }
+  public ConflictException() {}
 }

@@ -16,16 +16,14 @@
 package com.google.jenkins.plugins.util;
 
 /**
- * This base exception class is used to wrap and propagate HTTP exceptions
- * for specific status codes up the stack.  We distinguish this kind from
- * {@link java.io.IOException} so that all other kinds of exceptions may
- * be safely handled while letting these propagate.
+ * This base exception class is used to wrap and propagate HTTP exceptions for specific status codes
+ * up the stack. We distinguish this kind from {@link java.io.IOException} so that all other kinds
+ * of exceptions may be safely handled while letting these propagate.
  */
 public abstract class ExecutorException extends Exception {
   public ExecutorException(Throwable throwable) {
     super(throwable);
   }
 
-  public ExecutorException() {
-  }
+  public ExecutorException() {}
 }

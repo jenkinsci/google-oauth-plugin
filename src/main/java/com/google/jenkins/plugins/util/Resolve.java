@@ -15,37 +15,34 @@
  */
 package com.google.jenkins.plugins.util;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import hudson.Util;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import hudson.Util;
-
 /**
- * Container class for static methods that resolve form entries with
- * typical form data, for use in Jenkins {@code doCheckFoo} methods.
+ * Container class for static methods that resolve form entries with typical form data, for use in
+ * Jenkins {@code doCheckFoo} methods.
  *
  * @author Matt Moore
  */
 public final class Resolve {
   /**
-   * Replaces Jenkins build variables (e.g. {@code $BUILD_NUMBER})
-   * with sample values, so the result can be form-validated.
+   * Replaces Jenkins build variables (e.g. {@code $BUILD_NUMBER}) with sample values, so the result
+   * can be form-validated.
    *
    * @param input The unresolved form input string
    * @return the string with substitutions made for built-in variables.
    */
   public static String resolveBuiltin(String input) {
-    return resolveBuiltinWithCustom(
-        checkNotNull(input), Collections.<String, String>emptyMap());
+    return resolveBuiltinWithCustom(checkNotNull(input), Collections.<String, String>emptyMap());
   }
 
   /**
-   * Replaces Jenkins build variables (e.g. {@code $BUILD_NUMBER})
-   * and custom user variables (e.g. {@code $foo}) with sample values,
-   * so the result can be form-validated.
+   * Replaces Jenkins build variables (e.g. {@code $BUILD_NUMBER}) and custom user variables (e.g.
+   * {@code $foo}) with sample values, so the result can be form-validated.
    *
    * @param input The unresolved form input string
    * @param customEnvironment The sample variable values to resolve
@@ -59,36 +56,33 @@ public final class Resolve {
     // Combine customEnvironment and sampleEnvironment into a new map.
     Map<String, String> combinedEnvironment = new HashMap<String, String>();
     combinedEnvironment.putAll(defaultValues);
-    combinedEnvironment.putAll(customEnvironment);  // allow overriding defaults
+    combinedEnvironment.putAll(customEnvironment); // allow overriding defaults
 
     return resolveCustom(input, combinedEnvironment);
   }
 
   /**
-   * Replaces a user's custom Jenkins variables (e.g. {@code $foo})
-   * with provided sample values, so the result can be form-validated.
+   * Replaces a user's custom Jenkins variables (e.g. {@code $foo}) with provided sample values, so
+   * the result can be form-validated.
    *
    * @param input The unresolved form input string
    * @param customEnvironment The sample variable values to resolve
    * @return the string with substitutions made for variables.
    */
-  public static String resolveCustom(
-      String input, Map<String, String> customEnvironment) {
+  public static String resolveCustom(String input, Map<String, String> customEnvironment) {
     checkNotNull(input);
     checkNotNull(customEnvironment);
 
     return Util.replaceMacro(input, customEnvironment);
   }
 
-  private static Map<String, String> defaultValues =
-      new HashMap<String, String>();
+  private static Map<String, String> defaultValues = new HashMap<String, String>();
 
   // See: http://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
   static {
     defaultValues.put("BUILD_NUMBER", "42");
     defaultValues.put("BUILD_ID", "2005-08-22_23-59-59");
-    defaultValues.put("BUILD_URL",
-        "http://buildserver/jenkins/job/MyJobName/666/");
+    defaultValues.put("BUILD_URL", "http://buildserver/jenkins/job/MyJobName/666/");
     defaultValues.put("NODE_NAME", "master");
     defaultValues.put("JOB_NAME", "hello world");
     defaultValues.put("BUILD_TAG", "jenkins-job name-42");
@@ -104,9 +98,7 @@ public final class Resolve {
     defaultValues = Collections.unmodifiableMap(defaultValues);
   }
 
-  /**
-   * Not intended for instantiation.
-   */
+  /** Not intended for instantiation. */
   private Resolve() {
     throw new UnsupportedOperationException("Not intended for instantiation");
   }
