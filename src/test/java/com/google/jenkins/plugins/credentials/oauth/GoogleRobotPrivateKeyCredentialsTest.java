@@ -15,6 +15,7 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -111,11 +113,15 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   public void testCreatePrivateKeyCredentialsWithJsonKeyType()
           throws Exception {
     when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
     when(mockFileItem.getInputStream())
             .thenReturn(new FileInputStream(jsonKeyPath));
+    when(mockFileItem.get())
+            .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID,
-                    new JsonServiceAccountConfig(mockFileItem, null), module);
+                    new JsonServiceAccountConfig(
+                            mockFileItem, null, null), module);
 
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, credentials.getUsername());
@@ -141,10 +147,13 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testCreatePrivateKeyCredentialsWithP12KeyType() throws Exception {
     when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(p12KeyPath);
     when(mockFileItem.getInputStream())
             .thenReturn(new FileInputStream(p12KeyPath));
+    when(mockFileItem.get())
+            .thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig keyType = new P12ServiceAccountConfig(
-            SERVICE_ACCOUNT_EMAIL_ADDRESS, mockFileItem, null);
+            SERVICE_ACCOUNT_EMAIL_ADDRESS, mockFileItem, null, null);
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID, keyType, module);
 
@@ -375,9 +384,16 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
   @Test
   public void testGetById() throws Exception {
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
+    when(mockFileItem.getInputStream())
+            .thenReturn(new FileInputStream(jsonKeyPath));
+    when(mockFileItem.get())
+            .thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     GoogleRobotPrivateKeyCredentials credentials =
             new GoogleRobotPrivateKeyCredentials(PROJECT_ID,
-                    new JsonServiceAccountConfig(mockFileItem, null), null);
+                    new JsonServiceAccountConfig(
+                            mockFileItem, null, null), null);
 
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
