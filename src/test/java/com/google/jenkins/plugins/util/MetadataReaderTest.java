@@ -15,8 +15,10 @@
  */
 package com.google.jenkins.plugins.util;
 
-import java.io.IOException;
-
+import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
+import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_OK;
+import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
+import static com.google.common.collect.Iterables.getOnlyElement;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -24,39 +26,29 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import com.google.api.client.testing.http.MockHttpTransport;
+import com.google.api.client.testing.http.MockLowLevelHttpRequest;
+import com.google.api.client.testing.http.MockLowLevelHttpResponse;
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
-import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
-import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_OK;
-import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
-import static com.google.common.collect.Iterables.getOnlyElement;
-
-import com.google.api.client.testing.http.MockHttpTransport;
-import com.google.api.client.testing.http.MockLowLevelHttpRequest;
-import com.google.api.client.testing.http.MockLowLevelHttpResponse;
-
-/**
- * Tests for {@link MetadataReader}.
- */
+/** Tests for {@link MetadataReader}. */
 public class MetadataReaderTest {
   private MockHttpTransport transport;
   private MockLowLevelHttpRequest request;
 
-  private void stubRequest(String url, int statusCode,
-      String responseContent) throws IOException {
-    request.setResponse(new MockLowLevelHttpResponse()
-        .setStatusCode(statusCode)
-        .setContent(responseContent));
+  private void stubRequest(String url, int statusCode, String responseContent) throws IOException {
+    request.setResponse(
+        new MockLowLevelHttpResponse().setStatusCode(statusCode).setContent(responseContent));
     doReturn(request).when(transport).buildRequest("GET", url);
   }
 
   private void verifyRequest(String key) throws IOException {
     verify(transport).buildRequest("GET", METADATA_ENDPOINT + key);
     verify(request).execute();
-    assertEquals("true", getOnlyElement(request.getHeaderValues(
-        "X-Google-Metadata-Request")));
+    assertEquals("true", getOnlyElement(request.getHeaderValues("X-Google-Metadata-Request")));
   }
 
   private MetadataReader underTest;
@@ -135,8 +127,7 @@ public class MetadataReaderTest {
     }
   }
 
-  private static String METADATA_ENDPOINT =
-      "http://metadata/computeMetadata/v1";
+  private static String METADATA_ENDPOINT = "http://metadata/computeMetadata/v1";
   private static String MY_KEY = "/my/metadata/path";
   private static String MY_VALUE = "RaNdOm value";
 }

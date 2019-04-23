@@ -15,13 +15,16 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.security.GeneralSecurityException;
-
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.cloudbees.plugins.credentials.CredentialsNameProvider;
+import com.cloudbees.plugins.credentials.CredentialsScope;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import java.security.GeneralSecurityException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.Before;
@@ -29,20 +32,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.cloudbees.plugins.credentials.CredentialsNameProvider;
-import com.cloudbees.plugins.credentials.CredentialsScope;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-
-/**
- * Tests for {@link RemotableGoogleCredentials}.
- */
+/** Tests for {@link RemotableGoogleCredentials}. */
 public class RemotableGoogleCredentialsTest {
 
   private GoogleCredential fakeCredential;
 
-  @Mock
-  private GoogleRobotCredentials mockCredentials;
+  @Mock private GoogleRobotCredentials mockCredentials;
 
   private TestGoogleOAuth2DomainRequirement testConsumer;
 
@@ -62,8 +57,7 @@ public class RemotableGoogleCredentialsTest {
     this.fakeCredential = new GoogleCredential();
 
     when(mockCredentials.getProjectId()).thenReturn(PROJECT_ID);
-    when(mockCredentials.getGoogleCredential(testConsumer))
-        .thenReturn(fakeCredential);
+    when(mockCredentials.getGoogleCredential(testConsumer)).thenReturn(fakeCredential);
     when(mockCredentials.getUsername()).thenReturn(USERNAME);
   }
 
@@ -101,8 +95,7 @@ public class RemotableGoogleCredentialsTest {
     Credential credential = credentials.getGoogleCredential(testConsumer);
 
     assertEquals(ACCESS_TOKEN, credential.getAccessToken());
-    assertThat(credential.getExpiresInSeconds().doubleValue(),
-        closeTo(EXPIRATION_SECONDS, 2));
+    assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 2));
   }
 
   public void testName() throws Exception {
@@ -112,10 +105,8 @@ public class RemotableGoogleCredentialsTest {
     GoogleRobotCredentials credentials =
         new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
 
-    assertEquals("RemotableGoogleCredentials",
-        CredentialsNameProvider.name(credentials));
+    assertEquals("RemotableGoogleCredentials", CredentialsNameProvider.name(credentials));
   }
-
 
   @Test(expected = UnsupportedOperationException.class)
   public void testUnsupportedDescriptor() throws Exception {
@@ -128,7 +119,7 @@ public class RemotableGoogleCredentialsTest {
     credentials.getDescriptor();
   }
 
-  private static final long ERROR = 1;  // 1 second error
+  private static final long ERROR = 1; // 1 second error
   private static final long IMMINENT_EXPIRATION_SECONDS = 60;
   private static final long EXPIRATION_SECONDS = 1234;
   private static final String USERNAME = "theUserName";

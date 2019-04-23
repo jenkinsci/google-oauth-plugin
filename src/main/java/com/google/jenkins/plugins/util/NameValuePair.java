@@ -24,24 +24,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @param <V> The type for the value
  */
 public class NameValuePair<N, V> {
-  /**
-   * Construct a pair from the given name and value.
-   */
+  /** Construct a pair from the given name and value. */
   public NameValuePair(N name, V value) {
     this.name = checkNotNull(name);
     this.value = checkNotNull(value);
   }
 
-  /**
-   * Fetches the name
-   */
+  /** Fetches the name */
   public N getName() {
     return this.name;
   }
 
-  /**
-   * Fetches the value
-   */
+  /** Fetches the value */
   public V getValue() {
     return this.value;
   }

@@ -15,25 +15,21 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import org.kohsuke.stapler.QueryParameter;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsDescriptor;
 import com.google.common.base.Strings;
-
 import hudson.util.FormValidation;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * The descriptor for Google robot account credential extensions.
  *
  * @author Matt Moore
  */
-public abstract class AbstractGoogleRobotCredentialsDescriptor
-    extends CredentialsDescriptor {
+public abstract class AbstractGoogleRobotCredentialsDescriptor extends CredentialsDescriptor {
   protected AbstractGoogleRobotCredentialsDescriptor(
-      Class<? extends GoogleRobotCredentials> clazz,
-      GoogleRobotCredentialsModule module) {
+      Class<? extends GoogleRobotCredentials> clazz, GoogleRobotCredentialsModule module) {
     super(clazz);
     this.module = checkNotNull(module);
   }
@@ -43,28 +39,22 @@ public abstract class AbstractGoogleRobotCredentialsDescriptor
     this(clazz, new GoogleRobotCredentialsModule());
   }
 
-  /**
-   * The module to use for instantiating depended upon resources
-   */
+  /** The module to use for instantiating depended upon resources */
   public GoogleRobotCredentialsModule getModule() {
     return module;
   }
+
   private final GoogleRobotCredentialsModule module;
 
-  /**
-   * Validate project-id entries
-   */
+  /** Validate project-id entries */
   public FormValidation doCheckProjectId(@QueryParameter String projectId) {
     if (!Strings.isNullOrEmpty(projectId)) {
       return FormValidation.ok();
     } else {
-      return FormValidation.error(
-          Messages.GoogleRobotMetadataCredentials_ProjectIDError());
+      return FormValidation.error(Messages.GoogleRobotMetadataCredentials_ProjectIDError());
     }
   }
 
-  /**
-   * For {@link Serializable}
-   */
+  /** For {@link Serializable} */
   private static final long serialVersionUID = 1L;
 }

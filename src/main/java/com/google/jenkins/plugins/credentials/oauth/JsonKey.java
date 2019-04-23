@@ -15,27 +15,22 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Key;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-
 import hudson.util.Secret;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
- * The
- * <a href="https://console.developers.google.com">Google Developer Console</a>
- * provides private keys for service accounts in two different ways. one of
- * them is a .json file that can be downloaded from the
- * <a href="https://console.developers.google.com">Google Developer Console</a>.
- * <p>
- * The structure of this json file is:
- * <code>
+ * The <a href="https://console.developers.google.com">Google Developer Console</a> provides private
+ * keys for service accounts in two different ways. one of them is a .json file that can be
+ * downloaded from the <a href="https://console.developers.google.com">Google Developer Console</a>.
+ *
+ * <p>The structure of this json file is: <code>
  *     {
  *       "private_key":"-----BEGIN PRIVATE KEY-----\n
  *                      ...
@@ -48,13 +43,12 @@ import hudson.util.Secret;
 public final class JsonKey extends GenericJson {
   @Key("client_email")
   private String clientEmail;
+
   @Key("private_key")
   private String privateKey;
 
-  public static JsonKey load(JsonFactory jsonFactory, InputStream inputStream)
-      throws IOException {
-    InputStreamReader reader = new InputStreamReader(inputStream,
-        Charsets.UTF_8);
+  public static JsonKey load(JsonFactory jsonFactory, InputStream inputStream) throws IOException {
+    InputStreamReader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
     try {
       Secret decoded = Secret.fromString(CharStreams.toString(reader));
       return jsonFactory.fromString(decoded.getPlainText(), JsonKey.class);

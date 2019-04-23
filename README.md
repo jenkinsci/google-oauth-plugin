@@ -33,6 +33,13 @@ See [Plugin Source Build Installation](docs/source_build_installation.md) to bui
 ## Feature requests and bug reports
 Please file feature requests and bug reports as [GitHub Issues](https://github.com/jenkinsci/google-oauth-plugin/issues).
 
+## Community
+
+The GCP Jenkins community uses the **#gcp-jenkins** slack channel on
+[https://googlecloud-community.slack.com](https://googlecloud-community.slack.com)
+to ask questions and share feedback. Invitation link available
+[here](https://join.slack.com/t/googlecloud-community/shared_invite/enQtNDI2NjAyODQ4NzA5LThlOGVhMzUyNDUyNmVmNTQ5YzMxYmYxNDk1YjdmZjU4ZjBiYmU1OGEzYWE2MWY1NWY4NTQ1NjAwOWRlN2ZlN2I).
+
 ## License
 See [LICENSE](LICENSE)
 

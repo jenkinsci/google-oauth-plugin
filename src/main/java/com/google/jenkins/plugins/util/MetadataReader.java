@@ -15,10 +15,6 @@
  */
 package com.google.jenkins.plugins.util;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_FORBIDDEN;
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
@@ -32,34 +28,32 @@ import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.common.base.Charsets;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 
 /**
- * This helper utility is used for reading values out of a Google Compute Engine
- * instance's attached metadata service.
+ * This helper utility is used for reading values out of a Google Compute Engine instance's attached
+ * metadata service.
  *
  * @author Matt Moore
  */
 public interface MetadataReader {
-  /**
-   * Are we on a Google Compute Engine instance?
-   */
+  /** Are we on a Google Compute Engine instance? */
   boolean hasMetadata() throws IOException;
 
   /**
-   * Reads the specified sub-element out of the Google Compute Engine instance's
-   * metadata.  These relative paths are expected to start with:
+   * Reads the specified sub-element out of the Google Compute Engine instance's metadata. These
+   * relative paths are expected to start with:
+   *
    * <ul>
    *   <li>/instance/...
    *   <li>/project/...
    * </ul>
    */
-  String readMetadata(String metadataPath)
-      throws IOException, ExecutorException;
+  String readMetadata(String metadataPath) throws IOException, ExecutorException;
 
-  /**
-   * A simple default implementation that reads metadata via
-   * http requests.
-   */
+  /** A simple default implementation that reads metadata via http requests. */
   public static class Default implements MetadataReader {
     public Default() {
       this(new NetHttpTransport().createRequestFactory());
@@ -68,14 +62,14 @@ public interface MetadataReader {
     public Default(HttpRequestFactory requestFactory) {
       this.requestFactory = checkNotNull(requestFactory);
     }
+
     private final HttpRequestFactory requestFactory;
 
     /** {@inheritDoc} */
     @Override
-    public String readMetadata(String metadataPath)
-        throws IOException, ExecutorException {
-      HttpRequest request = requestFactory.buildGetRequest(
-          new GenericUrl(METADATA_SERVER + metadataPath));
+    public String readMetadata(String metadataPath) throws IOException, ExecutorException {
+      HttpRequest request =
+          requestFactory.buildGetRequest(new GenericUrl(METADATA_SERVER + metadataPath));
 
       // GCE v1 requires requests to the metadata service to specify
       // this header in order to get anything back.
@@ -98,8 +92,7 @@ public interface MetadataReader {
 
       InputStreamReader inChars = null;
       try {
-        inChars = new InputStreamReader(
-            checkNotNull(response.getContent()), Charsets.UTF_8);
+        inChars = new InputStreamReader(checkNotNull(response.getContent()), Charsets.UTF_8);
         StringWriter output = new StringWriter();
         copy(inChars, output);
         return output.toString();
@@ -124,10 +117,9 @@ public interface MetadataReader {
     }
 
     /**
-     * The address of the GCE Metadata service that provides GCE instances with
-     * information about the default service account.
+     * The address of the GCE Metadata service that provides GCE instances with information about
+     * the default service account.
      */
-    public static final String METADATA_SERVER =
-        "http://metadata/computeMetadata/v1";
+    public static final String METADATA_SERVER = "http://metadata/computeMetadata/v1";
   }
 }
