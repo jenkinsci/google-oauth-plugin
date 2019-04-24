@@ -30,7 +30,41 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  ### Removed
 				 
  ### Fixed
+
+## [0.8] 2019-04-24
+
+ ### Security
  
+ ### Added
+ - License headers that were missing.
+ - xml-format-maven plugin for formatting pom.xml.
+ - tidy-maven plugin for maintaining a consistent structure in pom.xml.
+ - Support for Jenkins Configuration as Code plugin. Use the base64 encoded
+   secret directly in the configuration. `filename` is optional but recommended
+   if you plan to also use the Jenkins UI.
+ - Test-only dependencies on the configuration-as-code, plain credentials
+   and ssh-credentials plugins.
+ - fmt-maven-plugin for automatically formatting java files when built.
+  
+ ### Changed
+ - Use SecretBytes to store credentials, rather than files.
+ - When uploaded through the UI, the file name serves as an identifier for the
+   key when choosing whether to upload a new key. The file name will be as
+   uploaded rather than a new randomly generated file name
+ - Updated base plugin version to 3.36
+ - Updated Java version to 8
+ - Updated minimum Jenkins version to 2.60.3
+ - Updated credentials plugin to 2.1.16
+ - Updated maven-javadoc-plugin to 2.10.4
+				
+ ### Removed
+ - Issue #49: find-bugs plugin (spot-bugs now inherited from parent plugin pom)
+				 
+ ### Fixed
+ - Various issues related to the use of manually generated files
+   - Not able to load files after system restart, leading to NPEs in some 
+   - Not able to update permissions on created files, so fail to have a usable key.
+
 ## [0.7] - 2019-02-06
 
  ### Security
