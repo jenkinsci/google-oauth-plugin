@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 				 
  ### Fixed
 
-## [0.8]
+## [0.8] 2019-04-24
 
  ### Security
  
@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Updated maven-javadoc-plugin to 2.10.4
 				
  ### Removed
- - \#49: find-bugs plugin (spot-bugs now inherited from parent plugin pom)
+ - Issue #49: find-bugs plugin (spot-bugs now inherited from parent plugin pom)
 				 
  ### Fixed
  - Various issues related to the use of manually generated files
