@@ -80,6 +80,7 @@
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.threshold>Medium</findbugs.threshold>
+    <doclint>none</doclint>
   </properties>
 
   <dependencies>
