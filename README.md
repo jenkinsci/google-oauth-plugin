@@ -38,7 +38,7 @@ Please file feature requests and bug reports as [GitHub Issues](https://github.c
 The GCP Jenkins community uses the **#gcp-jenkins** slack channel on
 [https://googlecloud-community.slack.com](https://googlecloud-community.slack.com)
 to ask questions and share feedback. Invitation link available
-here: [http://bit.ly/gcp-slack]( http://bit.ly/gcp-slack).
+here: [http://bit.ly/gcp-slack](http://bit.ly/gcp-slack).
 
 ## License
 See [LICENSE](LICENSE)
