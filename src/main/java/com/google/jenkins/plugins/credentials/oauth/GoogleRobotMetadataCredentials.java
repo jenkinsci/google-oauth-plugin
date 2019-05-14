@@ -215,6 +215,6 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     private static final String SCOPES_PATH = "/instance/service-accounts/default/scopes";
   }
 
-  /** For {@link Serializable} */
+  /** For {@link java.io.Serializable} */
   private static final long serialVersionUID = 1L;
 }

@@ -81,6 +81,7 @@
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.threshold>Medium</findbugs.threshold>
     <doclint>none</doclint>
+    <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
   </properties>
 
   <dependencies>
@@ -299,11 +300,20 @@
               <exclude>com/google/jenkins/plugins/**/Messages.class</exclude>
             </excludes>
           </instrumentation>
-          <check />
+          <check/>
           <formats>
             <format>html</format>
             <format>xml</format>
           </formats>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <includes>
+            <include>${runSuite}</include>
+          </includes>
         </configuration>
       </plugin>
     </plugins>

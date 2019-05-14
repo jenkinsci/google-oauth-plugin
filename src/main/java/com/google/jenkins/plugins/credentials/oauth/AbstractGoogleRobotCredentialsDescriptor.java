@@ -55,6 +55,6 @@ public abstract class AbstractGoogleRobotCredentialsDescriptor extends Credentia
     }
   }
 
-  /** For {@link Serializable} */
+  /** For {@link java.io.Serializable} */
   private static final long serialVersionUID = 1L;
 }

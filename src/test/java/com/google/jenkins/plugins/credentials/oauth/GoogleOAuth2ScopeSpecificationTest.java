@@ -19,7 +19,6 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.domains.DomainSpecification.Result;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
@@ -28,15 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.WithoutJenkins;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link GoogleOAuth2ScopeSpecification}. */
 public class GoogleOAuth2ScopeSpecificationTest {
   // Allow for testing using JUnit4, instead of JUnit3.
   @Rule public JenkinsRule jenkins = new JenkinsRule();
-
-  @Mock private Credentials mockCredentials;
 
   @Before
   public void setUp() throws Exception {

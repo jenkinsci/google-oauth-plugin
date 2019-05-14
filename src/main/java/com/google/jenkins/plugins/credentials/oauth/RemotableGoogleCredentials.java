@@ -117,6 +117,9 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
   /** The time at which the accessToken will expire. */
   private final long expiration;
 
-  /** The minimum duration to allow for an access token before attempting to refresh it. */
-  private static final Long MINIMUM_DURATION_SECONDS = new Long(5 * 60 /* 5 minutes */);
+  /**
+   * The minimum duration {@code 5 minutes} to allow for an access token before attempting to
+   * refresh it.
+   */
+  private static final Long MINIMUM_DURATION_SECONDS = 300L;
 }

@@ -18,7 +18,7 @@ package com.google.jenkins.plugins.credentials.oauth;
 import com.google.jenkins.plugins.util.MetadataReader;
 
 /**
- * An abstraction interface for instantiating the dependencies of the {@code
+ * An abstraction interface for instantiating the dependencies of the {@link
  * GoogleRobotMetadataCredentials}.
  */
 public class GoogleRobotMetadataCredentialsModule extends GoogleRobotCredentialsModule {

@@ -15,6 +15,7 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Key;
@@ -24,8 +25,8 @@ import java.io.InputStream;
 
 /**
  * For "Robot" service account client secrets a key piece of information is the email address
- * contained within "client_secrets.json", which the existing {@code GoogleClientSecrets} class does
- * not parse. This makeshift partial copy of {@code GoogleClientSecrets} implements *just* the
+ * contained within "client_secrets.json", which the existing {@link GoogleClientSecrets} class does
+ * not parse. This makeshift partial copy of {@link GoogleClientSecrets} implements *just* the
  * "client_email" parsing.
  *
  * @author Matt Moore
@@ -46,7 +47,7 @@ public final class LegacyJsonKey extends GenericJson {
     this.web = web;
   }
 
-  /** Container for our new field, modeled after: {@code GoogleClientSecrets.Details} */
+  /** Container for our new field, modeled after: {@link GoogleClientSecrets.Details} */
   public static final class Details extends GenericJson {
     /** Client email. */
     @Key("client_email")

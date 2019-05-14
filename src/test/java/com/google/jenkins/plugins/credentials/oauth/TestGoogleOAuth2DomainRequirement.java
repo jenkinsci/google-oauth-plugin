@@ -15,8 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /** This is a trivial implementation of a {@link GoogleOAuth2ScopeRequirement}. */
 public class TestGoogleOAuth2DomainRequirement extends GoogleOAuth2ScopeRequirement {
@@ -28,7 +28,7 @@ public class TestGoogleOAuth2DomainRequirement extends GoogleOAuth2ScopeRequirem
 
   @Override
   public Collection<String> getScopes() {
-    return Arrays.asList(scope);
+    return Collections.singletonList(scope);
   }
 
   private final String scope;
