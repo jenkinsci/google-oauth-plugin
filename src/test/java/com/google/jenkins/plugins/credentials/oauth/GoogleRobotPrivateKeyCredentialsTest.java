@@ -25,6 +25,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -64,7 +65,6 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   private MockHttpTransport transport;
   private MockLowLevelHttpRequest request;
   @Mock private FileItem mockFileItem;
-  @Mock private GoogleCredential credential;
   private GoogleRobotCredentialsModule module;
 
   @BeforeClass
@@ -371,17 +371,13 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId("").kind);
   }
 
-  // TODO(mattmoor): Figure out why this flakes out so much under testing
-  // @Test
-  // public void testName() throws Exception {
-  //   GoogleRobotPrivateKeyCredentials credentials =
-  //       new GoogleRobotPrivateKeyCredentials(PROJECT_ID, "", mockFileItem,
-  //           "", mockFileItem, null /* module */);
-  //   SystemCredentialsProvider.getInstance().getCredentials()
-  //      .add(credentials);
+  @Test
+  public void testName() throws Exception {
+    GoogleRobotPrivateKeyCredentials credentials =
+        new GoogleRobotPrivateKeyCredentials(PROJECT_ID, null, module);
+    SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
-  //   assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
-  //   assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(
-  //       credentials));
-  // }
+    assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
+    assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
+  }
 }

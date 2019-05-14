@@ -22,7 +22,7 @@ import com.google.api.client.json.jackson.JacksonFactory;
 import java.io.Serializable;
 
 /**
- * An abstraction interface for instantiating the dependencies of the {@code
+ * An abstraction interface for instantiating the dependencies of the {@link
  * GoogleRobotCredentials}.
  */
 public class GoogleRobotCredentialsModule implements Serializable {

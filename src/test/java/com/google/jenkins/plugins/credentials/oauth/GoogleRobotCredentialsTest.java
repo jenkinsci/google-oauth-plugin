@@ -131,9 +131,7 @@ public class GoogleRobotCredentialsTest {
   @Test
   @WithoutJenkins
   public void testWithId() throws Exception {
-    final String id = "asdf-bjkjdkjf";
     FakeGoogleCredentials credentials = new FakeGoogleCredentials(PROJECT_ID, fakeCredential);
-
     assertEquals(PROJECT_ID, credentials.getId());
   }
 

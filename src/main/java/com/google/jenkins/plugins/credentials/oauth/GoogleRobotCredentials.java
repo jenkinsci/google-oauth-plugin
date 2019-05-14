@@ -28,6 +28,7 @@ import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Collections;
 import jenkins.model.Jenkins;
 
 /**
@@ -100,8 +101,9 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
     }
   }
 
+  /* 3 minutes*/
   /** The minimum duration to allow for an access token before attempting to refresh it. */
-  private static final Long MINIMUM_DURATION_SECONDS = new Long(3 * 60 /* 3 minutes*/);
+  private static final Long MINIMUM_DURATION_SECONDS = 180L;
 
   /**
    * A trivial tuple for wrapping the list box of matched credentials with the requirements that
@@ -158,7 +160,10 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
   public static GoogleRobotCredentials getById(String id) {
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
-            GoogleRobotCredentials.class, Jenkins.getInstance(), ACL.SYSTEM);
+            GoogleRobotCredentials.class,
+            Jenkins.getInstance(),
+            ACL.SYSTEM,
+            Collections.emptyList());
 
     for (GoogleRobotCredentials credentials : allGoogleCredentials) {
       if (credentials.getId().equals(id)) {

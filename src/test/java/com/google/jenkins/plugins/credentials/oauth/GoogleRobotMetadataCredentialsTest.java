@@ -26,6 +26,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.SystemCredentialsProvider;
 import com.google.api.client.auth.oauth2.Credential;
@@ -302,17 +303,15 @@ public class GoogleRobotMetadataCredentialsTest {
   }
 
   // TODO(mattmoor): Figure out why this flakes out so much under testing
-  // @Test
-  // public void testName() throws Exception {
-  //   GoogleRobotMetadataCredentials credentials =
-  //       new GoogleRobotMetadataCredentials(PROJECT_ID, null /* module */);
-  //   SystemCredentialsProvider.getInstance().getCredentials()
-  //      .add(credentials);
+  @Test
+  public void testName() throws Exception {
+    GoogleRobotMetadataCredentials credentials =
+        new GoogleRobotMetadataCredentials(PROJECT_ID, null /* module */);
+    SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
-  //   assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
-  //   assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(
-  //       credentials));
-  // }
+    assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
+    assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
+  }
 
   @Test
   public void testProjectIdValidation() throws Exception {
@@ -330,7 +329,6 @@ public class GoogleRobotMetadataCredentialsTest {
           + "/computeMetadata/v1/"
           + "instance/service-accounts/default/token";
   private static final String USERNAME = "bazinga";
-  private static final long EXPIRATION_SECONDS = 1234;
   private static final String ACCESS_TOKEN = "ThE.ToKeN";
   private static final String PROJECT_ID = "foo.com:bar-baz";
   private static final String FAKE_SCOPE = "my.fake.scope";
