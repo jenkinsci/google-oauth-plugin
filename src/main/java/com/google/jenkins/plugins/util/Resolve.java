@@ -37,7 +37,7 @@ public final class Resolve {
    * @return the string with substitutions made for built-in variables.
    */
   public static String resolveBuiltin(String input) {
-    return resolveBuiltinWithCustom(checkNotNull(input), Collections.<String, String>emptyMap());
+    return resolveBuiltinWithCustom(checkNotNull(input), Collections.emptyMap());
   }
 
   /**
@@ -54,7 +54,7 @@ public final class Resolve {
     checkNotNull(customEnvironment);
 
     // Combine customEnvironment and sampleEnvironment into a new map.
-    Map<String, String> combinedEnvironment = new HashMap<String, String>();
+    Map<String, String> combinedEnvironment = new HashMap<>();
     combinedEnvironment.putAll(defaultValues);
     combinedEnvironment.putAll(customEnvironment); // allow overriding defaults
 
@@ -76,7 +76,7 @@ public final class Resolve {
     return Util.replaceMacro(input, customEnvironment);
   }
 
-  private static Map<String, String> defaultValues = new HashMap<String, String>();
+  private static Map<String, String> defaultValues = new HashMap<>();
 
   // See: http://wiki.jenkins-ci.org/display/JENKINS/Building+a+software+project
   static {

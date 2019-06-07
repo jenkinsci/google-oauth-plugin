@@ -139,7 +139,7 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * @return list of possible {@link ServiceAccountConfig}s
    */
   public static List<ServiceAccountConfig.Descriptor> getServiceAccountConfigDescriptors() {
-    Jenkins instance = Jenkins.getInstance();
+    Jenkins instance = Jenkins.get();
     return ImmutableList.of(
         (ServiceAccountConfig.Descriptor)
             instance.getDescriptorOrDie(JsonServiceAccountConfig.class),
@@ -165,7 +165,7 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * details see {@code /lib/auth/credentials.jelly}.
    */
   public static String getHelpFile() {
-    return Jenkins.getInstance()
+    return Jenkins.get()
         .getDescriptorOrDie(GoogleRobotPrivateKeyCredentials.class)
         .getHelpFile("credentials");
   }

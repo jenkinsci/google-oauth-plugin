@@ -76,7 +76,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
   @Override
   public AbstractGoogleRobotCredentialsDescriptor getDescriptor() {
     return (AbstractGoogleRobotCredentialsDescriptor)
-        Jenkins.getInstance().getDescriptorOrDie(getClass());
+        Jenkins.get().getDescriptorOrDie(getClass());
   }
 
   /** {@inheritDoc} */
@@ -94,9 +94,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
       }
 
       return Secret.fromString(credential.getAccessToken());
-    } catch (IOException e) {
-      return null;
-    } catch (GeneralSecurityException e) {
+    } catch (IOException | GeneralSecurityException e) {
       return null;
     }
   }
@@ -145,9 +143,9 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
             GoogleRobotCredentials.class,
-            Jenkins.getInstance(),
+            Jenkins.get(),
             ACL.SYSTEM,
-            ImmutableList.<DomainRequirement>of(requirement));
+            ImmutableList.of(requirement));
 
     for (GoogleRobotCredentials credentials : allGoogleCredentials) {
       String name = CredentialsNameProvider.name(credentials);
@@ -161,7 +159,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
             GoogleRobotCredentials.class,
-            Jenkins.getInstance(),
+            Jenkins.get(),
             ACL.SYSTEM,
             Collections.emptyList());
 
