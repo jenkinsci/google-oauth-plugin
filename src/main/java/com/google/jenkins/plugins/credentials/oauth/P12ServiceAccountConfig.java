@@ -155,7 +155,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
 
   @Override
   public DescriptorImpl getDescriptor() {
-    return (DescriptorImpl) Jenkins.getInstance().getDescriptorOrDie(P12ServiceAccountConfig.class);
+    return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(P12ServiceAccountConfig.class);
   }
 
   public String getEmailAddress() {

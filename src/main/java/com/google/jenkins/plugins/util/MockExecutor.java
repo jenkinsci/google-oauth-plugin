@@ -35,10 +35,10 @@ import java.util.LinkedList;
  */
 public class MockExecutor extends Executor {
   public MockExecutor() {
-    requestTypes = new LinkedList<Class<?>>();
-    responses = new LinkedList<Object>();
-    exceptions = new LinkedList<Exception>();
-    predicates = new LinkedList<Predicate<?>>();
+    requestTypes = new LinkedList<>();
+    responses = new LinkedList<>();
+    exceptions = new LinkedList<>();
+    predicates = new LinkedList<>();
     sawUnexpected = false;
   }
 
@@ -115,7 +115,7 @@ public class MockExecutor extends Executor {
    */
   public <T, C extends AbstractGoogleJsonClientRequest<T>> void when(
       Class<C> requestType, T response) {
-    when(requestType, response, Predicates.<C>alwaysTrue());
+    when(requestType, response, Predicates.alwaysTrue());
   }
 
   /**
@@ -133,7 +133,7 @@ public class MockExecutor extends Executor {
    */
   public <T, C extends AbstractGoogleJsonClientRequest<T>> void throwWhen(
       Class<C> requestType, IOException exception) {
-    throwWhen(requestType, exception, Predicates.<C>alwaysTrue());
+    throwWhen(requestType, exception, Predicates.alwaysTrue());
   }
 
   /**
@@ -151,7 +151,7 @@ public class MockExecutor extends Executor {
    */
   public <T, C extends AbstractGoogleJsonClientRequest<T>> void throwWhen(
       Class<C> requestType, ExecutorException exception) {
-    throwWhen(requestType, exception, Predicates.<C>alwaysTrue());
+    throwWhen(requestType, exception, Predicates.alwaysTrue());
   }
 
   /**
@@ -184,7 +184,7 @@ public class MockExecutor extends Executor {
    * getJsonContent()} cast to the expected response type.
    */
   public <T, C extends AbstractGoogleJsonClientRequest<T>> void passThruWhen(Class<C> requestType) {
-    passThruWhen(requestType, Predicates.<C>alwaysTrue());
+    passThruWhen(requestType, Predicates.alwaysTrue());
   }
 
   /** Did we see all of the expected requests? */

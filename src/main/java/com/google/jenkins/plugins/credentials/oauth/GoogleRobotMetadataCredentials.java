@@ -74,7 +74,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
           new Domain(
               "metadata",
               "",
-              ImmutableList.<DomainSpecification>of(
+              ImmutableList.of(
                   new GoogleOAuth2ScopeSpecification(getDescriptor().defaultScopes())));
     }
     return metadataScopes.test(requirements);
@@ -87,10 +87,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
   public String getUsername() {
     try {
       return getModule().getMetadataReader().readMetadata(IDENTITY_PATH);
-    } catch (ExecutorException e) {
-      throw new IllegalStateException(
-          Messages.GoogleRobotMetadataCredentials_DefaultIdentityError(), e);
-    } catch (IOException e) {
+    } catch (ExecutorException | IOException e) {
       throw new IllegalStateException(
           Messages.GoogleRobotMetadataCredentials_DefaultIdentityError(), e);
     }
@@ -180,9 +177,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     public String defaultProject() {
       try {
         return getModule().getMetadataReader().readMetadata(PROJECT_ID_PATH);
-      } catch (ExecutorException e) {
-        return null;
-      } catch (IOException e) {
+      } catch (ExecutorException | IOException e) {
         return null;
       }
     }
@@ -198,9 +193,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
         String scopes = getModule().getMetadataReader().readMetadata(SCOPES_PATH);
 
         return Lists.newArrayList(Splitter.on('\n').trimResults().omitEmptyStrings().split(scopes));
-      } catch (ExecutorException e) {
-        return ImmutableList.of();
-      } catch (IOException e) {
+      } catch (ExecutorException | IOException e) {
         return ImmutableList.of();
       }
     }

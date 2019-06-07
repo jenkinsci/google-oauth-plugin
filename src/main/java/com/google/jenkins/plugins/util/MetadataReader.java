@@ -90,16 +90,11 @@ public interface MetadataReader {
         }
       }
 
-      InputStreamReader inChars = null;
-      try {
-        inChars = new InputStreamReader(checkNotNull(response.getContent()), Charsets.UTF_8);
+      try (InputStreamReader inChars = new InputStreamReader(checkNotNull(response.getContent()),
+          Charsets.UTF_8)) {
         StringWriter output = new StringWriter();
         copy(inChars, output);
         return output.toString();
-      } finally {
-        if (inChars != null) {
-          inChars.close();
-        }
       }
     }
 
@@ -109,9 +104,7 @@ public interface MetadataReader {
       try {
         readMetadata("");
         return true;
-      } catch (IOException e) {
-        return false;
-      } catch (ExecutorException e) {
+      } catch (IOException | ExecutorException e) {
         return false;
       }
     }
