@@ -72,10 +72,10 @@
 
   <!-- Bring some sanity to version numbering... -->
   <properties>
-    <jenkins.version>2.60.3</jenkins.version>
+    <jenkins.version>2.138.4</jenkins.version>
     <google.api.version>1.24.1</google.api.version>
-    <configuration-as-code.version>1.9</configuration-as-code.version>
-    <credentials.version>2.1.16</credentials.version>
+    <configuration-as-code.version>1.19</configuration-as-code.version>
+    <credentials.version>2.2.0</credentials.version>
     <java.level>8</java.level>
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
@@ -130,27 +130,6 @@
       <artifactId>configuration-as-code</artifactId>
       <version>${configuration-as-code.version}</version>
       <classifier>tests</classifier>
-      <scope>test</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.jenkins.configuration-as-code</groupId>
-      <artifactId>configuration-as-code-support</artifactId>
-      <version>${configuration-as-code.version}</version>
-      <scope>test</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>plain-credentials</artifactId>
-      <version>1.5</version>
-      <scope>test</scope>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.jenkins-ci.plugins</groupId>
-      <artifactId>ssh-credentials</artifactId>
-      <version>1.13</version>
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
