@@ -20,6 +20,7 @@ import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Key;
 import com.google.common.base.Charsets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -33,6 +34,7 @@ import java.io.InputStream;
  */
 @Deprecated
 @SuppressWarnings("deprecation")
+@SuppressFBWarnings("EQ_DOESNT_OVERRIDE_EQUALS")
 public final class LegacyJsonKey extends GenericJson {
 
   /** Details for web applications. */

@@ -64,11 +64,11 @@ by Joshua Bloch in his book Effective Java -->
       <!-- Checks for unused import statements. -->
       <!-- DPL is a notable violator of this rule. -->
       <property name="severity" value="error"/>
+      <property name="processJavadoc" value="true"/>
     </module>
 
     <module name="ImportOrder">
       <!-- Checks for out of order import statements. -->
-      <property name="groups" value="/^javax?\./,org"/>
       <property name="ordered" value="true"/>
       <property name="separated" value="true"/>
       <property name="option" value="above"/>
@@ -137,7 +137,7 @@ by Joshua Bloch in his book Effective Java -->
 
     <module name="LineLength">
       <!-- Checks if a line is too long. -->
-      <property name="max" value="${com.puppycrawl.tools.checkstyle.checks.sizes.LineLength.max}" default="80"/>
+      <property name="max" value="${com.puppycrawl.tools.checkstyle.checks.sizes.LineLength.max}" default="100"/>
       <property name="severity" value="error"/>
 
       <!--

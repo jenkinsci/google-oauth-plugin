@@ -90,8 +90,8 @@ public interface MetadataReader {
         }
       }
 
-      try (InputStreamReader inChars = new InputStreamReader(checkNotNull(response.getContent()),
-          Charsets.UTF_8)) {
+      try (InputStreamReader inChars =
+          new InputStreamReader(checkNotNull(response.getContent()), Charsets.UTF_8)) {
         StringWriter output = new StringWriter();
         copy(inChars, output);
         return output.toString();

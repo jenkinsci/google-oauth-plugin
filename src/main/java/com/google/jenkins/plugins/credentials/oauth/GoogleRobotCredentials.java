@@ -19,7 +19,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
@@ -75,8 +74,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
   /** {@inheritDoc} */
   @Override
   public AbstractGoogleRobotCredentialsDescriptor getDescriptor() {
-    return (AbstractGoogleRobotCredentialsDescriptor)
-        Jenkins.get().getDescriptorOrDie(getClass());
+    return (AbstractGoogleRobotCredentialsDescriptor) Jenkins.get().getDescriptorOrDie(getClass());
   }
 
   /** {@inheritDoc} */
@@ -142,10 +140,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
     CredentialsListBoxModel listBox = new CredentialsListBoxModel(requirement);
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
-            GoogleRobotCredentials.class,
-            Jenkins.get(),
-            ACL.SYSTEM,
-            ImmutableList.of(requirement));
+            GoogleRobotCredentials.class, Jenkins.get(), ACL.SYSTEM, ImmutableList.of(requirement));
 
     for (GoogleRobotCredentials credentials : allGoogleCredentials) {
       String name = CredentialsNameProvider.name(credentials);
@@ -158,10 +153,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
   public static GoogleRobotCredentials getById(String id) {
     Iterable<GoogleRobotCredentials> allGoogleCredentials =
         CredentialsProvider.lookupCredentials(
-            GoogleRobotCredentials.class,
-            Jenkins.get(),
-            ACL.SYSTEM,
-            Collections.emptyList());
+            GoogleRobotCredentials.class, Jenkins.get(), ACL.SYSTEM, Collections.emptyList());
 
     for (GoogleRobotCredentials credentials : allGoogleCredentials) {
       if (credentials.getId().equals(id)) {
