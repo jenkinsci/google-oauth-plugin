@@ -20,7 +20,6 @@ import com.cloudbees.plugins.credentials.NameWith;
 import com.cloudbees.plugins.credentials.domains.Domain;
 import com.cloudbees.plugins.credentials.domains.DomainRequirement;
 import com.cloudbees.plugins.credentials.domains.DomainRestrictedCredentials;
-import com.cloudbees.plugins.credentials.domains.DomainSpecification;
 import com.google.api.client.googleapis.compute.ComputeCredential;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;

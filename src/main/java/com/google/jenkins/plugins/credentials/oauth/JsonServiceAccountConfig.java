@@ -160,8 +160,7 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
 
   @Override
   public DescriptorImpl getDescriptor() {
-    return (DescriptorImpl)
-        Jenkins.get().getDescriptorOrDie(JsonServiceAccountConfig.class);
+    return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(JsonServiceAccountConfig.class);
   }
 
   /**

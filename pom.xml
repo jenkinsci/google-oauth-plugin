@@ -68,7 +68,7 @@
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <jenkins.version>2.138.4</jenkins.version>
-    <google.api.version>1.24.1</google.api.version>
+    <google.api.version>1.29.2</google.api.version>
     <configuration-as-code.version>1.19</configuration-as-code.version>
     <credentials.version>2.2.0</credentials.version>
     <java.level>8</java.level>
@@ -156,7 +156,7 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-oauth2</artifactId>
-      <version>v2-rev140-${google.api.version}</version>
+      <version>v2-rev20190313-${google.api.version}</version>
     </dependency>
     <!-- plugin dependencies -->
     <dependency>
@@ -199,9 +199,9 @@
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
           <configLocation>checkstyle.xml</configLocation>
           <headerLocation>checkstyleJavaHeader</headerLocation>
-          <failsOnError>false</failsOnError>
-          <failOnViolation>false</failOnViolation>
-          <violationSeverity>info</violationSeverity>
+          <failsOnError>true</failsOnError>
+          <failOnViolation>true</failOnViolation>
+          <violationSeverity>warning</violationSeverity>
           <consoleOutput>false</consoleOutput>
         </configuration>
         <executions>
