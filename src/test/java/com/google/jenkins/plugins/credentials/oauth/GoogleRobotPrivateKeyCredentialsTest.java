@@ -121,7 +121,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     assertNotNull(googleCredential);
 
     stubRequest(
-        "https://oauth2.googleapis.com/token",
+        "https://accounts.google.com/o/oauth2/token",
         HttpStatusCodes.STATUS_CODE_OK,
         "{\"access_token\":\""
             + ACCESS_TOKEN
@@ -133,7 +133,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
       assertTrue(googleCredential.refreshToken());
       assertEquals(ACCESS_TOKEN, googleCredential.getAccessToken());
     } finally {
-      verifyRequest("https://oauth2.googleapis.com/token");
+      verifyRequest("https://accounts.google.com/o/oauth2/token");
     }
   }
 
@@ -156,7 +156,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     assertNotNull(googleCredential);
 
     stubRequest(
-        "https://oauth2.googleapis.com/token",
+        "https://accounts.google.com/o/oauth2/token",
         HttpStatusCodes.STATUS_CODE_OK,
         "{\"access_token\":\""
             + ACCESS_TOKEN
@@ -168,7 +168,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
       assertTrue(googleCredential.refreshToken());
       assertEquals(ACCESS_TOKEN, googleCredential.getAccessToken());
     } finally {
-      verifyRequest("https://oauth2.googleapis.com/token");
+      verifyRequest("https://accounts.google.com/o/oauth2/token");
     }
   }
 

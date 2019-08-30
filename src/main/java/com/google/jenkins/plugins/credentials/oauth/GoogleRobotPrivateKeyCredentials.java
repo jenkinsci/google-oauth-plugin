@@ -17,6 +17,7 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.NameWith;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -29,7 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import jenkins.model.Jenkins;
-import org.codehaus.jackson.JsonParseException;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**

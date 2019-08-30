@@ -68,7 +68,8 @@
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <jenkins.version>2.138.4</jenkins.version>
-    <google.api.version>1.29.2</google.api.version>
+    <!-- TODO: Update this version when Jenkins core does not bundle guava 11. -->
+    <google.api.version>1.24.1</google.api.version>
     <configuration-as-code.version>1.19</configuration-as-code.version>
     <credentials.version>2.2.0</credentials.version>
     <java.level>8</java.level>
@@ -142,7 +143,7 @@
     </dependency>
     <dependency>
       <groupId>com.google.http-client</groupId>
-      <artifactId>google-http-client-jackson</artifactId>
+      <artifactId>google-http-client-jackson2</artifactId>
       <version>${google.api.version}</version>
     </dependency>
     <!-- com.google.api-client -->
@@ -156,7 +157,7 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-oauth2</artifactId>
-      <version>v2-rev20190313-${google.api.version}</version>
+      <version>v2-rev140-${google.api.version}</version>
     </dependency>
     <!-- plugin dependencies -->
     <dependency>
