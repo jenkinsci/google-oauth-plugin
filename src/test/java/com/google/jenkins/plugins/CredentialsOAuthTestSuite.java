@@ -26,9 +26,7 @@ import com.google.jenkins.plugins.credentials.oauth.RemotableGoogleCredentialsTe
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-/**
- * Defines the full test suite involving OAuth credentials.
- */
+/** Defines the full test suite involving OAuth credentials. */
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
     value = {

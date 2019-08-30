@@ -23,9 +23,7 @@ import com.google.jenkins.plugins.util.ResolveTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-/**
- * Defines the full test suite for utility classes.
- */
+/** Defines the full test suite for utility classes. */
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
     value = {

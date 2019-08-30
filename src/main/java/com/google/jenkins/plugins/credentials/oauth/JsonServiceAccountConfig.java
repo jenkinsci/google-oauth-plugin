@@ -16,7 +16,7 @@
 package com.google.jenkins.plugins.credentials.oauth;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
-import com.google.api.client.json.jackson.JacksonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.PemReader;
 import com.google.api.client.util.Strings;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;

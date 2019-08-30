@@ -20,9 +20,7 @@ import com.google.jenkins.plugins.UtilTestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-/**
- * Defines the full test suite for the Google Oauth Plugin.
- */
+/** Defines the full test suite for the Google Oauth Plugin. */
 @RunWith(Suite.class)
 @Suite.SuiteClasses(value = {CredentialsOAuthTestSuite.class, UtilTestSuite.class})
 public class GoogleOAuthPluginTestSuite {}
