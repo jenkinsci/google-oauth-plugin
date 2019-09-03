@@ -27,7 +27,7 @@
       Lots of boilerplate from: https://wiki.jenkins-ci.org/display/JENKINS/Hosting+Plugins
   -->
   <artifactId>google-oauth-plugin</artifactId>
-  <version>0.9</version>
+  <version>0.10-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Google OAuth Credentials plugin</name>
@@ -62,7 +62,7 @@
     <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}.git</developerConnection>
     <url>http://github.com/jenkinsci/${project.artifactId}</url>
-    <tag>google-oauth-plugin-0.9</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <!-- Bring some sanity to version numbering... -->
