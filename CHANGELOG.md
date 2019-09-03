@@ -30,6 +30,32 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  ### Removed
 				 
  ### Fixed
+ 
+## [0.9] 2019-09-03
+
+ ### Added
+ - Test suites for different kinds of tests
+ - Release completion goal to format and tidy pom file after release and before
+   creating the final git commit.
+ 
+ ### Changed
+ - Changed to use fixed link for GCP Slack invite.
+ - Plugin parent org.jenkinsci.plugins:plugin version changed: 3.36 to 3.43
+ - Jenkins core requirement changed: 2.60.3 to 2.138.4
+ - io.jenkins:configuration-as-code version changed: 1.9 to 1.19
+ - org.jenkins-ci.plugins:credentials version changed: 2.1.16 to 2.2.0
+ - com.google.http-client:google-http-client-jackson replaced with
+   com.google.http-client:google-http-client-jackson2
+ 
+ ### Removed
+ - Test dependencies previously required for testing configuration as code
+   compatibility:
+   - io.jenkins.configuration-as-code:configuration-as-code-support
+   - org.jenkins-ci.plugins:plain-credentials
+   - org.jenkins-ci.plugins:ssh-credentials
+ 
+ ### Fixed
+ - Javadoc links to classes.
 
 ## [0.8] 2019-04-24
 
