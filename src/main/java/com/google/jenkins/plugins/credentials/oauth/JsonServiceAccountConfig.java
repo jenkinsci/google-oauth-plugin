@@ -22,7 +22,6 @@ import com.google.api.client.util.Strings;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.KeyFactory;
@@ -35,7 +34,6 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import jenkins.model.Jenkins;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.FileUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -124,20 +122,6 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   public void setSecretJsonKey(SecretBytes secretJsonKey) {
     if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
       this.secretJsonKey = secretJsonKey;
-    }
-  }
-
-  @Deprecated // used only for compatibility purpose
-  @CheckForNull
-  private static SecretBytes getSecretBytesFromFile(@CheckForNull String filename) {
-    if (filename == null || filename.isEmpty()) {
-      return null;
-    }
-    try {
-      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filename)));
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filename), e);
-      return null;
     }
   }
 

@@ -20,7 +20,6 @@ import com.google.api.client.util.Strings;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -34,7 +33,6 @@ import java.util.logging.Logger;
 import javax.annotation.CheckForNull;
 import jenkins.model.Jenkins;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
@@ -116,20 +114,6 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   public void setSecretP12Key(SecretBytes secretP12Key) {
     if (secretP12Key != null && secretP12Key.getPlainData().length > 0) {
       this.secretP12Key = secretP12Key;
-    }
-  }
-
-  @Deprecated // used only for compatibility purpose
-  @CheckForNull
-  private static SecretBytes getSecretBytesFromFile(@CheckForNull String filename) {
-    if (filename == null || filename.isEmpty()) {
-      return null;
-    }
-    try {
-      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filename)));
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filename), e);
-      return null;
     }
   }
 
