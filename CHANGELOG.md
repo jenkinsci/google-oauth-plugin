@@ -22,15 +22,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unresolved]
 
  ### Security
- 
+
  ### Added
-  
+
  ### Changed
-				
+
  ### Removed
-				 
+
  ### Fixed
- 
+
+
+## [0.10] 2019-10-09
+
+ ### Security
+ - SECURITY-1583: Added permissions checking for loading legacy key files when upgrading versions.
+
+ ### Added
+ - Onboarding project into team CI server.
+
 ## [0.9] 2019-09-03
 
  ### Added
