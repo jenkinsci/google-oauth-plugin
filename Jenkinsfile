@@ -25,7 +25,8 @@ pipeline {
     environment {
         GOOGLE_PROJECT_ID = "${OAUTH_IT_PROJECT_ID}"
         BUILD_ARTIFACTS_BUCKET = "${OAUTH_IT_BUCKET}"
-        BUILD_ARTIFACTS = "build-${BRANCH_NAME}-${BUILD_ID}.tar.gz"
+        CLEAN_BRANCH_NAME = "${BRANCH_NAME}".replaceAll("[/& ]", "_")
+        BUILD_ARTIFACTS = "build-${CLEAN_BRANCH_NAME}-${BUILD_ID}.tar.gz"
     }
 
     stages {
