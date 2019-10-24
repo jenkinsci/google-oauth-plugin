@@ -27,7 +27,7 @@
       Lots of boilerplate from: https://wiki.jenkins-ci.org/display/JENKINS/Hosting+Plugins
   -->
   <artifactId>google-oauth-plugin</artifactId>
-  <version>0.11-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Google OAuth Credentials plugin</name>
@@ -68,8 +68,12 @@
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <jenkins.version>2.138.4</jenkins.version>
-    <!-- TODO: Update this version when Jenkins core does not bundle guava 11. -->
-    <google.api.version>1.24.1</google.api.version>
+    <hpi.compatibleSinceVersion>1.0</hpi.compatibleSinceVersion>
+    <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
+    <google.api.version>1.25.0</google.api.version>
+    <google.guava.version>20.0</google.guava.version>
+    <google.oauth2.version>1.25.0</google.oauth2.version>
+    <google.http.version>1.21.0</google.http.version>
     <configuration-as-code.version>1.19</configuration-as-code.version>
     <credentials.version>2.2.0</credentials.version>
     <java.level>8</java.level>
@@ -85,7 +89,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>14.0.1</version>
+      <version>${google.guava.version}</version>
     </dependency>
     <!-- Apache Commons IO dependency -->
     <dependency>
@@ -139,25 +143,47 @@
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client</artifactId>
-      <version>${google.api.version}</version>
+      <version>${google.http.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client-jackson2</artifactId>
-      <version>${google.api.version}</version>
+      <version>${google.http.version}</version>
     </dependency>
     <!-- com.google.api-client -->
     <dependency>
       <groupId>com.google.api-client</groupId>
       <artifactId>google-api-client</artifactId>
       <version>${google.api.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client-jackson2</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- com.google.apis -->
     <!-- https://code.google.com/p/google-api-java-client/wiki/APIs -->
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-oauth2</artifactId>
-      <version>v2-rev140-${google.api.version}</version>
+      <version>v2-rev151-${google.oauth2.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- plugin dependencies -->
     <dependency>
