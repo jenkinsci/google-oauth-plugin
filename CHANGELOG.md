@@ -31,6 +31,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
  ### Fixed
 
+## [1.0.0] 2019-10-25
+
+ ### Changed
+ - com.google.guava:guava version changed: 14.0.1 to 20.0
+ - com.google.http-client:google-http-client version changed: 1.24.1 to 1.21.0
+ - com.google.http-client:google-http-client-jackson2 version changed: 1.24.1 to 1.21.0
+ - com.google.api-client:google-api-client version changed: 1.24.1 to 1.25.0
+ - com.google.apis:google-api-services-oauth2 version changed: v2-rev140-1.24.1 to v2-rev151-1.25.0
 
 ## [0.10] 2019-10-09
 

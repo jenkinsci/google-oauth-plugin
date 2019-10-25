@@ -68,7 +68,7 @@
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <jenkins.version>2.138.4</jenkins.version>
-    <hpi.compatibleSinceVersion>1.0</hpi.compatibleSinceVersion>
+    <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
     <google.api.version>1.25.0</google.api.version>
     <google.guava.version>20.0</google.guava.version>
