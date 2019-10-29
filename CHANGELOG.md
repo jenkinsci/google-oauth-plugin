@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
  ### Fixed
 
-## [1.0.0] 2019-10-25
+## [1.0.0] 2019-10-29
 
  ### Changed
  - com.google.guava:guava version changed: 14.0.1 to 20.0
