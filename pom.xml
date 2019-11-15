@@ -74,8 +74,6 @@
     <google.guava.version>20.0</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
-    <configuration-as-code.version>1.19</configuration-as-code.version>
-    <credentials.version>2.2.0</credentials.version>
     <java.level>8</java.level>
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
@@ -83,6 +81,18 @@
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.138.x</artifactId>
+        <version>3</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <!-- com.google.guava -->
@@ -120,7 +130,6 @@
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>${configuration-as-code.version}</version>
       <scope>test</scope>
       <!--Marked as optional so hpi:run does not include it. -->
       <optional>true</optional>
@@ -128,7 +137,6 @@
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>${configuration-as-code.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
       <optional>true</optional>
@@ -137,7 +145,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>oauth-credentials</artifactId>
-      <version>0.3</version>
+      <version>0.4-beta</version>
     </dependency>
     <!-- com.google.http-client -->
     <dependency>
@@ -191,7 +199,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>credentials</artifactId>
-      <version>${credentials.version}</version>
     </dependency>
     <dependency><!-- Required to run P12ServiceAccountConfigTestUtil-dependent tests against newer Jenkins core versions.
            Dependency on it does not cause issues in the baseline core even though the plugin is formally incompatible.
