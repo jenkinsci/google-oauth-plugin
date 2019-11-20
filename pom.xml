@@ -93,7 +93,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <dependencies>
     <!-- com.google.guava -->
     <dependency>
