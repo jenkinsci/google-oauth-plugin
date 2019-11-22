@@ -58,8 +58,7 @@ public class ConfigurationAsCodeTest {
     String expectedBytes =
         IOUtils.toString(
             this.getClass().getResourceAsStream("test-key.json"), StandardCharsets.UTF_8);
-    assertEquals(
-        "Failed to configure secretJsonKey correctly.", expectedBytes.trim(), actualBytes.trim());
+    assertEquals("Failed to configure secretJsonKey correctly.", expectedBytes, actualBytes);
   }
 
   @Test
