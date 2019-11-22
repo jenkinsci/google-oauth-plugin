@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 import jenkins.model.Jenkins;
+import lombok.EqualsAndHashCode;
 
 /**
  * The base implementation of service account (aka robot) credentials using OAuth2. These robot
@@ -105,6 +106,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
    * A trivial tuple for wrapping the list box of matched credentials with the requirements that
    * were used to filter them.
    */
+  @EqualsAndHashCode
   public static class CredentialsListBoxModel extends ListBoxModel {
     public CredentialsListBoxModel(GoogleOAuth2ScopeRequirement requirement) {
       this.requirement = requirement;

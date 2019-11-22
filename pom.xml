@@ -74,6 +74,7 @@
     <google.guava.version>20.0</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
+    <lombok.version>1.18.8</lombok.version>
     <java.level>8</java.level>
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
@@ -208,6 +209,11 @@
       <artifactId>bouncycastle-api</artifactId>
       <version>2.16.2</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
     </dependency>
   </dependencies>
 
