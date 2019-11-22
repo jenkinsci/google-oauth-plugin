@@ -55,7 +55,9 @@ public class ConfigurationAsCodeTest {
     SecretBytes bytes = config.getSecretJsonKey();
     assertEquals("test-account@test-project.iam.gserviceaccount.com", config.getAccountId());
     String actualBytes = new String(bytes.getPlainData(), StandardCharsets.UTF_8);
-    String expectedBytes = IOUtils.toString(this.getClass().getResourceAsStream("test-key.json"));
+    String expectedBytes =
+        IOUtils.toString(
+            this.getClass().getResourceAsStream("test-key.json"), StandardCharsets.UTF_8);
     assertEquals("Failed to configure secretJsonKey correctly.", expectedBytes, actualBytes);
   }
 
