@@ -32,7 +32,7 @@
 
   <name>Google OAuth Credentials plugin</name>
   <description>This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.</description>
-  <url>https://wiki.jenkins.io/display/JENKINS/Google+OAuth+Plugin</url>
+  <url>https://github.com/jenkinsci/google-oauth-plugin/blob/develop/docs/home.md</url>
   <licenses>
     <license>
       <name>The Apache V2 License</name>
