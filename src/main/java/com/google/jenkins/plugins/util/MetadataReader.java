@@ -73,7 +73,7 @@ public interface MetadataReader {
 
       // GCE v1 requires requests to the metadata service to specify
       // this header in order to get anything back.
-      request.getHeaders().set("X-Google-Metadata-Request", true);
+      request.getHeaders().set("Metadata-Flavor", "Google");
 
       HttpResponse response;
       try {
