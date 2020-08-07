@@ -23,7 +23,7 @@ Please see [Google OAuth Plugin](docs/home.md) for complete documentation.
 ## Installation
 1. Go to **Manage Jenkins** then **Manage Plugins**.
 1. (Optional) Make sure the plugin manager has updated data by clicking the **Check now** button.
-1. In the Plugin Manager, click the **Available** tab and look for the "Google OAuth Plugin".
+1. In the Plugin Manager, click the **Available** tab and look for the "Google OAuth Credentials".
 1. Check the box under the **Install** column and click the **Install without restart** button.
 1. If the plugin does not appear under **Available**, make sure it appears under **Installed** and is enabled.
  
