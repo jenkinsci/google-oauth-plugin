@@ -71,7 +71,7 @@
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
     <google.api.version>1.25.0</google.api.version>
-    <google.guava.version>20.0</google.guava.version>
+    <google.guava.version>24.1.1-jre</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
     <lombok.version>1.18.8</lombok.version>
