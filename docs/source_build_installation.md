@@ -22,7 +22,11 @@
     ```bash      
     git checkout <branch name>
     ```
-1. Build the plugin into a .hpi plugin file:
+1. Build the plugin into a .hpi plugin file. When running a build for the first time, run the clean and package maven goals:
+    ```bash
+    mvn clean package
+    ```
+   Followed by:
     ```bash
     mvn hpi:hpi
     ```
