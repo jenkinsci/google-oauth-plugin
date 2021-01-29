@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>3.43</version>
+    <version>3.55</version>
   </parent>
 
   <!--
@@ -32,7 +32,7 @@
 
   <name>Google OAuth Credentials plugin</name>
   <description>This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.</description>
-  <url>https://wiki.jenkins.io/display/JENKINS/Google+OAuth+Plugin</url>
+  <url>https://github.com/jenkinsci/google-oauth-plugin/blob/develop/docs/home.md</url>
   <licenses>
     <license>
       <name>The Apache V2 License</name>
@@ -74,17 +74,33 @@
     <google.guava.version>30.1-jre</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
-    <configuration-as-code.version>1.19</configuration-as-code.version>
-    <credentials.version>2.2.0</credentials.version>
+    <lombok.version>1.18.8</lombok.version>
     <java.level>8</java.level>
     <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
     <findbugs.effort>Max</findbugs.effort>
     <findbugs.threshold>Medium</findbugs.threshold>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
+    <configuration-as-code.version>1.35</configuration-as-code.version>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.jenkins.tools.bom</groupId>
+        <artifactId>bom-2.138.x</artifactId>
+        <version>3</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>jackson2-api</artifactId>
+      <version>2.10.2</version>
+    </dependency>
     <!-- com.google.guava -->
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -108,13 +124,13 @@
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
-      <version>1.3</version>
+      <version>2.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <version>1.8.4</version>
+      <artifactId>mockito-core</artifactId>
+      <version>1.10.19</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -126,10 +142,9 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>io.jenkins</groupId>
-      <artifactId>configuration-as-code</artifactId>
+      <groupId>io.jenkins.configuration-as-code</groupId>
+      <artifactId>test-harness</artifactId>
       <version>${configuration-as-code.version}</version>
-      <classifier>tests</classifier>
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
@@ -137,7 +152,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>oauth-credentials</artifactId>
-      <version>0.3</version>
+      <version>0.4</version>
     </dependency>
     <!-- com.google.http-client -->
     <dependency>
@@ -191,7 +206,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>credentials</artifactId>
-      <version>${credentials.version}</version>
     </dependency>
     <dependency><!-- Required to run P12ServiceAccountConfigTestUtil-dependent tests against newer Jenkins core versions.
            Dependency on it does not cause issues in the baseline core even though the plugin is formally incompatible.
@@ -202,6 +216,11 @@
       <artifactId>bouncycastle-api</artifactId>
       <version>2.16.2</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
     </dependency>
   </dependencies>
 
@@ -324,6 +343,7 @@
           <includes>
             <include>${runSuite}</include>
           </includes>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>
@@ -334,7 +354,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
+        <version>3.1.1</version>
+        <configuration>
+          <show>public</show>
+          <source>8</source>
+        </configuration>
       </plugin>
     </plugins>
   </reporting>

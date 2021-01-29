@@ -48,7 +48,7 @@ public class MetadataReaderTest {
   private void verifyRequest(String key) throws IOException {
     verify(transport).buildRequest("GET", METADATA_ENDPOINT + key);
     verify(request).execute();
-    assertEquals("true", getOnlyElement(request.getHeaderValues("X-Google-Metadata-Request")));
+    assertEquals("Google", getOnlyElement(request.getHeaderValues("Metadata-Flavor")));
   }
 
   private MetadataReader underTest;
