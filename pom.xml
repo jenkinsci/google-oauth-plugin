@@ -67,7 +67,7 @@
 
   <!-- Bring some sanity to version numbering... -->
   <properties>
-    <jenkins.version>2.222.1</jenkins.version>
+    <jenkins.version>2.222.4</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
     <google.api.version>1.25.0</google.api.version>
@@ -89,7 +89,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.222.x</artifactId>
-        <version>20</version>
+        <version>23</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
