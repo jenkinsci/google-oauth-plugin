@@ -27,7 +27,7 @@
       Lots of boilerplate from: https://wiki.jenkins-ci.org/display/JENKINS/Hosting+Plugins
   -->
   <artifactId>google-oauth-plugin</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.4-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Google OAuth Credentials plugin</name>
@@ -71,6 +71,7 @@
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
     <google.api.version>1.25.0</google.api.version>
+    <google.guava.version>30.1-jre</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
     <lombok.version>1.18.8</lombok.version>
@@ -109,6 +110,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+      <version>2.8.0</version>
     </dependency>
     <!-- org.joda.time -->
     <dependency>
