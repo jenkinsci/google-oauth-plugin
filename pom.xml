@@ -110,7 +110,7 @@
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
       <!-- XStream has deserialization warnings for Jodatime 2.0 or later -->
-      <version>2.9.5</version>
+      <version>2.10.10</version>
     </dependency>
     <!-- Test dependencies -->
     <dependency>
