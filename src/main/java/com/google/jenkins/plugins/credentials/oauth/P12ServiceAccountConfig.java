@@ -72,7 +72,7 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * For being able to load credentials created with versions < 0.8 and backwards compatibility with
+   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility with
    * external callers.
    *
    * @param emailAddress The service account email address.
