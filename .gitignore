@@ -11,3 +11,8 @@ work/
 
 # Emacs
 *~
+
+# eclipse
+.classpath
+.project
+.settings/

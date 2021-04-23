@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.15</version>
+    <version>4.17</version>
   </parent>
 
   <!--
@@ -74,9 +74,7 @@
     <google.http.version>1.21.0</google.http.version>
     <lombok.version>1.18.18</lombok.version>
     <java.level>8</java.level>
-    <findbugs.excludeFilterFile>findbugs-exclude.xml</findbugs.excludeFilterFile>
-    <findbugs.effort>Max</findbugs.effort>
-    <findbugs.threshold>Medium</findbugs.threshold>
+    <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
     <configuration-as-code.version>1.35</configuration-as-code.version>
@@ -97,13 +95,13 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>jackson2-api</artifactId>
-      <version>2.12.1</version>
     </dependency>
     <!-- Apache Commons IO dependency -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.8.0</version>
+      <!-- from jenkins core -->
+      <scope>provided</scope>
     </dependency>
     <!-- org.joda.time -->
     <dependency>
@@ -155,6 +153,10 @@
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpclient</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -181,6 +183,10 @@
         <exclusion>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -216,6 +222,7 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 
