@@ -26,10 +26,10 @@ import java.security.GeneralSecurityException;
 import org.joda.time.DateTime;
 
 /**
- * As some implementations of {@link GoogleRobotCredentials} are bound to the master, this ephemeral
- * credential is remoted in place of those. The use case is basically that when a plugin needs to
- * remote credential C, with some requirement R, it would instead remote {@code C.forRemote(R)} to
- * instantiate one of these.
+ * As some implementations of {@link GoogleRobotCredentials} are bound to the controller, this
+ * ephemeral credential is remoted in place of those. The use case is basically that when a plugin
+ * needs to remote credential C, with some requirement R, it would instead remote {@code
+ * C.forRemote(R)} to instantiate one of these.
  *
  * <p>TODO(mattmoor): Consider ways to use channels to remove the time limitation that this has
  * (access token expires).
