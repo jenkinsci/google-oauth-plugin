@@ -13,7 +13,7 @@
 -->
 # Google OAuth Plugin Documentation
 
-This plugin implements the OAuth Credentials interfaces for surfacing [Google Service Accounts](https://cloud.google.com/iam/docs/understanding-service-accounts) to Jenkins. This plugin allows for the registration of Google Service Account Credentials with the Jenkins master, which can be used to interact with Google APIs.
+This plugin implements the OAuth Credentials interfaces for surfacing [Google Service Accounts](https://cloud.google.com/iam/docs/understanding-service-accounts) to Jenkins. This plugin allows for the registration of Google Service Account Credentials with the Jenkins controller, which can be used to interact with Google APIs.
 
 ## Google OAuth Credentials
 
@@ -23,7 +23,7 @@ This plugin surfaces two Credential types for generating OAuth credentials for a
     * You can create service accounts via the Google Developers Console, under APIs & auth → Credentials → Create new Client ID → Service account
     * The downloaded P12 key and the service account email address can then be used when adding the credential to Jenkins; or if you created a new JSON key, you can use that instead
 
-1. [Google Service Account from metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata) use this option for obtaining the service account information from Google Compute Engine metadata. This option is only available when the Jenkins master is run on a Google Compute Engine VM.
+1. [Google Service Account from metadata](https://cloud.google.com/compute/docs/storing-retrieving-metadata) use this option for obtaining the service account information from Google Compute Engine metadata. This option is only available when the Jenkins controller is run on a Google Compute Engine VM.
 
 ![drop-down image](images/dropdown.jpg)
 

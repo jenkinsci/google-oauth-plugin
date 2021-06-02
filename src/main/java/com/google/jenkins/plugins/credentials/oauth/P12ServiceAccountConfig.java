@@ -72,8 +72,8 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   }
 
   /**
-   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility with
-   * external callers.
+   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility
+   * with external callers.
    *
    * @param emailAddress The service account email address.
    * @param p12KeyFileUpload The uploaded p12 key file.

@@ -76,8 +76,8 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
   public JsonServiceAccountConfig() {}
 
   /**
-   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility with
-   * external callers.
+   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility
+   * with external callers.
    *
    * @param jsonKeyFile The uploaded JSON key file.
    * @param prevJsonKeyFile The path of the previous JSON key file.
