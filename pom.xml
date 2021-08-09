@@ -89,6 +89,14 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!-- Ensures version compatibility: https://googleapis.github.io/google-http-java-client/setup.html -->
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>libraries-bom</artifactId>
+        <version>20.9.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
