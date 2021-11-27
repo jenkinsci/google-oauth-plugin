@@ -19,12 +19,12 @@ import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.util.Key;
 import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.util.Secret;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.commons.io.IOUtils;
 
 /**
  * The <a href="https://console.developers.google.com">Google Developer Console</a> provides private
@@ -52,7 +52,7 @@ public final class JsonKey extends GenericJson {
   public static JsonKey load(JsonFactory jsonFactory, InputStream inputStream) throws IOException {
     InputStreamReader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
     try {
-      Secret decoded = Secret.fromString(CharStreams.toString(reader));
+      Secret decoded = Secret.fromString(IOUtils.toString(reader));
       return jsonFactory.fromString(decoded.getPlainText(), JsonKey.class);
     } finally {
       inputStream.close();
