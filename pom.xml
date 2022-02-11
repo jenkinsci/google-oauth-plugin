@@ -71,7 +71,7 @@
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <google.api.version>1.25.0</google.api.version>
     <oauth2.revision>151</oauth2.revision>
-    <google.http.version>1.21.0</google.http.version>
+    <google.http.version>1.41.3</google.http.version>
     <lombok.version>1.18.18</lombok.version>
     <java.level>8</java.level>
     <spotbugs.effort>Max</spotbugs.effort>
