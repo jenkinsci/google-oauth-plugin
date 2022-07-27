@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 
 /**
  * Util class for {@link com.google.jenkins.plugins.credentials.oauth
@@ -86,13 +87,7 @@ public class LegacyJsonServiceAccountConfigUtil {
 
   private static File getTempFolder() throws IOException {
     if (tempFolder == null) {
-      tempFolder = File.createTempFile("temp", Long.toString(System.nanoTime()));
-      if (!tempFolder.delete()) {
-        throw new IOException("Could not delete temp file: " + tempFolder.getAbsolutePath());
-      }
-      if (!tempFolder.mkdir()) {
-        throw new IOException("Could not create temp directory: " + tempFolder.getAbsolutePath());
-      }
+      tempFolder = Files.createTempDirectory("temp" + Long.toString(System.nanoTime())).toFile();
       tempFolder.deleteOnExit();
     }
     return tempFolder;
