@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -64,13 +65,7 @@ public class JsonServiceAccountConfigTestUtil {
 
   private static File getTempFolder() throws IOException {
     if (tempFolder == null) {
-      tempFolder = File.createTempFile("temp", Long.toString(System.nanoTime()));
-      if (!tempFolder.delete()) {
-        throw new IOException("Could not delete temp file: " + tempFolder.getAbsolutePath());
-      }
-      if (!tempFolder.mkdir()) {
-        throw new IOException("Could not create temp directory: " + tempFolder.getAbsolutePath());
-      }
+      tempFolder = Files.createTempDirectory("temp" + Long.toString(System.nanoTime())).toFile();
       tempFolder.deleteOnExit();
     }
     return tempFolder;
