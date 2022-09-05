@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.17</version>
+    <version>4.24</version>
   </parent>
 
   <!--
@@ -69,15 +69,13 @@
   <properties>
     <jenkins.version>2.222.4</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
-    <google.api.version>1.25.0</google.api.version>
-    <oauth2.revision>151</oauth2.revision>
-    <google.http.version>1.21.0</google.http.version>
+    <google.api.version>1.32.1</google.api.version>
+    <oauth2.revision>20200213</oauth2.revision>
     <lombok.version>1.18.24</lombok.version>
     <java.level>8</java.level>
     <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
-    <configuration-as-code.version>1.35</configuration-as-code.version>
   </properties>
 
   <dependencyManagement>
@@ -85,16 +83,32 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.222.x</artifactId>
-        <version>26</version>
+        <version>29</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <!-- Ensures version compatibility: https://googleapis.github.io/google-http-java-client/setup.html -->
+      <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>libraries-bom</artifactId>
+        <version>20.9.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
   <dependencies>
+    <!--
+      Use API plugins for oft-used transitive dependencies:
+      https://www.jenkins.io/doc/developer/plugin-development/dependencies-and-class-loading/#using-library-wrapper-plugins
+    -->
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>jackson2-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jenkins-ci.plugins</groupId>
+      <artifactId>apache-httpcomponents-client-4-api</artifactId>
     </dependency>
     <!-- Apache Commons IO dependency -->
     <dependency>
@@ -109,6 +123,33 @@
       <artifactId>joda-time</artifactId>
       <!-- XStream has deserialization warnings for Jodatime 2.0 or later -->
       <version>2.10.10</version>
+    </dependency>
+    <!--
+      Use a newer version of Guava, since google-http-client needs at least v14, rather than v11 bundled with Jenkins.
+      However, this usage should be masked from other consumers via the maven-hpi-plugin configuration below.
+      The exact version being used is defined by the com.google.cloud:libraries-bom
+    -->
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.errorprone</groupId>
+          <artifactId>error_prone_annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.j2objc</groupId>
+          <artifactId>j2objc-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.checkerframework</groupId>
+          <artifactId>checker-compat-qual</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Test dependencies -->
     <dependency>
@@ -125,7 +166,6 @@
     <dependency>
       <groupId>io.jenkins</groupId>
       <artifactId>configuration-as-code</artifactId>
-      <version>${configuration-as-code.version}</version>
       <scope>test</scope>
       <!--Marked as optional so hpi:run does not include it. -->
       <optional>true</optional>
@@ -133,7 +173,6 @@
     <dependency>
       <groupId>io.jenkins.configuration-as-code</groupId>
       <artifactId>test-harness</artifactId>
-      <version>${configuration-as-code.version}</version>
       <scope>test</scope>
       <optional>true</optional>
     </dependency>
@@ -147,7 +186,6 @@
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client</artifactId>
-      <version>${google.http.version}</version>
       <exclusions>
         <exclusion>
           <groupId>org.apache.httpcomponents</groupId>
@@ -162,7 +200,6 @@
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client-jackson2</artifactId>
-      <version>${google.api.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.http-client</groupId>
@@ -179,10 +216,6 @@
         <exclusion>
           <groupId>com.google.http-client</groupId>
           <artifactId>google-http-client</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
         </exclusion>
         <exclusion>
           <groupId>com.google.code.findbugs</groupId>
@@ -241,6 +274,14 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.jenkins-ci.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <configuration>
+          <!-- Workaround from JENKINS-36779, since we need a custom version of Guava -->
+          <maskClasses>com.google.common.</maskClasses>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
