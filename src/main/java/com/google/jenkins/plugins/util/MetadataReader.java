@@ -19,7 +19,6 @@ import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_FORBIDDEN;
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_NOT_FOUND;
 import static com.google.api.client.http.HttpStatusCodes.STATUS_CODE_UNAUTHORIZED;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.io.CharStreams.copy;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
@@ -31,6 +30,7 @@ import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import org.apache.commons.io.IOUtils;
 
 /**
  * This helper utility is used for reading values out of a Google Compute Engine instance's attached
@@ -93,7 +93,7 @@ public interface MetadataReader {
       try (InputStreamReader inChars =
           new InputStreamReader(checkNotNull(response.getContent()), Charsets.UTF_8)) {
         StringWriter output = new StringWriter();
-        copy(inChars, output);
+        IOUtils.copy(inChars, output);
         return output.toString();
       }
     }
