@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.
+</div>

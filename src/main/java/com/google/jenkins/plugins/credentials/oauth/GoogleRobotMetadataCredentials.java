@@ -26,11 +26,11 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.jenkins.plugins.util.ExecutorException;
+import edu.umd.cs.findbugs.annotations.Nullable;
 import hudson.Extension;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
