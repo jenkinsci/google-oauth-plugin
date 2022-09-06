@@ -21,6 +21,7 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.common.collect.Ordering;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import org.joda.time.DateTime;
@@ -42,6 +43,9 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
    * is {@code package-private}. This should only be called from {@link
    * GoogleRobotCredentials#forRemote}.
    */
+  @SuppressFBWarnings(
+      value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
+      justification = "False positive from what I can see in Ordering.natural().nullsFirst()")
   public RemotableGoogleCredentials(
       GoogleRobotCredentials credentials,
       GoogleOAuth2ScopeRequirement requirement,

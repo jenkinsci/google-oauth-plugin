@@ -71,7 +71,6 @@
     <google.api.version>1.32.1</google.api.version>
     <oauth2.revision>20200213</oauth2.revision>
     <lombok.version>1.18.24</lombok.version>
-    <!--<java.level>8</java.level>-->
     <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
@@ -90,7 +89,7 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>libraries-bom</artifactId>
-        <version>20.9.0</version>
+        <version>26.1.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -179,7 +178,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>oauth-credentials</artifactId>
-      <version>0.4</version>
+      <version>0.5</version>
     </dependency>
     <!-- com.google.http-client -->
     <dependency>
