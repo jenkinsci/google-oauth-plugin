@@ -17,6 +17,7 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
 import com.google.api.client.util.Strings;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import java.io.ByteArrayInputStream;
@@ -30,7 +31,6 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.CheckForNull;
 import jenkins.model.Jenkins;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.IOUtils;

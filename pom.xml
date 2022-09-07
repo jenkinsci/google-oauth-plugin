@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.24</version>
+    <version>4.47</version>
   </parent>
 
   <!--
@@ -31,7 +31,6 @@
   <packaging>hpi</packaging>
 
   <name>Google OAuth Credentials plugin</name>
-  <description>This plugin implements the OAuth Credentials interfaces to surface Google Service Account credentials to Jenkins.</description>
   <url>https://github.com/jenkinsci/google-oauth-plugin/blob/develop/docs/home.md</url>
   <licenses>
     <license>
@@ -67,12 +66,11 @@
 
   <!-- Bring some sanity to version numbering... -->
   <properties>
-    <jenkins.version>2.222.4</jenkins.version>
+    <jenkins.version>2.319.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <google.api.version>1.32.1</google.api.version>
     <oauth2.revision>20200213</oauth2.revision>
     <lombok.version>1.18.24</lombok.version>
-    <java.level>8</java.level>
     <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
@@ -82,8 +80,8 @@
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.222.x</artifactId>
-        <version>887.vae9c8ac09ff7</version>
+        <artifactId>bom-2.319.x</artifactId>
+        <version>1607.va_c1576527071</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -91,7 +89,7 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>libraries-bom</artifactId>
-        <version>20.9.0</version>
+        <version>26.1.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -180,7 +178,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>oauth-credentials</artifactId>
-      <version>0.4</version>
+      <version>0.5</version>
     </dependency>
     <!-- com.google.http-client -->
     <dependency>
