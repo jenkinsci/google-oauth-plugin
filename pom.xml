@@ -68,7 +68,7 @@
   <properties>
     <jenkins.version>2.319.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
-    <google.api.version>1.32.1</google.api.version>
+    <google.api.version>2.1.2</google.api.version>
     <oauth2.revision>20200213</oauth2.revision>
     <lombok.version>1.18.24</lombok.version>
     <spotbugs.effort>Max</spotbugs.effort>
