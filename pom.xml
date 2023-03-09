@@ -68,8 +68,14 @@
   <properties>
     <jenkins.version>2.319.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
-    <google.api.version>1.32.1</google.api.version>
-    <oauth2.revision>20200213</oauth2.revision>
+    <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
+    <google.api.version>1.35.2</google.api.version>
+    <google.guava.version>20.0</google.guava.version>
+    <oauth2.revision>151</oauth2.revision>
+    <google.http.version>1.21.0</google.http.version>
+    <configuration-as-code.version>1.19</configuration-as-code.version>
+    <credentials.version>2.2.0</credentials.version>
+    <java.level>8</java.level>
     <lombok.version>1.18.24</lombok.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
@@ -198,6 +204,7 @@
     <dependency>
       <groupId>com.google.http-client</groupId>
       <artifactId>google-http-client-jackson2</artifactId>
+      <version>1.35.0</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.http-client</groupId>
@@ -226,7 +233,18 @@
     <dependency>
       <groupId>com.google.apis</groupId>
       <artifactId>google-api-services-oauth2</artifactId>
-      <version>v2-rev${oauth2.revision}-${google.api.version}</version>
+      <version>v2-rev20200213-1.32.1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client</artifactId>
+      <version>1.34.1</version>
       <exclusions>
         <exclusion>
           <groupId>com.google.http-client</groupId>
