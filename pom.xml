@@ -27,7 +27,7 @@
       Lots of boilerplate from: https://wiki.jenkins-ci.org/display/JENKINS/Hosting+Plugins
   -->
   <artifactId>google-oauth-plugin</artifactId>
-  <version>1.0.8-SNAPSHOT</version>
+  <version>${revision}${changelist}</version>
   <packaging>hpi</packaging>
 
   <name>Google OAuth Credentials plugin</name>
@@ -58,14 +58,17 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/jenkinsci/${project.artifactId}.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}.git</developerConnection>
-    <url>https://github.com/jenkinsci/${project.artifactId}</url>
-    <tag>HEAD</tag>
+    <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
+    <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+    <url>https://github.com/${gitHubRepo}</url>
+    <tag>${scmTag}</tag>
   </scm>
 
   <!-- Bring some sanity to version numbering... -->
   <properties>
+    <revision>1.0.8</revision>
+    <changelist>-SNAPSHOT</changelist>
+    <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
     <jenkins.version>2.319.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
