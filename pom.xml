@@ -307,8 +307,8 @@
         <version>2.9</version>
         <configuration>
           <includeTestSourceDirectory>true</includeTestSourceDirectory>
-          <configLocation>checkstyle.xml</configLocation>
-          <headerLocation>checkstyleJavaHeader</headerLocation>
+          <configLocation>${project.basedir}/checkstyle.xml</configLocation>
+          <headerLocation>${project.basedir}/checkstyleJavaHeader</headerLocation>
           <failsOnError>true</failsOnError>
           <failOnViolation>true</failOnViolation>
           <violationSeverity>warning</violationSeverity>
