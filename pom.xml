@@ -58,9 +58,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}.git</connection>
+    <connection>scm:git:https://github.com/jenkinsci/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}.git</developerConnection>
-    <url>http://github.com/jenkinsci/${project.artifactId}</url>
+    <url>https://github.com/jenkinsci/${project.artifactId}</url>
     <tag>HEAD</tag>
   </scm>
 
