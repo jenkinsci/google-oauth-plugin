@@ -79,7 +79,6 @@
     <configuration-as-code.version>1.19</configuration-as-code.version>
     <credentials.version>2.2.0</credentials.version>
     <java.level>8</java.level>
-    <lombok.version>1.18.24</lombok.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
@@ -270,12 +269,6 @@
       <artifactId>bouncycastle-api</artifactId>
       <version>2.20</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <version>${lombok.version}</version>
-      <optional>true</optional>
     </dependency>
   </dependencies>
 
