@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.IdCredentials;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
@@ -45,6 +46,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
    * @param module The module to use for instantiating the dependencies of credentials.
    */
   protected GoogleRobotCredentials(String projectId, GoogleRobotCredentialsModule module) {
+    this.id = IdCredentials.Helpers.fixEmptyId("");
     this.projectId = checkNotNull(projectId);
 
     if (module != null) {
@@ -59,11 +61,16 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
     return module;
   }
 
+  private String id;
+
   private final GoogleRobotCredentialsModule module;
 
   /** Retrieve a unique identifier that should be used to link to this object. */
   public String getId() {
-    return getProjectId();
+    if (id == null) {
+      id = projectId; // for migrating old credentials which had no id other than project id
+    }
+    return id;
   }
 
   /** {@inheritDoc} */
