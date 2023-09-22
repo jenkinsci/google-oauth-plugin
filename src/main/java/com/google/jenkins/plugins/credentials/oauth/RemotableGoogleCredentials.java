@@ -51,7 +51,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       GoogleOAuth2ScopeRequirement requirement,
       GoogleRobotCredentialsModule module)
       throws GeneralSecurityException {
-    super(checkNotNull(credentials).getProjectId(), checkNotNull(module));
+    super("", checkNotNull(credentials).getProjectId(), checkNotNull(module));
 
     this.username = credentials.getUsername();
 

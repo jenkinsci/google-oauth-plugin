@@ -51,8 +51,9 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
   }
 
   /**
-   * Migration only constructor with a specified credential id. Do not use this, it is only for migrating
-   * old credentials that had no id and relied on the project id.
+   * Base constructor for populating the name and id and project id for Google credentials. Leave
+   * the id empty to generate a new one, populate the id when updating an existing credential or
+   * migrating from using the project id as the credential id.
    *
    * @param id the credential ID to assign.
    * @param projectId The project id with which this credential is associated.
@@ -60,7 +61,7 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
    */
   protected GoogleRobotCredentials(
       String id, String projectId, GoogleRobotCredentialsModule module) {
-    super(id, Messages.GoogleRobotCredentials_Description());
+    super(id == null ? "" : id, Messages.GoogleRobotCredentials_Description());
     this.projectId = checkNotNull(projectId);
 
     if (module != null) {

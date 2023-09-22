@@ -68,7 +68,7 @@ public class GoogleRobotCredentialsTest {
   @RequiresDomain(value = TestRequirement.class)
   public static class FakeGoogleCredentials extends GoogleRobotCredentials {
     public FakeGoogleCredentials(String projectId, GoogleCredential credential) {
-      super(projectId, new GoogleRobotCredentialsModule());
+      super("", projectId, new GoogleRobotCredentialsModule());
 
       this.credential = credential;
     }
@@ -126,13 +126,6 @@ public class GoogleRobotCredentialsTest {
     assertNotNull(credentials.getId());
     assertSame(fakeCredential, credentials.getGoogleCredential(null));
     assertEquals(Messages.GoogleRobotCredentials_Description(), credentials.getDescription());
-  }
-
-  @Test
-  @WithoutJenkins
-  public void testWithId() throws Exception {
-    FakeGoogleCredentials credentials = new FakeGoogleCredentials(PROJECT_ID, fakeCredential);
-    assertEquals(PROJECT_ID, credentials.getId());
   }
 
   @Test

@@ -56,25 +56,26 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
-  @DataBoundConstructor
   public GoogleRobotPrivateKeyCredentials(
       String projectId,
       ServiceAccountConfig serviceAccountConfig,
       @Nullable GoogleRobotCredentialsModule module)
       throws Exception {
-    super(projectId, module);
+    super("", projectId, module);
     this.serviceAccountConfig = serviceAccountConfig;
   }
 
   /**
-   * Construct a set of service account credentials with a specific id. Do not use this, it is only for migrating
-   * old credentials that had no id and relied on the project id.
+   * Construct a set of service account credentials with a specific id. It helps for updating
+   * credentials, as well as for migrating old credentials that had no id and relied on the project
+   * id.
    *
    * @param projectId The project id associated with this service account
    * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
-  private GoogleRobotPrivateKeyCredentials(
+  @DataBoundConstructor
+  public GoogleRobotPrivateKeyCredentials(
       String id,
       String projectId,
       ServiceAccountConfig serviceAccountConfig,

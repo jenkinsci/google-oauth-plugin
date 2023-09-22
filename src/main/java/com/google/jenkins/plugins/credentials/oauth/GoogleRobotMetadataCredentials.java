@@ -52,21 +52,22 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    * @param projectId The Pantheon project id associated with this service account
    * @param module The module for instantiating dependent objects, or null.
    */
-  @DataBoundConstructor
   public GoogleRobotMetadataCredentials(
       String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
-    super(projectId, module);
+    super("", projectId, module);
   }
 
   /**
-   * Construct a set of service account credentials with a specific id.
-   * Do not use this, it is only for migrating old credentials that had no id and relied on the project id.
+   * Construct a set of service account credentials with a specific id. It helps for updating
+   * credentials, as well as for migrating old credentials that had no id and relied on the project
+   * id.
    *
    * @param id the id to assign
    * @param projectId The Pantheon project id associated with this service account
    * @param module The module for instantiating dependent objects, or null.
    */
-  private GoogleRobotMetadataCredentials(
+  @DataBoundConstructor
+  public GoogleRobotMetadataCredentials(
       String id, String projectId, @Nullable GoogleRobotMetadataCredentialsModule module)
       throws Exception {
     super(id, projectId, module);
