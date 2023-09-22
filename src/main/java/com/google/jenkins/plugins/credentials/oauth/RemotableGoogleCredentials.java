@@ -74,6 +74,32 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
             .plusSeconds(checkNotNull(credential.getExpiresInSeconds()).intValue())
             .getMillis();
   }
+  /**
+   * Construct a remotable credential. This should never be used directly - this constructor is only
+   * for migrating old credentials that had no id and relied on the projectId during readResolve().
+   */
+  private RemotableGoogleCredentials(
+      String id,
+      String projectId,
+      GoogleRobotCredentialsModule module,
+      String username,
+      String accessToken,
+      long expiration) {
+    super(id, projectId, module);
+    this.username = username;
+    this.accessToken = accessToken;
+    this.expiration = expiration;
+  }
+
+  private Object readResolve() throws Exception {
+    return new RemotableGoogleCredentials(
+        getId() == null ? getProjectId() : getId(),
+        getProjectId(),
+        getModule(),
+        username,
+        accessToken,
+        expiration);
+  }
 
   /** {@inheritDoc} */
   @Override

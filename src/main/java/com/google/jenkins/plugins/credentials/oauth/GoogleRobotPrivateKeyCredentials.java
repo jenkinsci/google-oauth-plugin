@@ -66,13 +66,35 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
     this.serviceAccountConfig = serviceAccountConfig;
   }
 
+  /**
+   * Construct a set of service account credentials with a specific id. Do not use this, it is only for migrating
+   * old credentials that had no id and relied on the project id.
+   *
+   * @param projectId The project id associated with this service account
+   * @param serviceAccountConfig The ServiceAccountConfig to use
+   * @param module The module for instantiating dependent objects, or null.
+   */
+  private GoogleRobotPrivateKeyCredentials(
+      String id,
+      String projectId,
+      ServiceAccountConfig serviceAccountConfig,
+      @Nullable GoogleRobotCredentialsModule module)
+      throws Exception {
+    super(id, projectId, module);
+    this.serviceAccountConfig = serviceAccountConfig;
+  }
+
   @SuppressWarnings("deprecation")
-  public Object readResolve() {
+  public Object readResolve() throws Exception {
     if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
       serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
     }
-    return this;
+    return new GoogleRobotPrivateKeyCredentials(
+        getId() == null ? getProjectId() : getId(),
+        getProjectId(),
+        serviceAccountConfig,
+        getModule());
   }
 
   private String getClientEmailFromSecretsFileAndLogErrors() {

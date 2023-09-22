@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
-import com.cloudbees.plugins.credentials.common.IdCredentials;
+import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
@@ -38,7 +38,8 @@ import jenkins.model.Jenkins;
  *
  * @author Matt Moore
  */
-public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials {
+public abstract class GoogleRobotCredentials extends BaseStandardCredentials
+    implements GoogleOAuth2Credentials {
   /**
    * Base constructor for populating the name and id for Google credentials.
    *
@@ -46,7 +47,20 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
    * @param module The module to use for instantiating the dependencies of credentials.
    */
   protected GoogleRobotCredentials(String projectId, GoogleRobotCredentialsModule module) {
-    this.id = IdCredentials.Helpers.fixEmptyId("");
+    this("", projectId, module);
+  }
+
+  /**
+   * Migration only constructor with a specified credential id. Do not use this, it is only for migrating
+   * old credentials that had no id and relied on the project id.
+   *
+   * @param id the credential ID to assign.
+   * @param projectId The project id with which this credential is associated.
+   * @param module The module to use for instantiating the dependencies of credentials.
+   */
+  protected GoogleRobotCredentials(
+      String id, String projectId, GoogleRobotCredentialsModule module) {
+    super(id, Messages.GoogleRobotCredentials_Description());
     this.projectId = checkNotNull(projectId);
 
     if (module != null) {
@@ -61,17 +75,7 @@ public abstract class GoogleRobotCredentials implements GoogleOAuth2Credentials 
     return module;
   }
 
-  private String id;
-
   private final GoogleRobotCredentialsModule module;
-
-  /** Retrieve a unique identifier that should be used to link to this object. */
-  public String getId() {
-    if (id == null) {
-      id = projectId; // for migrating old credentials which had no id other than project id
-    }
-    return id;
-  }
 
   /** {@inheritDoc} */
   @Override

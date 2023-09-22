@@ -58,6 +58,25 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     super(projectId, module);
   }
 
+  /**
+   * Construct a set of service account credentials with a specific id.
+   * Do not use this, it is only for migrating old credentials that had no id and relied on the project id.
+   *
+   * @param id the id to assign
+   * @param projectId The Pantheon project id associated with this service account
+   * @param module The module for instantiating dependent objects, or null.
+   */
+  private GoogleRobotMetadataCredentials(
+      String id, String projectId, @Nullable GoogleRobotMetadataCredentialsModule module)
+      throws Exception {
+    super(id, projectId, module);
+  }
+
+  private Object readResolve() throws Exception {
+    return new GoogleRobotMetadataCredentials(
+        getId() == null ? getProjectId() : getId(), getProjectId(), getModule());
+  }
+
   /** {@inheritDoc} */
   @Override
   public GoogleRobotMetadataCredentialsModule getModule() {
