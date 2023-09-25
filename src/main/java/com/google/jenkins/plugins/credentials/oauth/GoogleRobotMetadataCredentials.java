@@ -28,7 +28,6 @@ import com.google.common.collect.Lists;
 import com.google.jenkins.plugins.util.ExecutorException;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 import hudson.Extension;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -75,9 +74,11 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     super(id, projectId, module);
   }
 
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
-          justification = "for migrating older credentials that did not have a separate id field, and would really "
-                          + "have a null id when attempted to deserialize. readResolve overwrites all these nulls")
+  @SuppressFBWarnings(
+      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+      justification =
+          "for migrating older credentials that did not have a separate id field, and would really "
+              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
   private Object readResolve() throws Exception {
     return new GoogleRobotMetadataCredentials(
         getId() == null ? getProjectId() : getId(), getProjectId(), getModule());

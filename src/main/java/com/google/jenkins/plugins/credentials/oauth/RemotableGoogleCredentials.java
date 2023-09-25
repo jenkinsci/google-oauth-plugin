@@ -91,9 +91,11 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
     this.expiration = expiration;
   }
 
-  @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
-          justification = "for migrating older credentials that did not have a separate id field, and would really "
-                          + "have a null id when attempted to deserialize. readResolve overwrites all these nulls")
+  @SuppressFBWarnings(
+      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+      justification =
+          "for migrating older credentials that did not have a separate id field, and would really "
+              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
   private Object readResolve() throws Exception {
     return new RemotableGoogleCredentials(
         getId() == null ? getProjectId() : getId(),
