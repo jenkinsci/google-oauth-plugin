@@ -16,17 +16,20 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
     <version>4.73</version>
   </parent>
+
   <!--
       Lots of boilerplate from: https://wiki.jenkins-ci.org/display/JENKINS/Hosting+Plugins
   -->
   <artifactId>google-oauth-plugin</artifactId>
   <version>1.0.12-SNAPSHOT</version>
   <packaging>hpi</packaging>
+
   <name>Google OAuth Credentials plugin</name>
   <url>https://github.com/jenkinsci/google-oauth-plugin/blob/develop/docs/home.md</url>
   <licenses>
@@ -36,6 +39,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
   <developers>
     <developer>
       <id>astroilov</id>
@@ -52,36 +56,37 @@
       <email>stephenshank@google.com</email>
     </developer>
   </developers>
+
   <scm>
     <connection>scm:git:https://github.com/${gitHubRepo}.git</connection>
     <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
     <url>https://github.com/${gitHubRepo}</url>
     <tag>google-oauth-plugin-1.0.9</tag>
   </scm>
+
   <!-- Bring some sanity to version numbering... -->
   <properties>
     <revision>1.0.8</revision>
     <changelist>-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
-    <jenkins.version>2.361.4</jenkins.version>
+    <jenkins.version>2.387.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
     <google.api.version>1.35.2</google.api.version>
     <google.guava.version>32.1.2-jre</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
-    <configuration-as-code.version>1.19</configuration-as-code.version>
-    <credentials.version>2.2.0</credentials.version>
     <spotbugs.effort>Max</spotbugs.effort>
     <doclint>none</doclint>
     <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.361.x</artifactId>
-        <version>2102.v854b_fec19c92</version>
+        <artifactId>bom-2.387.x</artifactId>
+        <version>2465.va_e76ed7b_3061</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -179,7 +184,6 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>oauth-credentials</artifactId>
-      <version>0.646.v02b_66dc03d2e</version>
     </dependency>
     <!-- com.google.http-client -->
     <dependency>
@@ -252,18 +256,17 @@
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>credentials</artifactId>
     </dependency>
-    <dependency>
-      <!-- Required to run P12ServiceAccountConfigTestUtil-dependent tests against newer Jenkins core versions.
+    <dependency><!-- Required to run P12ServiceAccountConfigTestUtil-dependent tests against newer Jenkins core versions.
            Dependency on it does not cause issues in the baseline core even though the plugin is formally incompatible.
            Should it break at some point, the core requirement can be bumped to 2.17.x.
            The BC library can be also shaded if the core requirement needs to be retained.
        -->
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>bouncycastle-api</artifactId>
-      <version>2.20</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <repositories>
     <repository>
       <id>repo.jenkins-ci.org</id>
@@ -276,6 +279,7 @@
       <url>https://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
+
   <build>
     <plugins>
       <plugin>
@@ -395,6 +399,7 @@
       </plugin>
     </plugins>
   </build>
+
   <reporting>
     <plugins>
       <plugin>
