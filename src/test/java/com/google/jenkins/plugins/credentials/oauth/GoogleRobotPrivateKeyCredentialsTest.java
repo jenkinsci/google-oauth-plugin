@@ -141,7 +141,6 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   public void testCreatePrivateKeyCredentialsWithP12KeyType() throws Exception {
     when(mockFileItem.getSize()).thenReturn(1L);
     when(mockFileItem.getName()).thenReturn(p12KeyPath);
-    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(p12KeyPath));
     when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
     P12ServiceAccountConfig keyType = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
     keyType.setP12KeyFileUpload(mockFileItem);
