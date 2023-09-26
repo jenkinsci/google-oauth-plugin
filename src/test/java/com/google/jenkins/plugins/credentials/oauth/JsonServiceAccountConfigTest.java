@@ -92,9 +92,7 @@ public class JsonServiceAccountConfigTest {
   public void testCreateJsonKeyTypeWithInvalidJsonKeyFile() throws Exception {
     byte[] bytes = "invalidJsonKeyFile".getBytes();
     when(mockFileItem.getSize()).thenReturn((long) bytes.length);
-    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
     when(mockFileItem.getInputStream()).thenReturn(new ByteArrayInputStream(bytes));
-    when(mockFileItem.get()).thenReturn(bytes);
     JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
     jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
