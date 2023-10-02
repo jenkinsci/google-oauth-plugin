@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,23 +57,51 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
-  @DataBoundConstructor
   public GoogleRobotPrivateKeyCredentials(
       String projectId,
       ServiceAccountConfig serviceAccountConfig,
       @Nullable GoogleRobotCredentialsModule module)
       throws Exception {
-    super(projectId, module);
+    super("", projectId, module);
+    this.serviceAccountConfig = serviceAccountConfig;
+  }
+
+  /**
+   * Construct a set of service account credentials with a specific id. It helps for updating
+   * credentials, as well as for migrating old credentials that had no id and relied on the project
+   * id.
+   *
+   * @param projectId The project id associated with this service account
+   * @param serviceAccountConfig The ServiceAccountConfig to use
+   * @param module The module for instantiating dependent objects, or null.
+   */
+  @DataBoundConstructor
+  public GoogleRobotPrivateKeyCredentials(
+      String id,
+      String projectId,
+      ServiceAccountConfig serviceAccountConfig,
+      @Nullable GoogleRobotCredentialsModule module)
+      throws Exception {
+    super(id, projectId, module);
     this.serviceAccountConfig = serviceAccountConfig;
   }
 
   @SuppressWarnings("deprecation")
-  public Object readResolve() {
+  @SuppressFBWarnings(
+      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+      justification =
+          "for migrating older credentials that did not have a separate id field, and would really "
+              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+  public Object readResolve() throws Exception {
     if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
       serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
     }
-    return this;
+    return new GoogleRobotPrivateKeyCredentials(
+        getId() == null ? getProjectId() : getId(),
+        getProjectId(),
+        serviceAccountConfig,
+        getModule());
   }
 
   private String getClientEmailFromSecretsFileAndLogErrors() {

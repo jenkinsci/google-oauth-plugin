@@ -51,7 +51,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       GoogleOAuth2ScopeRequirement requirement,
       GoogleRobotCredentialsModule module)
       throws GeneralSecurityException {
-    super(checkNotNull(credentials).getProjectId(), checkNotNull(module));
+    super("", checkNotNull(credentials).getProjectId(), checkNotNull(module));
 
     this.username = credentials.getUsername();
 
@@ -73,6 +73,37 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
         new DateTime()
             .plusSeconds(checkNotNull(credential.getExpiresInSeconds()).intValue())
             .getMillis();
+  }
+  /**
+   * Construct a remotable credential. This should never be used directly - this constructor is only
+   * for migrating old credentials that had no id and relied on the projectId during readResolve().
+   */
+  private RemotableGoogleCredentials(
+      String id,
+      String projectId,
+      GoogleRobotCredentialsModule module,
+      String username,
+      String accessToken,
+      long expiration) {
+    super(id, projectId, module);
+    this.username = username;
+    this.accessToken = accessToken;
+    this.expiration = expiration;
+  }
+
+  @SuppressFBWarnings(
+      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+      justification =
+          "for migrating older credentials that did not have a separate id field, and would really "
+              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+  private Object readResolve() throws Exception {
+    return new RemotableGoogleCredentials(
+        getId() == null ? getProjectId() : getId(),
+        getProjectId(),
+        getModule(),
+        username,
+        accessToken,
+        expiration);
   }
 
   /** {@inheritDoc} */

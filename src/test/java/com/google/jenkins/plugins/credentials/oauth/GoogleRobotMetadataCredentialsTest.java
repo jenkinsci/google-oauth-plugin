@@ -109,20 +109,6 @@ public class GoogleRobotMetadataCredentialsTest {
 
   @Test
   @WithoutJenkins
-  public void basicRoundtripTest() throws Exception {
-    final Module module = new Module();
-    GoogleRobotMetadataCredentials newCreds =
-        new GoogleRobotMetadataCredentials(PROJECT_ID, module);
-
-    GoogleRobotMetadataCredentials updateCreds =
-        new GoogleRobotMetadataCredentials(newCreds.getProjectId(), module);
-
-    assertEquals(newCreds.getId(), updateCreds.getId());
-    assertEquals(newCreds.getProjectId(), updateCreds.getProjectId());
-  }
-
-  @Test
-  @WithoutJenkins
   public void accessTokenTest() throws Exception {
     final Module module = new Module();
 
