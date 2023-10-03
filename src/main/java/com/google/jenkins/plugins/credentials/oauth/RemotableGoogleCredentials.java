@@ -51,7 +51,13 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       GoogleOAuth2ScopeRequirement requirement,
       GoogleRobotCredentialsModule module)
       throws GeneralSecurityException {
-    super("", checkNotNull(credentials).getProjectId(), checkNotNull(module));
+    super(
+        credentials.getCredentialsScope() == null
+            ? CredentialsScope.GLOBAL
+            : credentials.getScope(),
+        "",
+        checkNotNull(credentials).getProjectId(),
+        checkNotNull(module));
 
     this.username = credentials.getUsername();
 
@@ -79,13 +85,14 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
    * for migrating old credentials that had no id and relied on the projectId during readResolve().
    */
   private RemotableGoogleCredentials(
+      CredentialsScope scope,
       String id,
       String projectId,
       GoogleRobotCredentialsModule module,
       String username,
       String accessToken,
       long expiration) {
-    super(id, projectId, module);
+    super(scope, id, projectId, module);
     this.username = username;
     this.accessToken = accessToken;
     this.expiration = expiration;
@@ -98,6 +105,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
               + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
   private Object readResolve() throws Exception {
     return new RemotableGoogleCredentials(
+        getCredentialsScope() == null ? CredentialsScope.GLOBAL : getCredentialsScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
         getModule(),
@@ -109,7 +117,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
   /** {@inheritDoc} */
   @Override
   public CredentialsScope getScope() {
-    return CredentialsScope.GLOBAL;
+    return getCredentialsScope();
   }
 
   /** {@inheritDoc} */

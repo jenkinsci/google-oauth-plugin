@@ -50,6 +50,8 @@ public class GoogleRobotCredentialsTest {
   // Allow for testing using JUnit4, instead of JUnit3.
   @Rule public JenkinsRule jenkins = new JenkinsRule();
 
+  private static final CredentialsScope CREDENTIALS_SCOPE = CredentialsScope.GLOBAL;
+
   /** */
   public static class TestRequirement extends TestGoogleOAuth2DomainRequirement {
     public TestRequirement() {
@@ -70,7 +72,7 @@ public class GoogleRobotCredentialsTest {
   @RequiresDomain(value = TestRequirement.class)
   public static class FakeGoogleCredentials extends GoogleRobotCredentials {
     public FakeGoogleCredentials(String projectId, GoogleCredential credential) {
-      super("", projectId, new GoogleRobotCredentialsModule());
+      super(CREDENTIALS_SCOPE, "", projectId, new GoogleRobotCredentialsModule());
 
       this.credential = credential;
     }
@@ -93,7 +95,7 @@ public class GoogleRobotCredentialsTest {
 
     @Override
     public CredentialsScope getScope() {
-      return CredentialsScope.GLOBAL;
+      return getCredentialsScope();
     }
 
     /** */

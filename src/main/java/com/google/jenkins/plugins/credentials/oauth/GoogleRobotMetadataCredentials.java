@@ -26,6 +26,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.jenkins.plugins.util.ExecutorException;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
@@ -47,16 +48,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @NameWith(value = GoogleRobotNameProvider.class, priority = 50)
 public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     implements DomainRestrictedCredentials {
-  /**
-   * Construct a set of service account credentials.
-   *
-   * @param projectId The Pantheon project id associated with this service account
-   * @param module The module for instantiating dependent objects, or null.
-   */
-  public GoogleRobotMetadataCredentials(
-      String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
-    super("", projectId, module);
-  }
 
   /**
    * Construct a set of service account credentials with a specific id. It helps for updating
@@ -69,9 +60,12 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    */
   @DataBoundConstructor
   public GoogleRobotMetadataCredentials(
-      String id, String projectId, @Nullable GoogleRobotMetadataCredentialsModule module)
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      @Nullable GoogleRobotMetadataCredentialsModule module)
       throws Exception {
-    super(id, projectId, module);
+    super(scope, id, projectId, module);
   }
 
   @SuppressFBWarnings(
@@ -81,7 +75,10 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
               + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
   private Object readResolve() throws Exception {
     return new GoogleRobotMetadataCredentials(
-        getId() == null ? getProjectId() : getId(), getProjectId(), getModule());
+        getCredentialsScope() == null ? CredentialsScope.GLOBAL : getCredentialsScope(),
+        getId() == null ? getProjectId() : getId(),
+        getProjectId(),
+        getModule());
   }
 
   /** {@inheritDoc} */
@@ -127,7 +124,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
   /** {@inheritDoc} */
   @Override
   public CredentialsScope getScope() {
-    return CredentialsScope.GLOBAL;
+    return getCredentialsScope();
   }
 
   /** {@inheritDoc} */
