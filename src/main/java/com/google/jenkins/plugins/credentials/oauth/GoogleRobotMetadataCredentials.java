@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.jenkins.plugins.util.ExecutorException;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -52,10 +53,35 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    * @param projectId The Pantheon project id associated with this service account
    * @param module The module for instantiating dependent objects, or null.
    */
-  @DataBoundConstructor
   public GoogleRobotMetadataCredentials(
       String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
-    super(projectId, module);
+    super("", projectId, module);
+  }
+
+  /**
+   * Construct a set of service account credentials with a specific id. It helps for updating
+   * credentials, as well as for migrating old credentials that had no id and relied on the project
+   * id.
+   *
+   * @param id the id to assign
+   * @param projectId The Pantheon project id associated with this service account
+   * @param module The module for instantiating dependent objects, or null.
+   */
+  @DataBoundConstructor
+  public GoogleRobotMetadataCredentials(
+      String id, String projectId, @Nullable GoogleRobotMetadataCredentialsModule module)
+      throws Exception {
+    super(id, projectId, module);
+  }
+
+  @SuppressFBWarnings(
+      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+      justification =
+          "for migrating older credentials that did not have a separate id field, and would really "
+              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+  private Object readResolve() throws Exception {
+    return new GoogleRobotMetadataCredentials(
+        getId() == null ? getProjectId() : getId(), getProjectId(), getModule());
   }
 
   /** {@inheritDoc} */

@@ -17,6 +17,7 @@ package com.google.jenkins.plugins.credentials.oauth;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -40,6 +41,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.WithoutJenkins;
+import org.jvnet.hudson.test.recipes.LocalData;
 import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link GoogleRobotCredentials}. */
@@ -68,7 +70,7 @@ public class GoogleRobotCredentialsTest {
   @RequiresDomain(value = TestRequirement.class)
   public static class FakeGoogleCredentials extends GoogleRobotCredentials {
     public FakeGoogleCredentials(String projectId, GoogleCredential credential) {
-      super(projectId, new GoogleRobotCredentialsModule());
+      super("", projectId, new GoogleRobotCredentialsModule());
 
       this.credential = credential;
     }
@@ -126,13 +128,6 @@ public class GoogleRobotCredentialsTest {
     assertNotNull(credentials.getId());
     assertSame(fakeCredential, credentials.getGoogleCredential(null));
     assertEquals(Messages.GoogleRobotCredentials_Description(), credentials.getDescription());
-  }
-
-  @Test
-  @WithoutJenkins
-  public void testWithId() throws Exception {
-    FakeGoogleCredentials credentials = new FakeGoogleCredentials(PROJECT_ID, fakeCredential);
-    assertEquals(PROJECT_ID, credentials.getId());
   }
 
   @Test
@@ -215,10 +210,26 @@ public class GoogleRobotCredentialsTest {
     assertNull(GoogleRobotCredentials.getById("not an id"));
   }
 
+  @LocalData
+  @Test
+  public void testMigration() {
+    /* LocalData contains an old credential with no id field and the project id my-google-project.
+    On deserialization the id should be filled with the project id. */
+    assertNotNull(GoogleRobotCredentials.getById(MIGRATION_PROJECT_ID));
+  }
+
+  @Test
+  public void testMultipleCredentials() {
+    FakeGoogleCredentials credential1 = new FakeGoogleCredentials(PROJECT_ID, null);
+    FakeGoogleCredentials credential2 = new FakeGoogleCredentials(PROJECT_ID, null);
+    assertNotEquals(credential1, credential2);
+  }
+
   private static final String NAME = "my credential name";
   private static final String FAKE_SCOPE = "my.fake.scope";
   private static final String DISPLAY_NAME = "blah";
   private static final String PROJECT_ID = "foo.com:bar-baz";
+  private static final String MIGRATION_PROJECT_ID = "my-google-project";
   private static final String USERNAME = "mattomata";
   private static final String ACCESS_TOKEN = "ThE.ToKeN";
   private static final long EXPIRATION_SECONDS = 1234;
