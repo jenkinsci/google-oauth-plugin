@@ -19,10 +19,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
@@ -40,30 +42,37 @@ import jenkins.model.Jenkins;
  */
 public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     implements GoogleOAuth2Credentials {
+
   /**
    * Base constructor for populating the name and id for Google credentials.
    *
    * @param projectId The project id with which this credential is associated.
    * @param module The module to use for instantiating the dependencies of credentials.
    */
+  @Deprecated
   protected GoogleRobotCredentials(String projectId, GoogleRobotCredentialsModule module) {
-    this("", projectId, module);
+    this(CredentialsScope.GLOBAL, "", projectId, module);
   }
 
   /**
-   * Base constructor for populating the name and id and project id for Google credentials. Leave
-   * the id empty to generate a new one, populate the id when updating an existing credential or
-   * migrating from using the project id as the credential id.
+   * Base constructor for populating the scope, name, id, and project id for Google credentials.
+   * Leave the id empty to generate a new one, populate the id when updating an existing credential
+   * or migrating from using the project id as the credential id. Use the scope to define the extent
+   * to which these credentials are available within Jenkins (i.e., GLOBAL or SYSTEM).
    *
-   * @param id the credential ID to assign.
+   * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
+   *     be either GLOBAL or SYSTEM.
+   * @param id The credential ID to assign.
    * @param projectId The project id with which this credential is associated.
    * @param module The module to use for instantiating the dependencies of credentials.
    */
   protected GoogleRobotCredentials(
-      String id, String projectId, GoogleRobotCredentialsModule module) {
-    super(id == null ? "" : id, Messages.GoogleRobotCredentials_Description());
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      GoogleRobotCredentialsModule module) {
+    super(scope, id == null ? "" : id, Messages.GoogleRobotCredentials_Description());
     this.projectId = checkNotNull(projectId);
-
     if (module != null) {
       this.module = module;
     } else {

@@ -26,6 +26,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.jenkins.plugins.util.ExecutorException;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
@@ -47,15 +48,17 @@ import org.kohsuke.stapler.DataBoundConstructor;
 @NameWith(value = GoogleRobotNameProvider.class, priority = 50)
 public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     implements DomainRestrictedCredentials {
+
   /**
    * Construct a set of service account credentials.
    *
    * @param projectId The Pantheon project id associated with this service account
    * @param module The module for instantiating dependent objects, or null.
    */
+  @Deprecated
   public GoogleRobotMetadataCredentials(
-      String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
-    super("", projectId, module);
+          String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
+    super(CredentialsScope.GLOBAL, "", projectId, module);
   }
 
   /**
@@ -69,19 +72,27 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    */
   @DataBoundConstructor
   public GoogleRobotMetadataCredentials(
-      String id, String projectId, @Nullable GoogleRobotMetadataCredentialsModule module)
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      @Nullable GoogleRobotMetadataCredentialsModule module)
       throws Exception {
-    super(id, projectId, module);
+    super(scope, id, projectId, module);
   }
 
   @SuppressFBWarnings(
       value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
       justification =
-          "for migrating older credentials that did not have a separate id field, and would really "
-              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+          "For migration purposes: older credentials might not have had separate id or "
+              + "scope fields. These fields might be null when deserializing. The readResolve "
+              + "method sets defaults for null id and scope. Id defaults to getProjectId() and "
+              + "scope defaults to CredentialsScope.GLOBAL if null.")
   private Object readResolve() throws Exception {
     return new GoogleRobotMetadataCredentials(
-        getId() == null ? getProjectId() : getId(), getProjectId(), getModule());
+        getScope() == null ? CredentialsScope.GLOBAL : getScope(),
+        getId() == null ? getProjectId() : getId(),
+        getProjectId(),
+        getModule());
   }
 
   /** {@inheritDoc} */
@@ -123,12 +134,6 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    * account.
    */
   private static final String IDENTITY_PATH = "/instance/service-accounts/default/email";
-
-  /** {@inheritDoc} */
-  @Override
-  public CredentialsScope getScope() {
-    return CredentialsScope.GLOBAL;
-  }
 
   /** {@inheritDoc} */
   @Override

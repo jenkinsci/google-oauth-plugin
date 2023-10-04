@@ -70,7 +70,7 @@ public class GoogleRobotCredentialsTest {
   @RequiresDomain(value = TestRequirement.class)
   public static class FakeGoogleCredentials extends GoogleRobotCredentials {
     public FakeGoogleCredentials(String projectId, GoogleCredential credential) {
-      super("", projectId, new GoogleRobotCredentialsModule());
+      super(CredentialsScope.GLOBAL, "", projectId, new GoogleRobotCredentialsModule());
 
       this.credential = credential;
     }
@@ -89,11 +89,6 @@ public class GoogleRobotCredentialsTest {
     @Override
     public String getUsername() {
       return USERNAME;
-    }
-
-    @Override
-    public CredentialsScope getScope() {
-      return CredentialsScope.GLOBAL;
     }
 
     /** */

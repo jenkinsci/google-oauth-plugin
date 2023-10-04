@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -50,6 +51,7 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
   @Deprecated private transient String secretsFile;
   @Deprecated private transient String p12File;
 
+  
   /**
    * Construct a set of service account credentials.
    *
@@ -57,12 +59,13 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
+  @Deprecated
   public GoogleRobotPrivateKeyCredentials(
-      String projectId,
-      ServiceAccountConfig serviceAccountConfig,
-      @Nullable GoogleRobotCredentialsModule module)
-      throws Exception {
-    super("", projectId, module);
+          String projectId,
+          ServiceAccountConfig serviceAccountConfig,
+          @Nullable GoogleRobotCredentialsModule module)
+          throws Exception {
+    super(CredentialsScope.GLOBAL, "", projectId, module);
     this.serviceAccountConfig = serviceAccountConfig;
   }
 
@@ -77,12 +80,13 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    */
   @DataBoundConstructor
   public GoogleRobotPrivateKeyCredentials(
+      @CheckForNull CredentialsScope scope,
       String id,
       String projectId,
       ServiceAccountConfig serviceAccountConfig,
       @Nullable GoogleRobotCredentialsModule module)
       throws Exception {
-    super(id, projectId, module);
+    super(scope, id, projectId, module);
     this.serviceAccountConfig = serviceAccountConfig;
   }
 
@@ -90,14 +94,17 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
   @SuppressFBWarnings(
       value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
       justification =
-          "for migrating older credentials that did not have a separate id field, and would really "
-              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+          "For migration purposes: older credentials might not have had separate id or "
+              + "scope fields. These fields might be null when deserializing. The readResolve "
+              + "method sets defaults for null id and scope. Id defaults to getProjectId() and "
+              + "scope defaults to CredentialsScope.GLOBAL if null.")
   public Object readResolve() throws Exception {
     if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
       serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
     }
     return new GoogleRobotPrivateKeyCredentials(
+        getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
         serviceAccountConfig,
@@ -197,11 +204,6 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
     return Jenkins.get()
         .getDescriptorOrDie(GoogleRobotPrivateKeyCredentials.class)
         .getHelpFile("credentials");
-  }
-
-  @Override
-  public CredentialsScope getScope() {
-    return CredentialsScope.GLOBAL;
   }
 
   @Override
