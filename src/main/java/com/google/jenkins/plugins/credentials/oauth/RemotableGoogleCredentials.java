@@ -52,9 +52,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       GoogleRobotCredentialsModule module)
       throws GeneralSecurityException {
     super(
-        credentials.getCredentialsScope() == null
-            ? CredentialsScope.GLOBAL
-            : credentials.getScope(),
+        credentials.getScope() == null ? CredentialsScope.GLOBAL : credentials.getScope(),
         "",
         checkNotNull(credentials).getProjectId(),
         checkNotNull(module));
@@ -105,19 +103,13 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
               + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
   private Object readResolve() throws Exception {
     return new RemotableGoogleCredentials(
-        getCredentialsScope() == null ? CredentialsScope.GLOBAL : getCredentialsScope(),
+        getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
         getModule(),
         username,
         accessToken,
         expiration);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public CredentialsScope getScope() {
-    return getCredentialsScope();
   }
 
   /** {@inheritDoc} */

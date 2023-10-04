@@ -44,11 +44,14 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     implements GoogleOAuth2Credentials {
 
   /**
-   * Base constructor for populating the name and id and project id for Google credentials. Leave
-   * the id empty to generate a new one, populate the id when updating an existing credential or
-   * migrating from using the project id as the credential id.
+   * Base constructor for populating the scope, name, id, and project id for Google credentials.
+   * Leave the id empty to generate a new one, populate the id when updating an existing credential
+   * or migrating from using the project id as the credential id. Use the scope to define the extent
+   * to which these credentials are available within Jenkins (i.e., GLOBAL or SYSTEM).
    *
-   * @param id the credential ID to assign.
+   * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
+   *     be either GLOBAL or SYSTEM.
+   * @param id The credential ID to assign.
    * @param projectId The project id with which this credential is associated.
    * @param module The module to use for instantiating the dependencies of credentials.
    */
@@ -58,7 +61,6 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
       String projectId,
       GoogleRobotCredentialsModule module) {
     super(scope, id == null ? "" : id, Messages.GoogleRobotCredentials_Description());
-    this.scope = scope;
     this.projectId = checkNotNull(projectId);
     if (module != null) {
       this.module = module;
@@ -207,10 +209,5 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     return projectId;
   }
 
-  public CredentialsScope getCredentialsScope() {
-    return scope;
-  }
-
   private final String projectId;
-  private final CredentialsScope scope;
 }

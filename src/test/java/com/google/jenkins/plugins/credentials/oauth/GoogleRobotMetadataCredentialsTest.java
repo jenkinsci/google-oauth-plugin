@@ -318,6 +318,42 @@ public class GoogleRobotMetadataCredentialsTest {
     assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId("").kind);
   }
 
+  @Test
+  public void testCredentialCreationWithSystemScope() throws Exception {
+    final Module module = new Module();
+
+    // WHEN: creating a credential with SYSTEM scope
+    GoogleRobotMetadataCredentials credentials =
+        new GoogleRobotMetadataCredentials(CredentialsScope.SYSTEM, "", PROJECT_ID, module);
+
+    module.stubRequest(
+        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+        STATUS_CODE_OK,
+        USERNAME);
+
+    // THEN: the resulting credential should have SYSTEM scope
+    assertEquals(CredentialsScope.SYSTEM, credentials.getScope());
+    assertEquals(USERNAME, credentials.getUsername());
+  }
+
+  @Test
+  public void testCredentialCreationWithGlobalScope() throws Exception {
+    final Module module = new Module();
+
+    // WHEN: creating a credential with GLOBAL scope
+    GoogleRobotMetadataCredentials credentials =
+        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, module);
+
+    module.stubRequest(
+        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+        STATUS_CODE_OK,
+        USERNAME);
+
+    // THEN: the resulting credential should have GLOBAL scope
+    assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
+    assertEquals(USERNAME, credentials.getUsername());
+  }
+
   private static String METADATA_ENDPOINT =
       OAuth2Utils.getMetadataServerUrl()
           + "/computeMetadata/v1/"

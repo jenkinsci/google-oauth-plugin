@@ -76,15 +76,16 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
   @SuppressFBWarnings(
       value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
       justification =
-          "for migrating older credentials that did not have a separate id field, and would really "
-              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+          "For migration purposes: older credentials might not have had separate id or scope fields. "
+              + "These fields might be null when deserializing. The readResolve method sets defaults for "
+              + "null id and scope. Id defaults to getProjectId() and scope defaults to CredentialsScope.GLOBAL if null.")
   public Object readResolve() throws Exception {
     if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
       serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
     }
     return new GoogleRobotPrivateKeyCredentials(
-        getCredentialsScope() == null ? CredentialsScope.GLOBAL : getCredentialsScope(),
+        getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
         serviceAccountConfig,
@@ -184,11 +185,6 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
     return Jenkins.get()
         .getDescriptorOrDie(GoogleRobotPrivateKeyCredentials.class)
         .getHelpFile("credentials");
-  }
-
-  @Override
-  public CredentialsScope getScope() {
-    return getCredentialsScope();
   }
 
   @Override

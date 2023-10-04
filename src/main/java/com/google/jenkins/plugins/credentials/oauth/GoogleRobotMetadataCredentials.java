@@ -71,11 +71,12 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
   @SuppressFBWarnings(
       value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
       justification =
-          "for migrating older credentials that did not have a separate id field, and would really "
-              + "have a null id when attempted to deserialize. readResolve overwrites these nulls")
+          "For migration purposes: older credentials might not have had separate id or scope fields. "
+              + "These fields might be null when deserializing. The readResolve method sets defaults for "
+              + "null id and scope. Id defaults to getProjectId() and scope defaults to CredentialsScope.GLOBAL if null.")
   private Object readResolve() throws Exception {
     return new GoogleRobotMetadataCredentials(
-        getCredentialsScope() == null ? CredentialsScope.GLOBAL : getCredentialsScope(),
+        getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
         getModule());
@@ -120,12 +121,6 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    * account.
    */
   private static final String IDENTITY_PATH = "/instance/service-accounts/default/email";
-
-  /** {@inheritDoc} */
-  @Override
-  public CredentialsScope getScope() {
-    return getCredentialsScope();
-  }
 
   /** {@inheritDoc} */
   @Override

@@ -383,4 +383,42 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
     assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
   }
+
+  @Test
+  public void testCredentialCreationWithSystemScope() throws Exception {
+    // GIVEN: Setup the mock and configuration
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
+    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
+    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
+
+    // WHEN: creating a credential with SYSTEM scope
+    GoogleRobotPrivateKeyCredentials credentials =
+        new GoogleRobotPrivateKeyCredentials(
+            CredentialsScope.SYSTEM, "", PROJECT_ID, jsonServiceAccountConfig, module);
+
+    // THEN: the resulting credential should have SYSTEM scope
+    assertEquals(CredentialsScope.SYSTEM, credentials.getScope());
+  }
+
+  @Test
+  public void testCredentialCreationWithGlobalScope() throws Exception {
+    // GIVEN: Setup the mock and configuration
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
+    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
+    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
+
+    // WHEN: creating a credential with GLOBAL scope
+    GoogleRobotPrivateKeyCredentials credentials =
+        new GoogleRobotPrivateKeyCredentials(
+            CredentialsScope.GLOBAL, "", PROJECT_ID, jsonServiceAccountConfig, module);
+
+    // THEN: the resulting credential should have GLOBAL scope
+    assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
+  }
 }
