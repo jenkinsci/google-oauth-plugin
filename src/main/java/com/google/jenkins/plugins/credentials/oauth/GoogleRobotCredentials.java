@@ -44,6 +44,17 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     implements GoogleOAuth2Credentials {
 
   /**
+   * Base constructor for populating the name and id for Google credentials.
+   *
+   * @param projectId The project id with which this credential is associated.
+   * @param module The module to use for instantiating the dependencies of credentials.
+   */
+  @Deprecated
+  protected GoogleRobotCredentials(String projectId, GoogleRobotCredentialsModule module) {
+    this(CredentialsScope.GLOBAL, "", projectId, module);
+  }
+
+  /**
    * Base constructor for populating the scope, name, id, and project id for Google credentials.
    * Leave the id empty to generate a new one, populate the id when updating an existing credential
    * or migrating from using the project id as the credential id. Use the scope to define the extent

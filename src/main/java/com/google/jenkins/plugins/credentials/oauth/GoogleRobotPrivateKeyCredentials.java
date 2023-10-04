@@ -51,6 +51,24 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
   @Deprecated private transient String secretsFile;
   @Deprecated private transient String p12File;
 
+  
+  /**
+   * Construct a set of service account credentials.
+   *
+   * @param projectId The project id associated with this service account
+   * @param serviceAccountConfig The ServiceAccountConfig to use
+   * @param module The module for instantiating dependent objects, or null.
+   */
+  @Deprecated
+  public GoogleRobotPrivateKeyCredentials(
+          String projectId,
+          ServiceAccountConfig serviceAccountConfig,
+          @Nullable GoogleRobotCredentialsModule module)
+          throws Exception {
+    super(CredentialsScope.GLOBAL, "", projectId, module);
+    this.serviceAccountConfig = serviceAccountConfig;
+  }
+
   /**
    * Construct a set of service account credentials with a specific id. It helps for updating
    * credentials, as well as for migrating old credentials that had no id and relied on the project
