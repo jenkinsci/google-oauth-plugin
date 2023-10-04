@@ -92,7 +92,6 @@ public class P12ServiceAccountConfigTest {
   @WithoutJenkins
   public void testCreateWithEmptyP12KeyFile() throws Exception {
     when(mockFileItem.getSize()).thenReturn(0L);
-    when(mockFileItem.get()).thenReturn(new byte[] {});
     P12ServiceAccountConfig p12ServiceAccountConfig =
         new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
     p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
