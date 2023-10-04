@@ -57,7 +57,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    */
   @Deprecated
   public GoogleRobotMetadataCredentials(
-          String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
+      String projectId, @Nullable GoogleRobotMetadataCredentialsModule module) throws Exception {
     super(CredentialsScope.GLOBAL, "", projectId, module);
   }
 

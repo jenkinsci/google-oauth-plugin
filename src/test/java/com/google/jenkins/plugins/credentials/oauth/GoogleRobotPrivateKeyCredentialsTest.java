@@ -146,7 +146,8 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     P12ServiceAccountConfig keyType = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
     keyType.setP12KeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, keyType, module);
+        new GoogleRobotPrivateKeyCredentials(
+            CredentialsScope.GLOBAL, "", PROJECT_ID, keyType, module);
 
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, credentials.getUsername());

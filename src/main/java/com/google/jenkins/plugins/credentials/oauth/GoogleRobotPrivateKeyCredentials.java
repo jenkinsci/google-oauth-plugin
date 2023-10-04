@@ -51,7 +51,6 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
   @Deprecated private transient String secretsFile;
   @Deprecated private transient String p12File;
 
-  
   /**
    * Construct a set of service account credentials.
    *
@@ -61,10 +60,10 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    */
   @Deprecated
   public GoogleRobotPrivateKeyCredentials(
-          String projectId,
-          ServiceAccountConfig serviceAccountConfig,
-          @Nullable GoogleRobotCredentialsModule module)
-          throws Exception {
+      String projectId,
+      ServiceAccountConfig serviceAccountConfig,
+      @Nullable GoogleRobotCredentialsModule module)
+      throws Exception {
     super(CredentialsScope.GLOBAL, "", projectId, module);
     this.serviceAccountConfig = serviceAccountConfig;
   }

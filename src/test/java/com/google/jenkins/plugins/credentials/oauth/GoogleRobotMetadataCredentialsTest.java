@@ -59,7 +59,7 @@ public class GoogleRobotMetadataCredentialsTest {
   @Rule public JenkinsRule jenkins = new JenkinsRule();
 
   @Mock private GoogleCredential credential;
-  
+
   /** */
   public static class Module extends GoogleRobotMetadataCredentialsModule {
     @Override
@@ -282,7 +282,8 @@ public class GoogleRobotMetadataCredentialsTest {
   @Test
   public void testGetById() throws Exception {
     GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null /* module */);
+        new GoogleRobotMetadataCredentials(
+            CredentialsScope.GLOBAL, "", PROJECT_ID, null /* module */);
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
     Module module = (Module) credentials.getDescriptor().getModule();
 
@@ -298,7 +299,8 @@ public class GoogleRobotMetadataCredentialsTest {
   @Test
   public void testName() throws Exception {
     GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null /* module */);
+        new GoogleRobotMetadataCredentials(
+            CredentialsScope.GLOBAL, "", PROJECT_ID, null /* module */);
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
     assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
