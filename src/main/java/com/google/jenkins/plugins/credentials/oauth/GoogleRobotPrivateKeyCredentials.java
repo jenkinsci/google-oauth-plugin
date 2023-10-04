@@ -76,9 +76,10 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
   @SuppressFBWarnings(
       value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
       justification =
-          "For migration purposes: older credentials might not have had separate id or scope fields. "
-              + "These fields might be null when deserializing. The readResolve method sets defaults for "
-              + "null id and scope. Id defaults to getProjectId() and scope defaults to CredentialsScope.GLOBAL if null.")
+          "For migration purposes: older credentials might not have had separate id or "
+              + "scope fields. These fields might be null when deserializing. The readResolve "
+              + "method sets defaults for null id and scope. Id defaults to getProjectId() and "
+              + "scope defaults to CredentialsScope.GLOBAL if null.")
   public Object readResolve() throws Exception {
     if (serviceAccountConfig == null) {
       String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
