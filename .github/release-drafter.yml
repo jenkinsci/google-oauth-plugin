@@ -1,2 +1,0 @@
-_extends: .github
-tag-template: google-oauth-$NEXT_MINOR_VERSION
