@@ -66,8 +66,11 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    * credentials, as well as for migrating old credentials that had no id and relied on the project
    * id.
    *
+   * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
+   * be either GLOBAL or SYSTEM.
    * @param id the id to assign
    * @param projectId The Pantheon project id associated with this service account
+   * @param description The credential description
    * @param module The module for instantiating dependent objects, or null.
    */
   @DataBoundConstructor
@@ -75,9 +78,10 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
       @CheckForNull CredentialsScope scope,
       String id,
       String projectId,
+      String description,
       @Nullable GoogleRobotMetadataCredentialsModule module)
       throws Exception {
-    super(scope, id, projectId, module);
+    super(scope, id, projectId, description, module);
   }
 
   @SuppressFBWarnings(
@@ -92,6 +96,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
         getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
+        getDescription(),
         getModule());
   }
 

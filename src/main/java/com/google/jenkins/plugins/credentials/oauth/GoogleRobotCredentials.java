@@ -64,20 +64,31 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
    *     be either GLOBAL or SYSTEM.
    * @param id The credential ID to assign.
    * @param projectId The project id with which this credential is associated.
+   * @param description The credential description
    * @param module The module to use for instantiating the dependencies of credentials.
    */
   protected GoogleRobotCredentials(
       @CheckForNull CredentialsScope scope,
       String id,
       String projectId,
+      String description,
       GoogleRobotCredentialsModule module) {
-    super(scope, id == null ? "" : id, Messages.GoogleRobotCredentials_Description());
+    super(scope, id == null ? "" : id,
+          description == null || description.isEmpty()
+          ? Messages.GoogleRobotCredentials_Description()
+          : description);
     this.projectId = checkNotNull(projectId);
+
     if (module != null) {
       this.module = module;
     } else {
       this.module = getDescriptor().getModule();
     }
+  }
+
+  protected GoogleRobotCredentials(
+          @CheckForNull CredentialsScope scope, String id, String projectId, GoogleRobotCredentialsModule module) {
+    this(scope, id, projectId, null, module);
   }
 
   /** Fetch the module used for instantiating the dependencies of credentials */
@@ -86,12 +97,6 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
   }
 
   private final GoogleRobotCredentialsModule module;
-
-  /** {@inheritDoc} */
-  @Override
-  public String getDescription() {
-    return Messages.GoogleRobotCredentials_Description();
-  }
 
   /** {@inheritDoc} */
   @Override

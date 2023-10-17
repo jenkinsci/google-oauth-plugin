@@ -73,7 +73,11 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * credentials, as well as for migrating old credentials that had no id and relied on the project
    * id.
    *
+   * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
+   * be either GLOBAL or SYSTEM.
+   * @param id the id to assign
    * @param projectId The project id associated with this service account
+   * @param description The credential description
    * @param serviceAccountConfig The ServiceAccountConfig to use
    * @param module The module for instantiating dependent objects, or null.
    */
@@ -82,10 +86,11 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
       @CheckForNull CredentialsScope scope,
       String id,
       String projectId,
+      String description,
       ServiceAccountConfig serviceAccountConfig,
       @Nullable GoogleRobotCredentialsModule module)
       throws Exception {
-    super(scope, id, projectId, module);
+    super(scope, id, projectId, description, module);
     this.serviceAccountConfig = serviceAccountConfig;
   }
 
@@ -106,6 +111,7 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
         getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
+        getDescription(),
         serviceAccountConfig,
         getModule());
   }
