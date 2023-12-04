@@ -317,6 +317,24 @@ public class GoogleRobotMetadataCredentialsTest {
     assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId(null).kind);
     assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId("").kind);
   }
+  
+  @Test
+  public void testCredentialCreationWithNonEmptyIdAndDescription() throws Exception {
+    final Module module = new Module();
+
+    // WHEN: creating credential with defined id and description
+    GoogleRobotMetadataCredentials credentials =
+            new GoogleRobotMetadataCredentials(CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID, DESCRIPTION, module);
+
+    module.stubRequest(
+            "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+            STATUS_CODE_OK,
+            USERNAME);
+
+    // THEN: resulting credential should have our defined id and description
+    assertEquals(CREDENTIAL_ID, credentials.getId());
+    assertEquals(DESCRIPTION, credentials.getDescription());
+  }
 
   @Test
   public void testCredentialCreationWithSystemScope() throws Exception {
@@ -362,5 +380,7 @@ public class GoogleRobotMetadataCredentialsTest {
   private static final String ACCESS_TOKEN = "ThE.ToKeN";
   private static final String PROJECT_ID = "foo.com:bar-baz";
   private static final String FAKE_SCOPE = "my.fake.scope";
+  private static final String CREDENTIAL_ID = "credential.id";
+  private static final String DESCRIPTION = "credential.description";
   private static final List<String> SCOPES = ImmutableList.of("scope1", "scope2", "scope3");
 }

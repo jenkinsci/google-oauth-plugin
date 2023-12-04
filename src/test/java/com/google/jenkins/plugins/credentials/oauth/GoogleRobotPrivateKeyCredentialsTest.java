@@ -57,6 +57,8 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   private static final String ACCESS_TOKEN = "ThE.ToKeN";
   private static final String PROJECT_ID = "foo.com:bar-baz";
   private static final String FAKE_SCOPE = "my.fake.scope";
+  private static final String CREDENTIAL_ID = "credential.id";
+  private static final String DESCRIPTION = "credential.description";
   private static KeyPair keyPair;
   private static String jsonKeyPath;
   private static String p12KeyPath;
@@ -381,6 +383,46 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
     assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
     assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
+  }
+
+  @Test
+  public void testCredentialCreationWithNonEmptyIdAndDescriptionAndJsonKey() throws Exception {
+    // GIVEN: Setup the mock and configuration for JSON key
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
+    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
+    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
+
+    // WHEN: creating credential with defined id and description
+    GoogleRobotPrivateKeyCredentials credentials =
+            new GoogleRobotPrivateKeyCredentials(
+                    CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID,  DESCRIPTION, jsonServiceAccountConfig, module);
+
+    // THEN: resulting credential should have our defined id and description
+    assertEquals(CREDENTIAL_ID, credentials.getId());
+    assertEquals(DESCRIPTION, credentials.getDescription());
+  }
+
+  @Test
+  public void testCredentialCreationWithNonEmptyIdAndDescriptionAndP12() throws Exception {
+    // GIVEN: Setup the mock and configuration for P12 key
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(p12KeyPath);
+    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(p12KeyPath));
+    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
+
+    // WHEN: creating credential with defined id and description
+    GoogleRobotPrivateKeyCredentials credentials =
+            new GoogleRobotPrivateKeyCredentials(
+                    CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID,  DESCRIPTION, jsonServiceAccountConfig, module);
+
+    // THEN: resulting credential should have our defined id and description
+    assertEquals(CREDENTIAL_ID, credentials.getId());
+    assertEquals(DESCRIPTION, credentials.getDescription());
   }
 
   @Test
