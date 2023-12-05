@@ -86,6 +86,7 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     }
   }
 
+  @Deprecated
   protected GoogleRobotCredentials(
           @CheckForNull CredentialsScope scope, String id, String projectId, GoogleRobotCredentialsModule module) {
     this(scope, id, projectId, null, module);

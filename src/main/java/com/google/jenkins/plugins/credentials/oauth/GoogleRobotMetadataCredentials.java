@@ -61,6 +61,16 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     super(CredentialsScope.GLOBAL, "", projectId, module);
   }
 
+  @Deprecated
+  public GoogleRobotMetadataCredentials(
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      @Nullable GoogleRobotMetadataCredentialsModule module)
+      throws Exception {
+    super(scope, id, projectId, module);
+  }
+
   /**
    * Construct a set of service account credentials with a specific id. It helps for updating
    * credentials, as well as for migrating old credentials that had no id and relied on the project
