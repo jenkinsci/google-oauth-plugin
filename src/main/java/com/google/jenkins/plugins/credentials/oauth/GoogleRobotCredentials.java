@@ -22,10 +22,12 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.security.ACL;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import java.io.IOException;
@@ -33,6 +35,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Objects;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * The base implementation of service account (aka robot) credentials using OAuth2. These robot
@@ -164,6 +167,39 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     public int hashCode() {
       return Objects.hash(super.hashCode(), requirement);
     }
+  }
+
+  protected abstract static class AbstractGoogleRobotCredentialsDescriptor
+      extends BaseStandardCredentialsDescriptor {
+    protected AbstractGoogleRobotCredentialsDescriptor(
+        Class<? extends GoogleRobotCredentials> clazz, GoogleRobotCredentialsModule module) {
+      super(clazz);
+      this.module = checkNotNull(module);
+    }
+
+    protected AbstractGoogleRobotCredentialsDescriptor(
+        Class<? extends GoogleRobotCredentials> clazz) {
+      this(clazz, new GoogleRobotCredentialsModule());
+    }
+
+    /** The module to use for instantiating depended upon resources */
+    public GoogleRobotCredentialsModule getModule() {
+      return module;
+    }
+
+    private final GoogleRobotCredentialsModule module;
+
+    /** Validate project-id entries */
+    public FormValidation doCheckProjectId(@QueryParameter String projectId) {
+      if (!Strings.isNullOrEmpty(projectId)) {
+        return FormValidation.ok();
+      } else {
+        return FormValidation.error(Messages.GoogleRobotMetadataCredentials_ProjectIDError());
+      }
+    }
+
+    /** For {@link java.io.Serializable} */
+    private static final long serialVersionUID = 1L;
   }
 
   /**
