@@ -169,6 +169,7 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     }
   }
 
+  /** The descriptor for Google robot account credential extensions */
   protected abstract static class AbstractGoogleRobotCredentialsDescriptor
       extends BaseStandardCredentialsDescriptor {
     protected AbstractGoogleRobotCredentialsDescriptor(
