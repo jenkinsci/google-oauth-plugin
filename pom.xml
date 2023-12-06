@@ -71,9 +71,7 @@
     <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
     <jenkins.version>2.387.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
-    <!-- TODO: Update google versions when Jenkins core does not bundle guava 11. -->
     <google.api.version>1.35.2</google.api.version>
-    <google.guava.version>32.1.2-jre</google.guava.version>
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.21.0</google.http.version>
     <spotbugs.effort>Max</spotbugs.effort>
@@ -127,34 +125,6 @@
       <!-- XStream has deserialization warnings for Jodatime 2.0 or later -->
       <version>2.12.5</version>
     </dependency>
-    <!--
-      Use a newer version of Guava, since google-http-client needs at least v14, rather than v11 bundled with Jenkins.
-      However, this usage should be masked from other consumers via the maven-hpi-plugin configuration below.
-      The exact version being used is defined by the com.google.cloud:libraries-bom
-    -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${google.guava.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.code.findbugs</groupId>
-          <artifactId>jsr305</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.j2objc</groupId>
-          <artifactId>j2objc-annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.checkerframework</groupId>
-          <artifactId>checker-compat-qual</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -198,6 +168,10 @@
           <groupId>com.google.code.findbugs</groupId>
           <artifactId>jsr305</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -225,6 +199,10 @@
           <groupId>com.google.code.findbugs</groupId>
           <artifactId>jsr305</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <!-- com.google.apis -->
@@ -248,6 +226,10 @@
         <exclusion>
           <groupId>com.google.http-client</groupId>
           <artifactId>google-http-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -282,14 +264,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.jenkins-ci.tools</groupId>
-        <artifactId>maven-hpi-plugin</artifactId>
-        <configuration>
-          <!-- Workaround from JENKINS-36779, since we need a custom version of Guava -->
-          <maskClasses>com.google.common.</maskClasses>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

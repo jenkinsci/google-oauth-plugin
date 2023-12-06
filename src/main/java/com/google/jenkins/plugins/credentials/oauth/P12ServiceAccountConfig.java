@@ -20,6 +20,7 @@ import com.google.api.client.util.Strings;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
+import hudson.util.FormValidation;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +39,8 @@ import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.DoNotUse;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.verb.POST;
 
 /**
  * Provides authentication mechanism for a service account by setting a service account email
@@ -222,6 +225,16 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
   /** Descriptor for P12 service account authentication. */
   @Extension
   public static final class DescriptorImpl extends Descriptor {
+
+    @POST
+    public FormValidation doCheckEmailAddress(
+        @QueryParameter("emailAddress") final String emailAddress) {
+      if (Strings.isNullOrEmpty(emailAddress)) {
+        return FormValidation.error(Messages.P12ServiceAccountConfig_ErrorEmailRequired());
+      }
+      return FormValidation.ok();
+    }
+
     @Override
     public String getDisplayName() {
       return Messages.P12ServiceAccountConfig_DisplayName();
