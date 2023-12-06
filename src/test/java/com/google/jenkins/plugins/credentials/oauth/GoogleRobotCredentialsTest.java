@@ -209,8 +209,12 @@ public class GoogleRobotCredentialsTest {
   @Test
   public void testMigration() {
     /* LocalData contains an old credential with no id field and the project id my-google-project.
-    On deserialization the id should be filled with the project id. */
-    assertNotNull(GoogleRobotCredentials.getById(MIGRATION_PROJECT_ID));
+    On deserialization the id should be filled with the project id.
+    Description should be set to default message, as it's empty
+    */
+    GoogleRobotCredentials credentials = GoogleRobotCredentials.getById(MIGRATION_PROJECT_ID);
+    assertNotNull(credentials);
+    assertEquals(Messages.GoogleRobotCredentials_Description(), credentials.getDescription());
   }
 
   @Test
