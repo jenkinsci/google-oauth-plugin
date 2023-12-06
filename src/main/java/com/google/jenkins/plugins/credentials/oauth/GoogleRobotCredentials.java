@@ -76,10 +76,7 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
       String projectId,
       String description,
       GoogleRobotCredentialsModule module) {
-    super(scope, id == null ? "" : id,
-          description == null || description.isEmpty()
-          ? Messages.GoogleRobotCredentials_Description()
-          : description);
+    super(scope, id == null ? "" : id, description);
     this.projectId = checkNotNull(projectId);
 
     if (module != null) {
@@ -91,7 +88,10 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
 
   @Deprecated
   protected GoogleRobotCredentials(
-          @CheckForNull CredentialsScope scope, String id, String projectId, GoogleRobotCredentialsModule module) {
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      GoogleRobotCredentialsModule module) {
     this(scope, id, projectId, null, module);
   }
 
