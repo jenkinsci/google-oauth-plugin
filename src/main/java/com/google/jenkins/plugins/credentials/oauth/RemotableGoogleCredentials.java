@@ -86,11 +86,12 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
       CredentialsScope scope,
       String id,
       String projectId,
+      String description,
       GoogleRobotCredentialsModule module,
       String username,
       String accessToken,
       long expiration) {
-    super(scope, id, projectId, module);
+    super(scope, id, projectId, description, module);
     this.username = username;
     this.accessToken = accessToken;
     this.expiration = expiration;
@@ -106,6 +107,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
         getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
+        getDescription(),
         getModule(),
         username,
         accessToken,

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
@@ -122,7 +123,7 @@ public class GoogleRobotCredentialsTest {
     assertEquals(PROJECT_ID, credentials.getProjectId());
     assertNotNull(credentials.getId());
     assertSame(fakeCredential, credentials.getGoogleCredential(null));
-    assertEquals(Messages.GoogleRobotCredentials_Description(), credentials.getDescription());
+    assertTrue(credentials.getDescription().isEmpty());
   }
 
   @Test
@@ -209,8 +210,12 @@ public class GoogleRobotCredentialsTest {
   @Test
   public void testMigration() {
     /* LocalData contains an old credential with no id field and the project id my-google-project.
-    On deserialization the id should be filled with the project id. */
-    assertNotNull(GoogleRobotCredentials.getById(MIGRATION_PROJECT_ID));
+    On deserialization the id should be filled with the project id.
+    We didn't specify description in credentials.xml and it should be empty
+    */
+    GoogleRobotCredentials credentials = GoogleRobotCredentials.getById(MIGRATION_PROJECT_ID);
+    assertNotNull(credentials);
+    assertTrue(credentials.getDescription().isEmpty());
   }
 
   @Test

@@ -61,16 +61,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
     super(CredentialsScope.GLOBAL, "", projectId, module);
   }
 
-  /**
-   * Construct a set of service account credentials with a specific id. It helps for updating
-   * credentials, as well as for migrating old credentials that had no id and relied on the project
-   * id.
-   *
-   * @param id the id to assign
-   * @param projectId The Pantheon project id associated with this service account
-   * @param module The module for instantiating dependent objects, or null.
-   */
-  @DataBoundConstructor
+  @Deprecated
   public GoogleRobotMetadataCredentials(
       @CheckForNull CredentialsScope scope,
       String id,
@@ -78,6 +69,29 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
       @Nullable GoogleRobotMetadataCredentialsModule module)
       throws Exception {
     super(scope, id, projectId, module);
+  }
+
+  /**
+   * Construct a set of service account credentials with a specific id. It helps for updating
+   * credentials, as well as for migrating old credentials that had no id and relied on the project
+   * id.
+   *
+   * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
+   * be either GLOBAL or SYSTEM.
+   * @param id the id to assign
+   * @param projectId The Pantheon project id associated with this service account
+   * @param description The credential description
+   * @param module The module for instantiating dependent objects, or null.
+   */
+  @DataBoundConstructor
+  public GoogleRobotMetadataCredentials(
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      String description,
+      @Nullable GoogleRobotMetadataCredentialsModule module)
+      throws Exception {
+    super(scope, id, projectId, description, module);
   }
 
   @SuppressFBWarnings(
@@ -92,6 +106,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
         getScope() == null ? CredentialsScope.GLOBAL : getScope(),
         getId() == null ? getProjectId() : getId(),
         getProjectId(),
+        getDescription(),
         getModule());
   }
 

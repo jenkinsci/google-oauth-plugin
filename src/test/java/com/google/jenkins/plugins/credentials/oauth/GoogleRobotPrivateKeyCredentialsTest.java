@@ -57,6 +57,8 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   private static final String ACCESS_TOKEN = "ThE.ToKeN";
   private static final String PROJECT_ID = "foo.com:bar-baz";
   private static final String FAKE_SCOPE = "my.fake.scope";
+  private static final String CREDENTIAL_ID = "credential.id";
+  private static final String DESCRIPTION = "credential.description";
   private static KeyPair keyPair;
   private static String jsonKeyPath;
   private static String p12KeyPath;
@@ -112,7 +114,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
         new GoogleRobotPrivateKeyCredentials(
-            CredentialsScope.GLOBAL, "", PROJECT_ID, jsonServiceAccountConfig, module);
+            CredentialsScope.GLOBAL, "", PROJECT_ID, "", jsonServiceAccountConfig, module);
 
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, credentials.getUsername());
@@ -147,7 +149,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     keyType.setP12KeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
         new GoogleRobotPrivateKeyCredentials(
-            CredentialsScope.GLOBAL, "", PROJECT_ID, keyType, module);
+            CredentialsScope.GLOBAL, "", PROJECT_ID, "", keyType, module);
 
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, credentials.getUsername());
@@ -187,7 +189,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testCreatePrivateKeyCredentialsWithNullKeyType() throws Exception {
     GoogleRobotPrivateKeyCredentials credentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, module);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, module);
 
     try {
       credentials.getUsername();
@@ -205,7 +207,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testUpgradeLegacyCredentials() throws Exception {
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyPath);
     setPrivateField(legacyCredentials, "p12File", p12KeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
@@ -220,7 +222,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testUpgradeLegacyCredentialsWithoutSecretsFile() throws Exception {
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "p12File", p12KeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
         (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
@@ -242,7 +244,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     String legacyJsonKeyFileWithMissingWebObject =
         LegacyJsonServiceAccountConfigUtil.createTempLegacyJsonKeyFileWithMissingWebObject();
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyFileWithMissingWebObject);
     setPrivateField(legacyCredentials, "p12File", p12KeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
@@ -265,7 +267,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     String legacyJsonKeyFileWithMissingClientEmail =
         LegacyJsonServiceAccountConfigUtil.createTempLegacyJsonKeyFileWithMissingClientEmail();
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyFileWithMissingClientEmail);
     setPrivateField(legacyCredentials, "p12File", p12KeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
@@ -288,7 +290,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     String invalidLegacyJsonKeyFile =
         LegacyJsonServiceAccountConfigUtil.createTempInvalidLegacyJsonKeyFile();
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "secretsFile", invalidLegacyJsonKeyFile);
     setPrivateField(legacyCredentials, "p12File", p12KeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
@@ -309,7 +311,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testUpgradeLegacyCredentialsWithNotExistendSecretsFile() throws Exception {
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "secretsFile", "/notExistendSecretsFile");
     setPrivateField(legacyCredentials, "p12File", p12KeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
@@ -330,7 +332,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testUpgradeLegacyCredentialsWithoutP12File() throws Exception {
     GoogleRobotPrivateKeyCredentials legacyCredentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, null);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, null);
     setPrivateField(legacyCredentials, "secretsFile", legacyJsonKeyPath);
     GoogleRobotPrivateKeyCredentials upgradedCredentials =
         (GoogleRobotPrivateKeyCredentials) legacyCredentials.readResolve();
@@ -353,7 +355,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
     GoogleRobotPrivateKeyCredentials credentials =
         new GoogleRobotPrivateKeyCredentials(
-            CredentialsScope.GLOBAL, "", PROJECT_ID, jsonServiceAccountConfig, null);
+            CredentialsScope.GLOBAL, "", PROJECT_ID, "", jsonServiceAccountConfig, null);
 
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
@@ -376,11 +378,51 @@ public class GoogleRobotPrivateKeyCredentialsTest {
   @Test
   public void testName() throws Exception {
     GoogleRobotPrivateKeyCredentials credentials =
-        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, null, module);
+        new GoogleRobotPrivateKeyCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null, module);
     SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
     assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
     assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
+  }
+
+  @Test
+  public void testCredentialCreationWithNonEmptyIdAndDescriptionAndJsonKey() throws Exception {
+    // GIVEN: Setup the mock and configuration for JSON key
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(jsonKeyPath);
+    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
+    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
+
+    // WHEN: creating credential with defined id and description
+    GoogleRobotPrivateKeyCredentials credentials =
+            new GoogleRobotPrivateKeyCredentials(
+                    CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID,  DESCRIPTION, jsonServiceAccountConfig, module);
+
+    // THEN: resulting credential should have our defined id and description
+    assertEquals(CREDENTIAL_ID, credentials.getId());
+    assertEquals(DESCRIPTION, credentials.getDescription());
+  }
+
+  @Test
+  public void testCredentialCreationWithNonEmptyIdAndDescriptionAndP12() throws Exception {
+    // GIVEN: Setup the mock and configuration for P12 key
+    when(mockFileItem.getSize()).thenReturn(1L);
+    when(mockFileItem.getName()).thenReturn(p12KeyPath);
+    when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(p12KeyPath));
+    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+    JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
+    jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
+
+    // WHEN: creating credential with defined id and description
+    GoogleRobotPrivateKeyCredentials credentials =
+            new GoogleRobotPrivateKeyCredentials(
+                    CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID,  DESCRIPTION, jsonServiceAccountConfig, module);
+
+    // THEN: resulting credential should have our defined id and description
+    assertEquals(CREDENTIAL_ID, credentials.getId());
+    assertEquals(DESCRIPTION, credentials.getDescription());
   }
 
   @Test
@@ -396,7 +438,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     // WHEN: creating a credential with SYSTEM scope
     GoogleRobotPrivateKeyCredentials credentials =
         new GoogleRobotPrivateKeyCredentials(
-            CredentialsScope.SYSTEM, "", PROJECT_ID, jsonServiceAccountConfig, module);
+            CredentialsScope.SYSTEM, "", PROJECT_ID, "", jsonServiceAccountConfig, module);
 
     // THEN: the resulting credential should have SYSTEM scope
     assertEquals(CredentialsScope.SYSTEM, credentials.getScope());
@@ -415,7 +457,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     // WHEN: creating a credential with GLOBAL scope
     GoogleRobotPrivateKeyCredentials credentials =
         new GoogleRobotPrivateKeyCredentials(
-            CredentialsScope.GLOBAL, "", PROJECT_ID, jsonServiceAccountConfig, module);
+            CredentialsScope.GLOBAL, "", PROJECT_ID, "", jsonServiceAccountConfig, module);
 
     // THEN: the resulting credential should have GLOBAL scope
     assertEquals(CredentialsScope.GLOBAL, credentials.getScope());

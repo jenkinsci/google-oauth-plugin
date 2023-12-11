@@ -22,10 +22,12 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.cloudbees.plugins.credentials.impl.BaseStandardCredentials;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.jenkins.plugins.credentials.domains.DomainRequirementProvider;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import hudson.security.ACL;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.Secret;
 import java.io.IOException;
@@ -33,6 +35,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.Objects;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * The base implementation of service account (aka robot) credentials using OAuth2. These robot
@@ -64,20 +67,32 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
    *     be either GLOBAL or SYSTEM.
    * @param id The credential ID to assign.
    * @param projectId The project id with which this credential is associated.
+   * @param description The credential description
    * @param module The module to use for instantiating the dependencies of credentials.
    */
   protected GoogleRobotCredentials(
       @CheckForNull CredentialsScope scope,
       String id,
       String projectId,
+      String description,
       GoogleRobotCredentialsModule module) {
-    super(scope, id == null ? "" : id, Messages.GoogleRobotCredentials_Description());
+    super(scope, id == null ? "" : id, description);
     this.projectId = checkNotNull(projectId);
+
     if (module != null) {
       this.module = module;
     } else {
       this.module = getDescriptor().getModule();
     }
+  }
+
+  @Deprecated
+  protected GoogleRobotCredentials(
+      @CheckForNull CredentialsScope scope,
+      String id,
+      String projectId,
+      GoogleRobotCredentialsModule module) {
+    this(scope, id, projectId, null, module);
   }
 
   /** Fetch the module used for instantiating the dependencies of credentials */
@@ -86,12 +101,6 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
   }
 
   private final GoogleRobotCredentialsModule module;
-
-  /** {@inheritDoc} */
-  @Override
-  public String getDescription() {
-    return Messages.GoogleRobotCredentials_Description();
-  }
 
   /** {@inheritDoc} */
   @Override
@@ -158,6 +167,40 @@ public abstract class GoogleRobotCredentials extends BaseStandardCredentials
     public int hashCode() {
       return Objects.hash(super.hashCode(), requirement);
     }
+  }
+
+  /** The descriptor for Google robot account credential extensions */
+  protected abstract static class AbstractGoogleRobotCredentialsDescriptor
+      extends BaseStandardCredentialsDescriptor {
+    protected AbstractGoogleRobotCredentialsDescriptor(
+        Class<? extends GoogleRobotCredentials> clazz, GoogleRobotCredentialsModule module) {
+      super(clazz);
+      this.module = checkNotNull(module);
+    }
+
+    protected AbstractGoogleRobotCredentialsDescriptor(
+        Class<? extends GoogleRobotCredentials> clazz) {
+      this(clazz, new GoogleRobotCredentialsModule());
+    }
+
+    /** The module to use for instantiating depended upon resources */
+    public GoogleRobotCredentialsModule getModule() {
+      return module;
+    }
+
+    private final GoogleRobotCredentialsModule module;
+
+    /** Validate project-id entries */
+    public FormValidation doCheckProjectId(@QueryParameter String projectId) {
+      if (!Strings.isNullOrEmpty(projectId)) {
+        return FormValidation.ok();
+      } else {
+        return FormValidation.error(Messages.GoogleRobotMetadataCredentials_ProjectIDError());
+      }
+    }
+
+    /** For {@link java.io.Serializable} */
+    private static final long serialVersionUID = 1L;
   }
 
   /**
