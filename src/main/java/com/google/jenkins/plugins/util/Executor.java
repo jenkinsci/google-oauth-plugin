@@ -34,129 +34,127 @@ import java.util.logging.Logger;
  * <p>NOTE: This can be used to intercept or mock all "execute" requests.
  */
 public abstract class Executor {
-  private static final Logger logger = Logger.getLogger(Executor.class.getName());
+    private static final Logger logger = Logger.getLogger(Executor.class.getName());
 
-  /**
-   * Executes the request, returning a response of the appropriate type.
-   *
-   * @param <T> The type of the expected response
-   * @param request The request we are issuing
-   * @return a Json object of the given type
-   * @throws IOException if anything goes wrong
-   */
-  public <T> T execute(final AbstractGoogleJsonClientRequest<T> request)
-      throws IOException, ExecutorException {
-    return execute(RequestCallable.from(request));
-  }
-
-  /**
-   * Executes the request, returning a response of the appropriate type.
-   *
-   * @param <T> The type of the expected response
-   * @param request The request we are issuing
-   * @return a Json object of the given type
-   * @throws IOException if anything goes wrong
-   */
-  public abstract <T> T execute(RequestCallable<T> request) throws IOException, ExecutorException;
-
-  /**
-   * Surface this as a canonical means by which to sleep, so that clients can layer their own retry
-   * logic on top of the executor using the same sleep facility;
-   */
-  public void sleep() {
-    Uninterruptibles.sleepUninterruptibly(SLEEP_DURATION_SECONDS, TimeUnit.SECONDS);
-  }
-
-  /**
-   * Surface this as a canonical means by which to sleep, so that clients can layer their own retry
-   * logic on top of the executor using the same sleep facility;
-   *
-   * @param retryAttempt indicates how many times we had retried, to allow for increasing back-off
-   *     time.
-   */
-  public void sleep(int retryAttempt) {
-    sleep();
-  }
-
-  /** Seconds to sleep between API request retry attempts */
-  private static final long SLEEP_DURATION_SECONDS = 15;
-
-  /** A default, failure-tolerant implementation of the {@link Executor} class. */
-  public static class Default extends Executor {
-    public Default() {
-      this(RETRY_COUNT, true /* compose retry */);
+    /**
+     * Executes the request, returning a response of the appropriate type.
+     *
+     * @param <T> The type of the expected response
+     * @param request The request we are issuing
+     * @return a Json object of the given type
+     * @throws IOException if anything goes wrong
+     */
+    public <T> T execute(final AbstractGoogleJsonClientRequest<T> request) throws IOException, ExecutorException {
+        return execute(RequestCallable.from(request));
     }
 
     /**
-     * @param maxRetry the maximum number of retries to attempt in {@link
-     *     #execute(RequestCallable)}.
-     * @param composeRetry whether nested retries block cause retries to compose or not. If set to
-     *     false, we will wrap the exception of the last retry step in an instance of {@link
-     *     MaxRetryExceededException}, which prevents any further retries.
+     * Executes the request, returning a response of the appropriate type.
+     *
+     * @param <T> The type of the expected response
+     * @param request The request we are issuing
+     * @return a Json object of the given type
+     * @throws IOException if anything goes wrong
      */
-    public Default(int maxRetry, boolean composeRetry) {
-      this.maxRetry = maxRetry;
-      this.composeRetry = composeRetry;
+    public abstract <T> T execute(RequestCallable<T> request) throws IOException, ExecutorException;
+
+    /**
+     * Surface this as a canonical means by which to sleep, so that clients can layer their own retry
+     * logic on top of the executor using the same sleep facility;
+     */
+    public void sleep() {
+        Uninterruptibles.sleepUninterruptibly(SLEEP_DURATION_SECONDS, TimeUnit.SECONDS);
     }
 
-    private boolean composeRetry;
-
-    private int getMaxRetry() {
-      return maxRetry;
+    /**
+     * Surface this as a canonical means by which to sleep, so that clients can layer their own retry
+     * logic on top of the executor using the same sleep facility;
+     *
+     * @param retryAttempt indicates how many times we had retried, to allow for increasing back-off
+     *     time.
+     */
+    public void sleep(int retryAttempt) {
+        sleep();
     }
 
-    private final int maxRetry;
+    /** Seconds to sleep between API request retry attempts */
+    private static final long SLEEP_DURATION_SECONDS = 15;
 
-    private IOException propagateRetry(IOException lastException)
-        throws IOException, ExecutorException {
-      if (composeRetry) {
-        throw lastException;
-      } else {
-        throw new MaxRetryExceededException(lastException);
-      }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public <T> T execute(RequestCallable<T> block) throws IOException, ExecutorException {
-      IOException lastException = null;
-      for (int i = 0; i < getMaxRetry(); ++i) {
-        try {
-          return checkNotNull(block).call();
-        } catch (HttpResponseException e) {
-          lastException = e;
-          // Wrap a set of exception conditions, which when returned from
-          // Google APIs are indicative of a state that is unlikely to
-          // change.
-          if (e.getStatusCode() == STATUS_CODE_NOT_FOUND) {
-            throw new NotFoundException(e);
-          }
-          if (e.getStatusCode() == STATUS_CODE_FORBIDDEN) {
-            throw new ForbiddenException(e);
-          }
-          if (e.getStatusCode() == 409 /* STATUS_CODE_CONFLICT */) {
-            throw new ConflictException(e);
-          }
-          // Many other status codes may simply relate to ephemeral
-          // service availability hiccups, that could simply go away
-          // on retry.
-          logger.log(SEVERE, Messages.Executor_HttpError(), e);
-        } catch (SocketTimeoutException e) {
-          logger.log(SEVERE, Messages.Executor_TimeoutError(), e);
-          lastException = e;
+    /** A default, failure-tolerant implementation of the {@link Executor} class. */
+    public static class Default extends Executor {
+        public Default() {
+            this(RETRY_COUNT, true /* compose retry */);
         }
 
-        if (!block.canRetry()) {
-          // If this request contained a media upload, then it cannot simply
-          // be retried.
-          break;
+        /**
+         * @param maxRetry the maximum number of retries to attempt in {@link
+         *     #execute(RequestCallable)}.
+         * @param composeRetry whether nested retries block cause retries to compose or not. If set to
+         *     false, we will wrap the exception of the last retry step in an instance of {@link
+         *     MaxRetryExceededException}, which prevents any further retries.
+         */
+        public Default(int maxRetry, boolean composeRetry) {
+            this.maxRetry = maxRetry;
+            this.composeRetry = composeRetry;
         }
-        // Pause before we retry
-        sleep(i);
-      }
-      throw propagateRetry(checkNotNull(lastException));
-    }
 
-    private static final int RETRY_COUNT = 5;
-  }
+        private boolean composeRetry;
+
+        private int getMaxRetry() {
+            return maxRetry;
+        }
+
+        private final int maxRetry;
+
+        private IOException propagateRetry(IOException lastException) throws IOException, ExecutorException {
+            if (composeRetry) {
+                throw lastException;
+            } else {
+                throw new MaxRetryExceededException(lastException);
+            }
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public <T> T execute(RequestCallable<T> block) throws IOException, ExecutorException {
+            IOException lastException = null;
+            for (int i = 0; i < getMaxRetry(); ++i) {
+                try {
+                    return checkNotNull(block).call();
+                } catch (HttpResponseException e) {
+                    lastException = e;
+                    // Wrap a set of exception conditions, which when returned from
+                    // Google APIs are indicative of a state that is unlikely to
+                    // change.
+                    if (e.getStatusCode() == STATUS_CODE_NOT_FOUND) {
+                        throw new NotFoundException(e);
+                    }
+                    if (e.getStatusCode() == STATUS_CODE_FORBIDDEN) {
+                        throw new ForbiddenException(e);
+                    }
+                    if (e.getStatusCode() == 409 /* STATUS_CODE_CONFLICT */) {
+                        throw new ConflictException(e);
+                    }
+                    // Many other status codes may simply relate to ephemeral
+                    // service availability hiccups, that could simply go away
+                    // on retry.
+                    logger.log(SEVERE, Messages.Executor_HttpError(), e);
+                } catch (SocketTimeoutException e) {
+                    logger.log(SEVERE, Messages.Executor_TimeoutError(), e);
+                    lastException = e;
+                }
+
+                if (!block.canRetry()) {
+                    // If this request contained a media upload, then it cannot simply
+                    // be retried.
+                    break;
+                }
+                // Pause before we retry
+                sleep(i);
+            }
+            throw propagateRetry(checkNotNull(lastException));
+        }
+
+        private static final int RETRY_COUNT = 5;
+    }
 }

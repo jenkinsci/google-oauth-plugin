@@ -17,9 +17,9 @@ package com.google.jenkins.plugins.util;
 
 /** This exception is used to wrap and propagate 404 (Not Found) HTTP exceptions up the stack. */
 public class NotFoundException extends ExecutorException {
-  public NotFoundException(Throwable throwable) {
-    super(throwable);
-  }
+    public NotFoundException(Throwable throwable) {
+        super(throwable);
+    }
 
-  public NotFoundException() {}
+    public NotFoundException() {}
 }

@@ -28,89 +28,86 @@ import java.nio.file.Files;
  * .GoogleRobotPrivateKeyCredentials}.
  */
 public class LegacyJsonServiceAccountConfigUtil {
-  private static File tempFolder;
+    private static File tempFolder;
 
-  public static String createTempLegacyJsonKeyFile(String clientEmail) throws IOException {
-    final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
-    final JsonGenerator jsonGenerator =
-        new JacksonFactory()
-            .createJsonGenerator(new FileOutputStream(tempLegacyJsonKey), Charset.forName("UTF-8"));
-    jsonGenerator.enablePrettyPrint();
-    jsonGenerator.serialize(createLegacyJsonKey(clientEmail));
-    jsonGenerator.close();
-    return tempLegacyJsonKey.getAbsolutePath();
-  }
-
-  public static String createTempLegacyJsonKeyFileWithMissingWebObject() throws IOException {
-    final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
-    final JsonGenerator jsonGenerator =
-        new JacksonFactory()
-            .createJsonGenerator(new FileOutputStream(tempLegacyJsonKey), Charset.forName("UTF-8"));
-    jsonGenerator.enablePrettyPrint();
-    jsonGenerator.serialize(createLegacyJsonKeyWithMissingWebObject());
-    jsonGenerator.close();
-    return tempLegacyJsonKey.getAbsolutePath();
-  }
-
-  public static String createTempLegacyJsonKeyFileWithMissingClientEmail() throws IOException {
-    final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
-    JsonGenerator jsonGenerator = null;
-    try {
-      jsonGenerator =
-          new JacksonFactory()
-              .createJsonGenerator(
-                  new FileOutputStream(tempLegacyJsonKey), Charset.forName("UTF-8"));
-      jsonGenerator.enablePrettyPrint();
-      jsonGenerator.serialize(createLegacyJsonKeyWithMissingClientEmail());
-    } finally {
-      if (jsonGenerator != null) {
+    public static String createTempLegacyJsonKeyFile(String clientEmail) throws IOException {
+        final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
+        final JsonGenerator jsonGenerator = new JacksonFactory()
+                .createJsonGenerator(new FileOutputStream(tempLegacyJsonKey), Charset.forName("UTF-8"));
+        jsonGenerator.enablePrettyPrint();
+        jsonGenerator.serialize(createLegacyJsonKey(clientEmail));
         jsonGenerator.close();
-      }
+        return tempLegacyJsonKey.getAbsolutePath();
     }
-    return tempLegacyJsonKey.getAbsolutePath();
-  }
 
-  public static String createTempInvalidLegacyJsonKeyFile() throws IOException {
-    final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
-    FileOutputStream out = null;
-    try {
-      out = new FileOutputStream(tempLegacyJsonKey);
-      out.write("InvalidLegacyJsonKeyFile".getBytes());
-      out.flush();
-    } finally {
-      if (out != null) {
-        out.close();
-      }
+    public static String createTempLegacyJsonKeyFileWithMissingWebObject() throws IOException {
+        final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
+        final JsonGenerator jsonGenerator = new JacksonFactory()
+                .createJsonGenerator(new FileOutputStream(tempLegacyJsonKey), Charset.forName("UTF-8"));
+        jsonGenerator.enablePrettyPrint();
+        jsonGenerator.serialize(createLegacyJsonKeyWithMissingWebObject());
+        jsonGenerator.close();
+        return tempLegacyJsonKey.getAbsolutePath();
     }
-    return tempLegacyJsonKey.getAbsolutePath();
-  }
 
-  private static File getTempFolder() throws IOException {
-    if (tempFolder == null) {
-      tempFolder = Files.createTempDirectory("temp" + Long.toString(System.nanoTime())).toFile();
-      tempFolder.deleteOnExit();
+    public static String createTempLegacyJsonKeyFileWithMissingClientEmail() throws IOException {
+        final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
+        JsonGenerator jsonGenerator = null;
+        try {
+            jsonGenerator = new JacksonFactory()
+                    .createJsonGenerator(new FileOutputStream(tempLegacyJsonKey), Charset.forName("UTF-8"));
+            jsonGenerator.enablePrettyPrint();
+            jsonGenerator.serialize(createLegacyJsonKeyWithMissingClientEmail());
+        } finally {
+            if (jsonGenerator != null) {
+                jsonGenerator.close();
+            }
+        }
+        return tempLegacyJsonKey.getAbsolutePath();
     }
-    return tempFolder;
-  }
 
-  @SuppressWarnings("deprecation")
-  private static LegacyJsonKey createLegacyJsonKey(String clientEmail) throws IOException {
-    final LegacyJsonKey legacyJsonKey = new LegacyJsonKey();
-    LegacyJsonKey.Details web = new LegacyJsonKey.Details();
-    web.setClientEmail(clientEmail);
-    legacyJsonKey.setWeb(web);
-    return legacyJsonKey;
-  }
+    public static String createTempInvalidLegacyJsonKeyFile() throws IOException {
+        final File tempLegacyJsonKey = File.createTempFile("temp-legacykey", ".json", getTempFolder());
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(tempLegacyJsonKey);
+            out.write("InvalidLegacyJsonKeyFile".getBytes());
+            out.flush();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+        return tempLegacyJsonKey.getAbsolutePath();
+    }
 
-  @SuppressWarnings("deprecation")
-  private static LegacyJsonKey createLegacyJsonKeyWithMissingWebObject() throws IOException {
-    return new LegacyJsonKey();
-  }
+    private static File getTempFolder() throws IOException {
+        if (tempFolder == null) {
+            tempFolder = Files.createTempDirectory("temp" + Long.toString(System.nanoTime()))
+                    .toFile();
+            tempFolder.deleteOnExit();
+        }
+        return tempFolder;
+    }
 
-  @SuppressWarnings("deprecation")
-  private static LegacyJsonKey createLegacyJsonKeyWithMissingClientEmail() throws IOException {
-    final LegacyJsonKey legacyJsonKey = new LegacyJsonKey();
-    legacyJsonKey.setWeb(new LegacyJsonKey.Details());
-    return legacyJsonKey;
-  }
+    @SuppressWarnings("deprecation")
+    private static LegacyJsonKey createLegacyJsonKey(String clientEmail) throws IOException {
+        final LegacyJsonKey legacyJsonKey = new LegacyJsonKey();
+        LegacyJsonKey.Details web = new LegacyJsonKey.Details();
+        web.setClientEmail(clientEmail);
+        legacyJsonKey.setWeb(web);
+        return legacyJsonKey;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static LegacyJsonKey createLegacyJsonKeyWithMissingWebObject() throws IOException {
+        return new LegacyJsonKey();
+    }
+
+    @SuppressWarnings("deprecation")
+    private static LegacyJsonKey createLegacyJsonKeyWithMissingClientEmail() throws IOException {
+        final LegacyJsonKey legacyJsonKey = new LegacyJsonKey();
+        legacyJsonKey.setWeb(new LegacyJsonKey.Details());
+        return legacyJsonKey;
+    }
 }

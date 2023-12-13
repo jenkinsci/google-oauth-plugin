@@ -55,333 +55,313 @@ import org.mockito.MockitoAnnotations;
 /** Tests for {@link GoogleRobotMetadataCredentials}. */
 public class GoogleRobotMetadataCredentialsTest {
 
-  // Allow for testing using JUnit4, instead of JUnit3.
-  @Rule public JenkinsRule jenkins = new JenkinsRule();
+    // Allow for testing using JUnit4, instead of JUnit3.
+    @Rule
+    public JenkinsRule jenkins = new JenkinsRule();
 
-  @Mock private GoogleCredential credential;
+    @Mock
+    private GoogleCredential credential;
 
-  /** */
-  public static class Module extends GoogleRobotMetadataCredentialsModule {
-    @Override
-    public MetadataReader getMetadataReader() {
-      return reader;
+    /** */
+    public static class Module extends GoogleRobotMetadataCredentialsModule {
+        @Override
+        public MetadataReader getMetadataReader() {
+            return reader;
+        }
+
+        public final MockHttpTransport transport = spy(new MockHttpTransport());
+        public final MetadataReader reader = new MetadataReader.Default(transport.createRequestFactory());
+        public final MockLowLevelHttpRequest request = spy(new MockLowLevelHttpRequest());
+
+        public void stubRequest(String url, int statusCode, String responseContent) throws IOException {
+            request.setResponse(
+                    new MockLowLevelHttpResponse().setStatusCode(statusCode).setContent(responseContent));
+            doReturn(request).when(transport).buildRequest("GET", url);
+        }
+
+        private void verifyRequest(String url) throws IOException {
+            verify(transport).buildRequest("GET", url);
+            verify(request).execute();
+            assertEquals("Google", getOnlyElement(request.getHeaderValues("Metadata-Flavor")));
+        }
+
+        @Override
+        public HttpTransport getHttpTransport() {
+            return transport;
+        }
     }
 
-    public final MockHttpTransport transport = spy(new MockHttpTransport());
-    public final MetadataReader reader =
-        new MetadataReader.Default(transport.createRequestFactory());
-    public final MockLowLevelHttpRequest request = spy(new MockLowLevelHttpRequest());
-
-    public void stubRequest(String url, int statusCode, String responseContent) throws IOException {
-      request.setResponse(
-          new MockLowLevelHttpResponse().setStatusCode(statusCode).setContent(responseContent));
-      doReturn(request).when(transport).buildRequest("GET", url);
+    /** */
+    @Extension
+    public static class MockDescriptor extends GoogleRobotMetadataCredentials.Descriptor {
+        public MockDescriptor() {
+            super(new Module());
+        }
     }
 
-    private void verifyRequest(String url) throws IOException {
-      verify(transport).buildRequest("GET", url);
-      verify(request).execute();
-      assertEquals("Google", getOnlyElement(request.getHeaderValues("Metadata-Flavor")));
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+
+        // Make sure that OUR @Extension creates the descriptor when
+        // Jenkins starts up by disabling the factory method.
+        GoogleRobotMetadataCredentials.Descriptor.disableForTesting = true;
     }
 
-    @Override
-    public HttpTransport getHttpTransport() {
-      return transport;
+    @Test
+    @WithoutJenkins
+    public void accessTokenTest() throws Exception {
+        final Module module = new Module();
+
+        GoogleRobotMetadataCredentials newCreds =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
+
+        Credential cred = newCreds.getGoogleCredential(new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
+
+        module.stubRequest(
+                METADATA_ENDPOINT,
+                STATUS_CODE_OK,
+                "{\"access_token\":\"" + ACCESS_TOKEN + "\"," + "\"expires_in\":1234," + "\"token_type\":\"Bearer\"}");
+
+        try {
+            assertTrue(cred.refreshToken());
+            assertEquals(ACCESS_TOKEN, cred.getAccessToken());
+        } finally {
+            module.verifyRequest(METADATA_ENDPOINT);
+        }
     }
-  }
 
-  /** */
-  @Extension
-  public static class MockDescriptor extends GoogleRobotMetadataCredentials.Descriptor {
-    public MockDescriptor() {
-      super(new Module());
+    @Test
+    @WithoutJenkins
+    public void getUsernameTest() throws Exception {
+        final Module module = new Module();
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
+
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+                STATUS_CODE_OK,
+                USERNAME);
+        assertEquals(USERNAME, credentials.getUsername());
+        assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     }
-  }
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
+    @Test(expected = IllegalStateException.class)
+    @WithoutJenkins
+    public void getUsernameWithNotFoundExceptionTest() throws Exception {
+        final Module module = new Module();
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
 
-    // Make sure that OUR @Extension creates the descriptor when
-    // Jenkins starts up by disabling the factory method.
-    GoogleRobotMetadataCredentials.Descriptor.disableForTesting = true;
-  }
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+                STATUS_CODE_NOT_FOUND,
+                USERNAME);
 
-  @Test
-  @WithoutJenkins
-  public void accessTokenTest() throws Exception {
-    final Module module = new Module();
-
-    GoogleRobotMetadataCredentials newCreds =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
-
-    Credential cred =
-        newCreds.getGoogleCredential(new TestGoogleOAuth2DomainRequirement(FAKE_SCOPE));
-
-    module.stubRequest(
-        METADATA_ENDPOINT,
-        STATUS_CODE_OK,
-        "{\"access_token\":\""
-            + ACCESS_TOKEN
-            + "\","
-            + "\"expires_in\":1234,"
-            + "\"token_type\":\"Bearer\"}");
-
-    try {
-      assertTrue(cred.refreshToken());
-      assertEquals(ACCESS_TOKEN, cred.getAccessToken());
-    } finally {
-      module.verifyRequest(METADATA_ENDPOINT);
+        // Expected to throw
+        credentials.getUsername();
     }
-  }
 
-  @Test
-  @WithoutJenkins
-  public void getUsernameTest() throws Exception {
-    final Module module = new Module();
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
+    @Test(expected = IllegalStateException.class)
+    @WithoutJenkins
+    public void getUsernameWithUnknownIOExceptionTest() throws Exception {
+        final Module module = new Module();
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-        STATUS_CODE_OK,
-        USERNAME);
-    assertEquals(USERNAME, credentials.getUsername());
-    assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
-  }
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email", 409, USERNAME);
 
-  @Test(expected = IllegalStateException.class)
-  @WithoutJenkins
-  public void getUsernameWithNotFoundExceptionTest() throws Exception {
-    final Module module = new Module();
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
+        // Expected to throw
+        credentials.getUsername();
+    }
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-        STATUS_CODE_NOT_FOUND,
-        USERNAME);
+    @Test
+    public void defaultProjectTest() throws Exception {
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
 
-    // Expected to throw
-    credentials.getUsername();
-  }
+        final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
 
-  @Test(expected = IllegalStateException.class)
-  @WithoutJenkins
-  public void getUsernameWithUnknownIOExceptionTest() throws Exception {
-    final Module module = new Module();
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
+        final Module module = (Module) descriptor.getModule();
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-        409,
-        USERNAME);
+        module.stubRequest("http://metadata/computeMetadata/v1/project/project-id", STATUS_CODE_OK, PROJECT_ID);
+        assertEquals(PROJECT_ID, descriptor.defaultProject());
+    }
 
-    // Expected to throw
-    credentials.getUsername();
-  }
+    @Test
+    public void defaultProjectNotFoundTest() throws Exception {
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
 
-  @Test
-  public void defaultProjectTest() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
+        final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
 
-    final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
+        final Module module = (Module) descriptor.getModule();
 
-    final Module module = (Module) descriptor.getModule();
+        module.stubRequest("http://metadata/computeMetadata/v1/project/project-id", STATUS_CODE_NOT_FOUND, PROJECT_ID);
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/project/project-id", STATUS_CODE_OK, PROJECT_ID);
-    assertEquals(PROJECT_ID, descriptor.defaultProject());
-  }
+        assertNull(descriptor.defaultProject());
+    }
 
-  @Test
-  public void defaultProjectNotFoundTest() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
+    @Test
+    public void defaultProjectUnknownIOExceptionTest() throws Exception {
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
 
-    final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
+        final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
 
-    final Module module = (Module) descriptor.getModule();
+        final Module module = (Module) descriptor.getModule();
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/project/project-id", STATUS_CODE_NOT_FOUND, PROJECT_ID);
+        module.stubRequest("http://metadata/computeMetadata/v1/project/project-id", 409, PROJECT_ID);
 
-    assertNull(descriptor.defaultProject());
-  }
+        assertNull(descriptor.defaultProject());
+    }
 
-  @Test
-  public void defaultProjectUnknownIOExceptionTest() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
+    @Test
+    public void defaultScopesTest() throws Exception {
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
 
-    final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
+        final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
 
-    final Module module = (Module) descriptor.getModule();
+        final Module module = (Module) descriptor.getModule();
 
-    module.stubRequest("http://metadata/computeMetadata/v1/project/project-id", 409, PROJECT_ID);
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
+                STATUS_CODE_OK,
+                Joiner.on("\n").join(SCOPES));
+        assertEquals(SCOPES, descriptor.defaultScopes());
+    }
 
-    assertNull(descriptor.defaultProject());
-  }
+    @Test
+    public void defaultScopesNotFoundTest() throws Exception {
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
 
-  @Test
-  public void defaultScopesTest() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
+        final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
 
-    final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
+        final Module module = (Module) descriptor.getModule();
 
-    final Module module = (Module) descriptor.getModule();
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
+                STATUS_CODE_NOT_FOUND,
+                Joiner.on("\n").join(SCOPES));
+        assertEquals(0, descriptor.defaultScopes().size());
+    }
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
-        STATUS_CODE_OK,
-        Joiner.on("\n").join(SCOPES));
-    assertEquals(SCOPES, descriptor.defaultScopes());
-  }
+    @Test
+    public void defaultScopesUnknownIOExceptionTest() throws Exception {
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
 
-  @Test
-  public void defaultScopesNotFoundTest() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
+        final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
 
-    final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
+        final Module module = (Module) descriptor.getModule();
 
-    final Module module = (Module) descriptor.getModule();
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
+                409,
+                Joiner.on("\n").join(SCOPES));
+        assertEquals(0, descriptor.defaultScopes().size());
+    }
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
-        STATUS_CODE_NOT_FOUND,
-        Joiner.on("\n").join(SCOPES));
-    assertEquals(0, descriptor.defaultScopes().size());
-  }
+    @Test
+    public void testGetById() throws Exception {
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null /* module */);
+        SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
+        Module module = (Module) credentials.getDescriptor().getModule();
 
-  @Test
-  public void defaultScopesUnknownIOExceptionTest() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", "doesn't matter", "", null /* module */);
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
+                STATUS_CODE_OK,
+                "does.not.Matter");
 
-    final GoogleRobotMetadataCredentials.Descriptor descriptor = credentials.getDescriptor();
+        assertSame(credentials, GoogleRobotCredentials.getById(credentials.getId()));
+    }
 
-    final Module module = (Module) descriptor.getModule();
+    // TODO(mattmoor): Figure out why this flakes out so much under testing
+    @Test
+    public void testName() throws Exception {
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", null /* module */);
+        SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
-        409,
-        Joiner.on("\n").join(SCOPES));
-    assertEquals(0, descriptor.defaultScopes().size());
-  }
+        assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
+        assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
+    }
 
-  @Test
-  public void testGetById() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", PROJECT_ID, "", null /* module */);
-    SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
-    Module module = (Module) credentials.getDescriptor().getModule();
+    @Test
+    public void testProjectIdValidation() throws Exception {
+        GoogleRobotMetadataCredentials.Descriptor descriptor = (GoogleRobotMetadataCredentials.Descriptor)
+                Jenkins.getInstance().getDescriptorOrDie(GoogleRobotMetadataCredentials.class);
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/scopes",
-        STATUS_CODE_OK,
-        "does.not.Matter");
+        assertEquals(FormValidation.Kind.OK, descriptor.doCheckProjectId(PROJECT_ID).kind);
+        assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId(null).kind);
+        assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId("").kind);
+    }
 
-    assertSame(credentials, GoogleRobotCredentials.getById(credentials.getId()));
-  }
+    @Test
+    public void testCredentialCreationWithNonEmptyIdAndDescription() throws Exception {
+        final Module module = new Module();
 
-  // TODO(mattmoor): Figure out why this flakes out so much under testing
-  @Test
-  public void testName() throws Exception {
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.GLOBAL, "", PROJECT_ID, "", null /* module */);
-    SystemCredentialsProvider.getInstance().getCredentials().add(credentials);
+        // WHEN: creating credential with defined id and description
+        GoogleRobotMetadataCredentials credentials = new GoogleRobotMetadataCredentials(
+                CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID, DESCRIPTION, module);
 
-    assertEquals(PROJECT_ID, CredentialsNameProvider.name(credentials));
-    assertEquals(PROJECT_ID, new GoogleRobotNameProvider().getName(credentials));
-  }
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+                STATUS_CODE_OK,
+                USERNAME);
 
-  @Test
-  public void testProjectIdValidation() throws Exception {
-    GoogleRobotMetadataCredentials.Descriptor descriptor =
-        (GoogleRobotMetadataCredentials.Descriptor)
-            Jenkins.getInstance().getDescriptorOrDie(GoogleRobotMetadataCredentials.class);
+        // THEN: resulting credential should have our defined id and description
+        assertEquals(CREDENTIAL_ID, credentials.getId());
+        assertEquals(DESCRIPTION, credentials.getDescription());
+    }
 
-    assertEquals(FormValidation.Kind.OK, descriptor.doCheckProjectId(PROJECT_ID).kind);
-    assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId(null).kind);
-    assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId("").kind);
-  }
+    @Test
+    public void testCredentialCreationWithSystemScope() throws Exception {
+        final Module module = new Module();
 
-  @Test
-  public void testCredentialCreationWithNonEmptyIdAndDescription() throws Exception {
-    final Module module = new Module();
+        // WHEN: creating a credential with SYSTEM scope
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.SYSTEM, "", PROJECT_ID, "", module);
 
-    // WHEN: creating credential with defined id and description
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(
-            CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID, DESCRIPTION, module);
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+                STATUS_CODE_OK,
+                USERNAME);
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-        STATUS_CODE_OK,
-        USERNAME);
+        // THEN: the resulting credential should have SYSTEM scope
+        assertEquals(CredentialsScope.SYSTEM, credentials.getScope());
+        assertEquals(USERNAME, credentials.getUsername());
+    }
 
-    // THEN: resulting credential should have our defined id and description
-    assertEquals(CREDENTIAL_ID, credentials.getId());
-    assertEquals(DESCRIPTION, credentials.getDescription());
-  }
+    @Test
+    public void testCredentialCreationWithGlobalScope() throws Exception {
+        final Module module = new Module();
 
-  @Test
-  public void testCredentialCreationWithSystemScope() throws Exception {
-    final Module module = new Module();
+        // WHEN: creating a credential with GLOBAL scope
+        GoogleRobotMetadataCredentials credentials =
+                new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
 
-    // WHEN: creating a credential with SYSTEM scope
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.SYSTEM, "", PROJECT_ID, "", module);
+        module.stubRequest(
+                "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+                STATUS_CODE_OK,
+                USERNAME);
 
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-        STATUS_CODE_OK,
-        USERNAME);
+        // THEN: the resulting credential should have GLOBAL scope
+        assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
+        assertEquals(USERNAME, credentials.getUsername());
+    }
 
-    // THEN: the resulting credential should have SYSTEM scope
-    assertEquals(CredentialsScope.SYSTEM, credentials.getScope());
-    assertEquals(USERNAME, credentials.getUsername());
-  }
-
-  @Test
-  public void testCredentialCreationWithGlobalScope() throws Exception {
-    final Module module = new Module();
-
-    // WHEN: creating a credential with GLOBAL scope
-    GoogleRobotMetadataCredentials credentials =
-        new GoogleRobotMetadataCredentials(CredentialsScope.GLOBAL, "", PROJECT_ID, "", module);
-
-    module.stubRequest(
-        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-        STATUS_CODE_OK,
-        USERNAME);
-
-    // THEN: the resulting credential should have GLOBAL scope
-    assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
-    assertEquals(USERNAME, credentials.getUsername());
-  }
-
-  private static String METADATA_ENDPOINT =
-      OAuth2Utils.getMetadataServerUrl()
-          + "/computeMetadata/v1/"
-          + "instance/service-accounts/default/token";
-  private static final String USERNAME = "bazinga";
-  private static final String ACCESS_TOKEN = "ThE.ToKeN";
-  private static final String PROJECT_ID = "foo.com:bar-baz";
-  private static final String FAKE_SCOPE = "my.fake.scope";
-  private static final String CREDENTIAL_ID = "credential.id";
-  private static final String DESCRIPTION = "credential.description";
-  private static final List<String> SCOPES = ImmutableList.of("scope1", "scope2", "scope3");
+    private static String METADATA_ENDPOINT =
+            OAuth2Utils.getMetadataServerUrl() + "/computeMetadata/v1/" + "instance/service-accounts/default/token";
+    private static final String USERNAME = "bazinga";
+    private static final String ACCESS_TOKEN = "ThE.ToKeN";
+    private static final String PROJECT_ID = "foo.com:bar-baz";
+    private static final String FAKE_SCOPE = "my.fake.scope";
+    private static final String CREDENTIAL_ID = "credential.id";
+    private static final String DESCRIPTION = "credential.description";
+    private static final List<String> SCOPES = ImmutableList.of("scope1", "scope2", "scope3");
 }

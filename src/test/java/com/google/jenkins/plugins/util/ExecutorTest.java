@@ -32,94 +32,93 @@ import org.mockito.MockitoAnnotations;
 /** Tests for {@link Executor}. */
 public class ExecutorTest {
 
-  private HttpResponseException notFoundJsonException;
-  private HttpResponseException conflictJsonException;
-  private HttpResponseException forbiddenJsonException;
-  private HttpResponseException errorJsonException;
-  private SocketTimeoutException timeoutException;
+    private HttpResponseException notFoundJsonException;
+    private HttpResponseException conflictJsonException;
+    private HttpResponseException forbiddenJsonException;
+    private HttpResponseException errorJsonException;
+    private SocketTimeoutException timeoutException;
 
-  @Mock private com.google.api.client.http.HttpHeaders headers;
+    @Mock
+    private com.google.api.client.http.HttpHeaders headers;
 
-  @Mock private AbstractGoogleJsonClientRequest<Void> mockRequest;
+    @Mock
+    private AbstractGoogleJsonClientRequest<Void> mockRequest;
 
-  private Executor underTest;
+    private Executor underTest;
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
 
-    notFoundJsonException =
-        new HttpResponseException.Builder(STATUS_CODE_NOT_FOUND, STATUS_MESSAGE, headers).build();
-    conflictJsonException =
-        new HttpResponseException.Builder(409 /* STATUS_CODE_CONFLICT */, STATUS_MESSAGE, headers)
-            .build();
-    forbiddenJsonException =
-        new HttpResponseException.Builder(STATUS_CODE_FORBIDDEN, STATUS_MESSAGE, headers).build();
-    errorJsonException =
-        new HttpResponseException.Builder(STATUS_CODE_SERVER_ERROR, STATUS_MESSAGE, headers)
-            .build();
+        notFoundJsonException =
+                new HttpResponseException.Builder(STATUS_CODE_NOT_FOUND, STATUS_MESSAGE, headers).build();
+        conflictJsonException =
+                new HttpResponseException.Builder(409 /* STATUS_CODE_CONFLICT */, STATUS_MESSAGE, headers).build();
+        forbiddenJsonException =
+                new HttpResponseException.Builder(STATUS_CODE_FORBIDDEN, STATUS_MESSAGE, headers).build();
+        errorJsonException =
+                new HttpResponseException.Builder(STATUS_CODE_SERVER_ERROR, STATUS_MESSAGE, headers).build();
 
-    timeoutException = new SocketTimeoutException(STATUS_MESSAGE);
+        timeoutException = new SocketTimeoutException(STATUS_MESSAGE);
 
-    underTest =
-        new Executor.Default() {
-          @Override
-          public void sleep() {
-            // Don't really sleep...
-          }
+        underTest = new Executor.Default() {
+            @Override
+            public void sleep() {
+                // Don't really sleep...
+            }
         };
-  }
+    }
 
-  @Test
-  public void testVanillaNewExecutor() throws Exception {
-    assertNotNull(underTest);
-    when(mockRequest.execute()).thenReturn((Void) null);
+    @Test
+    public void testVanillaNewExecutor() throws Exception {
+        assertNotNull(underTest);
+        when(mockRequest.execute()).thenReturn((Void) null);
 
-    underTest.execute(mockRequest);
-  }
+        underTest.execute(mockRequest);
+    }
 
-  @Test(expected = NotFoundException.class)
-  public void testNewExecutorWithNotFound() throws Exception {
-    assertNotNull(underTest);
-    when(mockRequest.execute()).thenThrow(notFoundJsonException);
+    @Test(expected = NotFoundException.class)
+    public void testNewExecutorWithNotFound() throws Exception {
+        assertNotNull(underTest);
+        when(mockRequest.execute()).thenThrow(notFoundJsonException);
 
-    underTest.execute(mockRequest);
-  }
+        underTest.execute(mockRequest);
+    }
 
-  @Test(expected = ConflictException.class)
-  public void testNewExecutorWithConflict() throws Exception {
-    assertNotNull(underTest);
-    when(mockRequest.execute()).thenThrow(conflictJsonException);
+    @Test(expected = ConflictException.class)
+    public void testNewExecutorWithConflict() throws Exception {
+        assertNotNull(underTest);
+        when(mockRequest.execute()).thenThrow(conflictJsonException);
 
-    underTest.execute(mockRequest);
-  }
+        underTest.execute(mockRequest);
+    }
 
-  @Test(expected = ForbiddenException.class)
-  public void testNewExecutorWithForbidden() throws Exception {
-    assertNotNull(underTest);
-    when(mockRequest.execute()).thenThrow(forbiddenJsonException);
+    @Test(expected = ForbiddenException.class)
+    public void testNewExecutorWithForbidden() throws Exception {
+        assertNotNull(underTest);
+        when(mockRequest.execute()).thenThrow(forbiddenJsonException);
 
-    underTest.execute(mockRequest);
-  }
+        underTest.execute(mockRequest);
+    }
 
-  @Test(expected = HttpResponseException.class)
-  public void testNewExecutorWithAllErrors() throws Exception {
-    assertNotNull(underTest);
-    when(mockRequest.execute()).thenThrow(errorJsonException);
+    @Test(expected = HttpResponseException.class)
+    public void testNewExecutorWithAllErrors() throws Exception {
+        assertNotNull(underTest);
+        when(mockRequest.execute()).thenThrow(errorJsonException);
 
-    underTest.execute(mockRequest);
-  }
+        underTest.execute(mockRequest);
+    }
 
-  @Test
-  public void testNewExecutorWithErrorsThenSuccess() throws Exception {
-    assertNotNull(underTest);
-    when(mockRequest.execute())
-        .thenThrow(errorJsonException)
-        .thenThrow(timeoutException)
-        .thenReturn((Void) null);
+    @Test
+    public void testNewExecutorWithErrorsThenSuccess() throws Exception {
+        assertNotNull(underTest);
+        when(mockRequest.execute())
+                .thenThrow(errorJsonException)
+                .thenThrow(timeoutException)
+                .thenReturn((Void) null);
 
-    underTest.execute(mockRequest);
-  }
+        underTest.execute(mockRequest);
+    }
 
-  private static final String STATUS_MESSAGE = "doesn't matter";
+    private static final String STATUS_MESSAGE = "doesn't matter";
 }

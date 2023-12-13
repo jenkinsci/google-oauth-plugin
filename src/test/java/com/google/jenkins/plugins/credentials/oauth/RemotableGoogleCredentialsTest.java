@@ -35,96 +35,93 @@ import org.mockito.MockitoAnnotations;
 /** Tests for {@link RemotableGoogleCredentials}. */
 public class RemotableGoogleCredentialsTest {
 
-  private GoogleCredential fakeCredential;
+    private GoogleCredential fakeCredential;
 
-  @Mock private GoogleRobotCredentials mockCredentials;
+    @Mock
+    private GoogleRobotCredentials mockCredentials;
 
-  private TestGoogleOAuth2DomainRequirement testConsumer;
+    private TestGoogleOAuth2DomainRequirement testConsumer;
 
-  private GoogleRobotCredentialsModule module;
+    private GoogleRobotCredentialsModule module;
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
 
-    // Freeze time
-    DateTime now = new DateTime();
-    DateTimeUtils.setCurrentMillisFixed(now.getMillis());
+        // Freeze time
+        DateTime now = new DateTime();
+        DateTimeUtils.setCurrentMillisFixed(now.getMillis());
 
-    this.module = new GoogleRobotCredentialsModule();
+        this.module = new GoogleRobotCredentialsModule();
 
-    this.testConsumer = new TestGoogleOAuth2DomainRequirement(THE_SCOPE);
-    this.fakeCredential = new GoogleCredential();
+        this.testConsumer = new TestGoogleOAuth2DomainRequirement(THE_SCOPE);
+        this.fakeCredential = new GoogleCredential();
 
-    when(mockCredentials.getProjectId()).thenReturn(PROJECT_ID);
-    when(mockCredentials.getGoogleCredential(testConsumer)).thenReturn(fakeCredential);
-    when(mockCredentials.getUsername()).thenReturn(USERNAME);
-  }
+        when(mockCredentials.getProjectId()).thenReturn(PROJECT_ID);
+        when(mockCredentials.getGoogleCredential(testConsumer)).thenReturn(fakeCredential);
+        when(mockCredentials.getUsername()).thenReturn(USERNAME);
+    }
 
-  @Test
-  public void testUsername() throws Exception {
-    fakeCredential.setAccessToken(ACCESS_TOKEN);
-    fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
+    @Test
+    public void testUsername() throws Exception {
+        fakeCredential.setAccessToken(ACCESS_TOKEN);
+        fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
-    GoogleRobotCredentials credentials =
+        GoogleRobotCredentials credentials = new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
+        Credential credential = credentials.getGoogleCredential(testConsumer);
+
+        assertEquals(USERNAME, credentials.getUsername());
+        assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
+    }
+
+    @Test(expected = GeneralSecurityException.class)
+    public void testNullExpirationBadRefresh() throws Exception {
         new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
-    Credential credential = credentials.getGoogleCredential(testConsumer);
+    }
 
-    assertEquals(USERNAME, credentials.getUsername());
-    assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
-  }
-
-  @Test(expected = GeneralSecurityException.class)
-  public void testNullExpirationBadRefresh() throws Exception {
-    new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
-  }
-
-  @Test(expected = GeneralSecurityException.class)
-  public void testImminentExpirationBadRefresh() throws Exception {
-    fakeCredential.setExpiresInSeconds(IMMINENT_EXPIRATION_SECONDS);
-    new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
-  }
-
-  @Test
-  public void testReasonableExpiration() throws Exception {
-    fakeCredential.setAccessToken(ACCESS_TOKEN);
-    fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
-
-    GoogleRobotCredentials credentials =
+    @Test(expected = GeneralSecurityException.class)
+    public void testImminentExpirationBadRefresh() throws Exception {
+        fakeCredential.setExpiresInSeconds(IMMINENT_EXPIRATION_SECONDS);
         new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
-    Credential credential = credentials.getGoogleCredential(testConsumer);
+    }
 
-    assertEquals(ACCESS_TOKEN, credential.getAccessToken());
-    assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 2));
-  }
+    @Test
+    public void testReasonableExpiration() throws Exception {
+        fakeCredential.setAccessToken(ACCESS_TOKEN);
+        fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
-  public void testName() throws Exception {
-    fakeCredential.setAccessToken(ACCESS_TOKEN);
-    fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
+        GoogleRobotCredentials credentials = new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
+        Credential credential = credentials.getGoogleCredential(testConsumer);
 
-    GoogleRobotCredentials credentials =
-        new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
+        assertEquals(ACCESS_TOKEN, credential.getAccessToken());
+        assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 2));
+    }
 
-    assertEquals("RemotableGoogleCredentials", CredentialsNameProvider.name(credentials));
-  }
+    public void testName() throws Exception {
+        fakeCredential.setAccessToken(ACCESS_TOKEN);
+        fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testUnsupportedDescriptor() throws Exception {
-    fakeCredential.setAccessToken(ACCESS_TOKEN);
-    fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
+        GoogleRobotCredentials credentials = new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
 
-    GoogleRobotCredentials credentials =
-        new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
+        assertEquals("RemotableGoogleCredentials", CredentialsNameProvider.name(credentials));
+    }
 
-    credentials.getDescriptor();
-  }
+    @Test(expected = UnsupportedOperationException.class)
+    public void testUnsupportedDescriptor() throws Exception {
+        fakeCredential.setAccessToken(ACCESS_TOKEN);
+        fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
-  private static final long ERROR = 1; // 1 second error
-  private static final long IMMINENT_EXPIRATION_SECONDS = 60;
-  private static final long EXPIRATION_SECONDS = 1234;
-  private static final String USERNAME = "theUserName";
-  private static final String PROJECT_ID = "foo.com:bar-baz";
-  private static final String THE_SCOPE = "my.scope";
-  private static final String BAD_SCOPE = "NOT.my.scope";
-  private static final String ACCESS_TOKEN = "ThE.ToKeN";
+        GoogleRobotCredentials credentials = new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
+
+        credentials.getDescriptor();
+    }
+
+    private static final long ERROR = 1; // 1 second error
+    private static final long IMMINENT_EXPIRATION_SECONDS = 60;
+    private static final long EXPIRATION_SECONDS = 1234;
+    private static final String USERNAME = "theUserName";
+    private static final String PROJECT_ID = "foo.com:bar-baz";
+    private static final String THE_SCOPE = "my.scope";
+    private static final String BAD_SCOPE = "NOT.my.scope";
+    private static final String ACCESS_TOKEN = "ThE.ToKeN";
 }

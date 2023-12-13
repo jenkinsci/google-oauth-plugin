@@ -43,35 +43,35 @@ import org.apache.commons.io.IOUtils;
  */
 @SuppressFBWarnings("EQ_DOESNT_OVERRIDE_EQUALS")
 public final class JsonKey extends GenericJson {
-  @Key("client_email")
-  private String clientEmail;
+    @Key("client_email")
+    private String clientEmail;
 
-  @Key("private_key")
-  private String privateKey;
+    @Key("private_key")
+    private String privateKey;
 
-  public static JsonKey load(JsonFactory jsonFactory, InputStream inputStream) throws IOException {
-    InputStreamReader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
-    try {
-      Secret decoded = Secret.fromString(IOUtils.toString(reader));
-      return jsonFactory.fromString(decoded.getPlainText(), JsonKey.class);
-    } finally {
-      inputStream.close();
+    public static JsonKey load(JsonFactory jsonFactory, InputStream inputStream) throws IOException {
+        InputStreamReader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
+        try {
+            Secret decoded = Secret.fromString(IOUtils.toString(reader));
+            return jsonFactory.fromString(decoded.getPlainText(), JsonKey.class);
+        } finally {
+            inputStream.close();
+        }
     }
-  }
 
-  public String getClientEmail() {
-    return clientEmail;
-  }
+    public String getClientEmail() {
+        return clientEmail;
+    }
 
-  public void setClientEmail(String clientEmail) {
-    this.clientEmail = clientEmail;
-  }
+    public void setClientEmail(String clientEmail) {
+        this.clientEmail = clientEmail;
+    }
 
-  public String getPrivateKey() {
-    return privateKey;
-  }
+    public String getPrivateKey() {
+        return privateKey;
+    }
 
-  public void setPrivateKey(String privateKey) {
-    this.privateKey = privateKey;
-  }
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
 }

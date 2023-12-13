@@ -27,30 +27,30 @@ import java.util.concurrent.Callable;
  */
 public abstract class RequestCallable<T> implements Callable<T> {
 
-  /** {@inheritDoc} */
-  @Override
-  public abstract T call() throws IOException, ExecutorException;
+    /** {@inheritDoc} */
+    @Override
+    public abstract T call() throws IOException, ExecutorException;
 
-  /** @return whether this request can be retry. */
-  public boolean canRetry() {
-    return true;
-  }
+    /** @return whether this request can be retry. */
+    public boolean canRetry() {
+        return true;
+    }
 
-  /** @return a {@link RequestCallable} that executes a request. */
-  public static <R> RequestCallable<R> from(final AbstractGoogleJsonClientRequest<R> request) {
-    return new RequestCallable<R>() {
+    /** @return a {@link RequestCallable} that executes a request. */
+    public static <R> RequestCallable<R> from(final AbstractGoogleJsonClientRequest<R> request) {
+        return new RequestCallable<R>() {
 
-      /** {@inheritDoc} */
-      @Override
-      public R call() throws IOException {
-        return request.execute();
-      }
+            /** {@inheritDoc} */
+            @Override
+            public R call() throws IOException {
+                return request.execute();
+            }
 
-      /** {@inheritDoc} */
-      @Override
-      public boolean canRetry() {
-        return (request.getMediaHttpUploader() == null);
-      }
-    };
-  }
+            /** {@inheritDoc} */
+            @Override
+            public boolean canRetry() {
+                return (request.getMediaHttpUploader() == null);
+            }
+        };
+    }
 }

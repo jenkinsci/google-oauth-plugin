@@ -26,11 +26,11 @@ import org.junit.runners.Suite;
 /** Defines the full test suite for utility classes. */
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
-    value = {
-      ExecutorTest.class,
-      MetadataReaderTest.class,
-      MockExecutorTest.class,
-      NameValuePairTest.class,
-      ResolveTest.class
-    })
+        value = {
+            ExecutorTest.class,
+            MetadataReaderTest.class,
+            MockExecutorTest.class,
+            NameValuePairTest.class,
+            ResolveTest.class
+        })
 public class UtilTestSuite {}

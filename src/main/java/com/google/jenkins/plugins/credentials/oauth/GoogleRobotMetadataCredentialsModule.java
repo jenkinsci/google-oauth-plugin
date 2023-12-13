@@ -22,11 +22,11 @@ import com.google.jenkins.plugins.util.MetadataReader;
  * GoogleRobotMetadataCredentials}.
  */
 public class GoogleRobotMetadataCredentialsModule extends GoogleRobotCredentialsModule {
-  /** Retrieve a MetadataReader for accessing stuff encoded in the instance metadata. */
-  public MetadataReader getMetadataReader() {
-    return new MetadataReader.Default();
-  }
+    /** Retrieve a MetadataReader for accessing stuff encoded in the instance metadata. */
+    public MetadataReader getMetadataReader() {
+        return new MetadataReader.Default();
+    }
 
-  /** For {@link java.io.Serializable} */
-  private static final long serialVersionUID = 1L;
+    /** For {@link java.io.Serializable} */
+    private static final long serialVersionUID = 1L;
 }

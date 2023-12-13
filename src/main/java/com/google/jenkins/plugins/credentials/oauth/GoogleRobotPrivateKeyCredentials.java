@@ -44,256 +44,252 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 @NameWith(value = GoogleRobotNameProvider.class, priority = 50)
 public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentials {
-  private static final long serialVersionUID = -6768343254941345944L;
-  private static final Logger LOGGER =
-      Logger.getLogger(GoogleRobotPrivateKeyCredentials.class.getSimpleName());
-  private ServiceAccountConfig serviceAccountConfig;
-  @Deprecated private transient String secretsFile;
-  @Deprecated private transient String p12File;
+    private static final long serialVersionUID = -6768343254941345944L;
+    private static final Logger LOGGER = Logger.getLogger(GoogleRobotPrivateKeyCredentials.class.getSimpleName());
+    private ServiceAccountConfig serviceAccountConfig;
 
-  /**
-   * Construct a set of service account credentials.
-   *
-   * @param projectId The project id associated with this service account
-   * @param serviceAccountConfig The ServiceAccountConfig to use
-   * @param module The module for instantiating dependent objects, or null.
-   */
-  @Deprecated
-  public GoogleRobotPrivateKeyCredentials(
-      String projectId,
-      ServiceAccountConfig serviceAccountConfig,
-      @Nullable GoogleRobotCredentialsModule module)
-      throws Exception {
-    super(CredentialsScope.GLOBAL, "", projectId, module);
-    this.serviceAccountConfig = serviceAccountConfig;
-  }
+    @Deprecated
+    private transient String secretsFile;
 
-  /**
-   * Construct a set of service account credentials with a specific id. It helps for updating
-   * credentials, as well as for migrating old credentials that had no id and relied on the project
-   * id.
-   *
-   * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
-   *     be either GLOBAL or SYSTEM.
-   * @param id the id to assign
-   * @param projectId The project id associated with this service account
-   * @param description The credential description
-   * @param serviceAccountConfig The ServiceAccountConfig to use
-   * @param module The module for instantiating dependent objects, or null.
-   */
-  @DataBoundConstructor
-  public GoogleRobotPrivateKeyCredentials(
-      @CheckForNull CredentialsScope scope,
-      String id,
-      String projectId,
-      String description,
-      ServiceAccountConfig serviceAccountConfig,
-      @Nullable GoogleRobotCredentialsModule module)
-      throws Exception {
-    super(scope, id, projectId, description, module);
-    this.serviceAccountConfig = serviceAccountConfig;
-  }
+    @Deprecated
+    private transient String p12File;
 
-  @SuppressWarnings("deprecation")
-  @SuppressFBWarnings(
-      value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
-      justification =
-          "For migration purposes: older credentials might not have had separate id or "
-              + "scope fields. These fields might be null when deserializing. The readResolve "
-              + "method sets defaults for null id and scope. Id defaults to getProjectId() and "
-              + "scope defaults to CredentialsScope.GLOBAL if null.")
-  public Object readResolve() throws Exception {
-    if (serviceAccountConfig == null) {
-      String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
-      serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
-    }
-    return new GoogleRobotPrivateKeyCredentials(
-        getScope() == null ? CredentialsScope.GLOBAL : getScope(),
-        getId() == null ? getProjectId() : getId(),
-        getProjectId(),
-        getDescription(),
-        serviceAccountConfig,
-        getModule());
-  }
-
-  private String getClientEmailFromSecretsFileAndLogErrors() {
-    try {
-      return getClientEmailFromSecretsFile();
-    } catch (MissingSecretsFileException e) {
-      LOGGER.log(
-          Level.WARNING,
-          String.format(
-              "SecretsFile is not set. "
-                  + "Failed to set Service Account E-Mail Address on upgraded "
-                  + "Credentials with Project Id '%s'.",
-              getProjectId()));
-    } catch (SecretsFileNotFoundException e) {
-      LOGGER.log(
-          Level.WARNING,
-          String.format(
-              "SecretsFile could not be "
-                  + "found. Failed to set Service Account E-Mail Address on "
-                  + "upgraded Credentials with Project Id '%s'.",
-              getProjectId()));
-    } catch (InvalidSecretsFileException e) {
-      LOGGER.log(
-          Level.WARNING,
-          String.format(
-              "Invalid SecretsFile format. "
-                  + "Failed to set Service Account E-Mail Address on upgraded "
-                  + "Credentials with Project Id '%s'.",
-              getProjectId()));
-    }
-    return null;
-  }
-
-  @SuppressWarnings("deprecation")
-  private String getClientEmailFromSecretsFile()
-      throws MissingSecretsFileException, SecretsFileNotFoundException,
-          InvalidSecretsFileException {
-    if (secretsFile == null) {
-      throw new MissingSecretsFileException();
-    }
-    LegacyJsonKey legacyJsonKey;
-    try {
-      legacyJsonKey =
-          LegacyJsonKey.load(getModule().getJsonFactory(), new FileInputStream(secretsFile));
-    } catch (JsonParseException e) {
-      throw new InvalidSecretsFileException(e);
-    } catch (IOException e) {
-      throw new SecretsFileNotFoundException(e);
-    }
-    LegacyJsonKey.Details web = legacyJsonKey.getWeb();
-    if (web == null) {
-      throw new InvalidSecretsFileException();
-    }
-    String clientEmail = web.getClientEmail();
-    if (clientEmail == null) {
-      throw new InvalidSecretsFileException();
-    }
-    return clientEmail;
-  }
-
-  /**
-   * Used for populating the configuration for each {@link ServiceAccountConfig}
-   *
-   * @return list of possible {@link ServiceAccountConfig}s
-   */
-  public static List<ServiceAccountConfig.Descriptor> getServiceAccountConfigDescriptors() {
-    Jenkins instance = Jenkins.get();
-    return ImmutableList.of(
-        (ServiceAccountConfig.Descriptor)
-            instance.getDescriptorOrDie(JsonServiceAccountConfig.class),
-        (ServiceAccountConfig.Descriptor)
-            instance.getDescriptorOrDie(P12ServiceAccountConfig.class));
-  }
-
-  @NonNull
-  @Override
-  public String getUsername() throws KeyTypeNotSetException, AccountIdNotSetException {
-    if (serviceAccountConfig == null) {
-      throw new KeyTypeNotSetException();
-    }
-    String accountId = serviceAccountConfig.getAccountId();
-    if (accountId == null) {
-      throw new AccountIdNotSetException();
-    }
-    return accountId;
-  }
-
-  /**
-   * Used for populating the help file on the {@code &lt;a:credentials .../&gt;} tag. For more
-   * details see {@code /lib/auth/credentials.jelly}.
-   */
-  public static String getHelpFile() {
-    return Jenkins.get()
-        .getDescriptorOrDie(GoogleRobotPrivateKeyCredentials.class)
-        .getHelpFile("credentials");
-  }
-
-  @Override
-  public GoogleCredential getGoogleCredential(GoogleOAuth2ScopeRequirement requirement)
-      throws KeyTypeNotSetException, AccountIdNotSetException, PrivateKeyNotSetException {
-    if (serviceAccountConfig == null) {
-      throw new KeyTypeNotSetException();
-    }
-    if (serviceAccountConfig.getAccountId() == null) {
-      throw new AccountIdNotSetException();
-    }
-    if (serviceAccountConfig.getPrivateKey() == null) {
-      throw new PrivateKeyNotSetException();
-    }
-    return new GoogleCredential.Builder()
-        .setTransport(getModule().getHttpTransport())
-        .setJsonFactory(getModule().getJsonFactory())
-        .setServiceAccountScopes(requirement.getScopes())
-        .setServiceAccountId(serviceAccountConfig.getAccountId())
-        .setServiceAccountPrivateKey(serviceAccountConfig.getPrivateKey())
-        .build();
-  }
-
-  public ServiceAccountConfig getServiceAccountConfig() {
-    return serviceAccountConfig;
-  }
-
-  /** Descriptor for our unlimited service account extension. */
-  @Extension
-  public static class Descriptor extends AbstractGoogleRobotCredentialsDescriptor {
-    public Descriptor() {
-      this(new GoogleRobotCredentialsModule());
+    /**
+     * Construct a set of service account credentials.
+     *
+     * @param projectId The project id associated with this service account
+     * @param serviceAccountConfig The ServiceAccountConfig to use
+     * @param module The module for instantiating dependent objects, or null.
+     */
+    @Deprecated
+    public GoogleRobotPrivateKeyCredentials(
+            String projectId, ServiceAccountConfig serviceAccountConfig, @Nullable GoogleRobotCredentialsModule module)
+            throws Exception {
+        super(CredentialsScope.GLOBAL, "", projectId, module);
+        this.serviceAccountConfig = serviceAccountConfig;
     }
 
-    @VisibleForTesting
-    Descriptor(GoogleRobotCredentialsModule module) {
-      super(GoogleRobotPrivateKeyCredentials.class, module);
+    /**
+     * Construct a set of service account credentials with a specific id. It helps for updating
+     * credentials, as well as for migrating old credentials that had no id and relied on the project
+     * id.
+     *
+     * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
+     *     be either GLOBAL or SYSTEM.
+     * @param id the id to assign
+     * @param projectId The project id associated with this service account
+     * @param description The credential description
+     * @param serviceAccountConfig The ServiceAccountConfig to use
+     * @param module The module for instantiating dependent objects, or null.
+     */
+    @DataBoundConstructor
+    public GoogleRobotPrivateKeyCredentials(
+            @CheckForNull CredentialsScope scope,
+            String id,
+            String projectId,
+            String description,
+            ServiceAccountConfig serviceAccountConfig,
+            @Nullable GoogleRobotCredentialsModule module)
+            throws Exception {
+        super(scope, id, projectId, description, module);
+        this.serviceAccountConfig = serviceAccountConfig;
     }
 
-    /** {@inheritDoc} */
+    @SuppressWarnings("deprecation")
+    @SuppressFBWarnings(
+            value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
+            justification = "For migration purposes: older credentials might not have had separate id or "
+                    + "scope fields. These fields might be null when deserializing. The readResolve "
+                    + "method sets defaults for null id and scope. Id defaults to getProjectId() and "
+                    + "scope defaults to CredentialsScope.GLOBAL if null.")
+    public Object readResolve() throws Exception {
+        if (serviceAccountConfig == null) {
+            String clientEmail = getClientEmailFromSecretsFileAndLogErrors();
+            serviceAccountConfig = new P12ServiceAccountConfig(clientEmail, null, p12File);
+        }
+        return new GoogleRobotPrivateKeyCredentials(
+                getScope() == null ? CredentialsScope.GLOBAL : getScope(),
+                getId() == null ? getProjectId() : getId(),
+                getProjectId(),
+                getDescription(),
+                serviceAccountConfig,
+                getModule());
+    }
+
+    private String getClientEmailFromSecretsFileAndLogErrors() {
+        try {
+            return getClientEmailFromSecretsFile();
+        } catch (MissingSecretsFileException e) {
+            LOGGER.log(
+                    Level.WARNING,
+                    String.format(
+                            "SecretsFile is not set. "
+                                    + "Failed to set Service Account E-Mail Address on upgraded "
+                                    + "Credentials with Project Id '%s'.",
+                            getProjectId()));
+        } catch (SecretsFileNotFoundException e) {
+            LOGGER.log(
+                    Level.WARNING,
+                    String.format(
+                            "SecretsFile could not be "
+                                    + "found. Failed to set Service Account E-Mail Address on "
+                                    + "upgraded Credentials with Project Id '%s'.",
+                            getProjectId()));
+        } catch (InvalidSecretsFileException e) {
+            LOGGER.log(
+                    Level.WARNING,
+                    String.format(
+                            "Invalid SecretsFile format. "
+                                    + "Failed to set Service Account E-Mail Address on upgraded "
+                                    + "Credentials with Project Id '%s'.",
+                            getProjectId()));
+        }
+        return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    private String getClientEmailFromSecretsFile()
+            throws MissingSecretsFileException, SecretsFileNotFoundException, InvalidSecretsFileException {
+        if (secretsFile == null) {
+            throw new MissingSecretsFileException();
+        }
+        LegacyJsonKey legacyJsonKey;
+        try {
+            legacyJsonKey = LegacyJsonKey.load(getModule().getJsonFactory(), new FileInputStream(secretsFile));
+        } catch (JsonParseException e) {
+            throw new InvalidSecretsFileException(e);
+        } catch (IOException e) {
+            throw new SecretsFileNotFoundException(e);
+        }
+        LegacyJsonKey.Details web = legacyJsonKey.getWeb();
+        if (web == null) {
+            throw new InvalidSecretsFileException();
+        }
+        String clientEmail = web.getClientEmail();
+        if (clientEmail == null) {
+            throw new InvalidSecretsFileException();
+        }
+        return clientEmail;
+    }
+
+    /**
+     * Used for populating the configuration for each {@link ServiceAccountConfig}
+     *
+     * @return list of possible {@link ServiceAccountConfig}s
+     */
+    public static List<ServiceAccountConfig.Descriptor> getServiceAccountConfigDescriptors() {
+        Jenkins instance = Jenkins.get();
+        return ImmutableList.of(
+                (ServiceAccountConfig.Descriptor) instance.getDescriptorOrDie(JsonServiceAccountConfig.class),
+                (ServiceAccountConfig.Descriptor) instance.getDescriptorOrDie(P12ServiceAccountConfig.class));
+    }
+
+    @NonNull
     @Override
-    public String getDisplayName() {
-      return Messages.GoogleRobotPrivateKeyCredentials_DisplayName();
+    public String getUsername() throws KeyTypeNotSetException, AccountIdNotSetException {
+        if (serviceAccountConfig == null) {
+            throw new KeyTypeNotSetException();
+        }
+        String accountId = serviceAccountConfig.getAccountId();
+        if (accountId == null) {
+            throw new AccountIdNotSetException();
+        }
+        return accountId;
     }
 
-    // TODO(mattmoor): We should beef up our form validation, including:
-    //  - validate secretsFile (prev or new should be specified)
-    //  - validate p12File (prev or new should be specified)
-    //  - some sort of test connection to validate the credentials?
-  }
-
-  /**
-   * Exception that gets thrown if SecretsFile is not set while upgrading legacy {@link
-   * GoogleRobotPrivateKeyCredentials}
-   */
-  public static class MissingSecretsFileException extends RuntimeException {}
-
-  /**
-   * Exception that gets thrown if an invalid SecretsFile is set while upgrading legacy {@link
-   * GoogleRobotPrivateKeyCredentials}
-   */
-  public static class InvalidSecretsFileException extends RuntimeException {
-    public InvalidSecretsFileException() {}
-
-    public InvalidSecretsFileException(Throwable cause) {
-      super(cause);
+    /**
+     * Used for populating the help file on the {@code &lt;a:credentials .../&gt;} tag. For more
+     * details see {@code /lib/auth/credentials.jelly}.
+     */
+    public static String getHelpFile() {
+        return Jenkins.get()
+                .getDescriptorOrDie(GoogleRobotPrivateKeyCredentials.class)
+                .getHelpFile("credentials");
     }
-  }
 
-  /**
-   * Exception that gets thrown if SecretsFile could not be found while upgrading legacy {@link
-   * GoogleRobotPrivateKeyCredentials}
-   */
-  public static class SecretsFileNotFoundException extends RuntimeException {
-    public SecretsFileNotFoundException(Throwable cause) {
-      super(cause);
+    @Override
+    public GoogleCredential getGoogleCredential(GoogleOAuth2ScopeRequirement requirement)
+            throws KeyTypeNotSetException, AccountIdNotSetException, PrivateKeyNotSetException {
+        if (serviceAccountConfig == null) {
+            throw new KeyTypeNotSetException();
+        }
+        if (serviceAccountConfig.getAccountId() == null) {
+            throw new AccountIdNotSetException();
+        }
+        if (serviceAccountConfig.getPrivateKey() == null) {
+            throw new PrivateKeyNotSetException();
+        }
+        return new GoogleCredential.Builder()
+                .setTransport(getModule().getHttpTransport())
+                .setJsonFactory(getModule().getJsonFactory())
+                .setServiceAccountScopes(requirement.getScopes())
+                .setServiceAccountId(serviceAccountConfig.getAccountId())
+                .setServiceAccountPrivateKey(serviceAccountConfig.getPrivateKey())
+                .build();
     }
-  }
 
-  /** Exception that gets thrown if ServiceAccountConfig is not set. */
-  public static class KeyTypeNotSetException extends RuntimeException {}
+    public ServiceAccountConfig getServiceAccountConfig() {
+        return serviceAccountConfig;
+    }
 
-  /** Exception that gets thrown if AccountId is not set. */
-  public static class AccountIdNotSetException extends RuntimeException {}
+    /** Descriptor for our unlimited service account extension. */
+    @Extension
+    public static class Descriptor extends AbstractGoogleRobotCredentialsDescriptor {
+        public Descriptor() {
+            this(new GoogleRobotCredentialsModule());
+        }
 
-  /** Exception that gets thrown if PrivateKey is not set. */
-  public static class PrivateKeyNotSetException extends RuntimeException {}
+        @VisibleForTesting
+        Descriptor(GoogleRobotCredentialsModule module) {
+            super(GoogleRobotPrivateKeyCredentials.class, module);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String getDisplayName() {
+            return Messages.GoogleRobotPrivateKeyCredentials_DisplayName();
+        }
+
+        // TODO(mattmoor): We should beef up our form validation, including:
+        //  - validate secretsFile (prev or new should be specified)
+        //  - validate p12File (prev or new should be specified)
+        //  - some sort of test connection to validate the credentials?
+    }
+
+    /**
+     * Exception that gets thrown if SecretsFile is not set while upgrading legacy {@link
+     * GoogleRobotPrivateKeyCredentials}
+     */
+    public static class MissingSecretsFileException extends RuntimeException {}
+
+    /**
+     * Exception that gets thrown if an invalid SecretsFile is set while upgrading legacy {@link
+     * GoogleRobotPrivateKeyCredentials}
+     */
+    public static class InvalidSecretsFileException extends RuntimeException {
+        public InvalidSecretsFileException() {}
+
+        public InvalidSecretsFileException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    /**
+     * Exception that gets thrown if SecretsFile could not be found while upgrading legacy {@link
+     * GoogleRobotPrivateKeyCredentials}
+     */
+    public static class SecretsFileNotFoundException extends RuntimeException {
+        public SecretsFileNotFoundException(Throwable cause) {
+            super(cause);
+        }
+    }
+
+    /** Exception that gets thrown if ServiceAccountConfig is not set. */
+    public static class KeyTypeNotSetException extends RuntimeException {}
+
+    /** Exception that gets thrown if AccountId is not set. */
+    public static class AccountIdNotSetException extends RuntimeException {}
+
+    /** Exception that gets thrown if PrivateKey is not set. */
+    public static class PrivateKeyNotSetException extends RuntimeException {}
 }

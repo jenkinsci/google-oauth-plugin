@@ -37,37 +37,37 @@ import java.io.InputStream;
 @SuppressFBWarnings("EQ_DOESNT_OVERRIDE_EQUALS")
 public final class LegacyJsonKey extends GenericJson {
 
-  /** Details for web applications. */
-  @Key private Details web;
+    /** Details for web applications. */
+    @Key
+    private Details web;
 
-  /** Returns the details for web applications. */
-  public Details getWeb() {
-    return web;
-  }
-
-  public void setWeb(Details web) {
-    this.web = web;
-  }
-
-  /** Container for our new field, modeled after: {@link GoogleClientSecrets.Details} */
-  public static final class Details extends GenericJson {
-    /** Client email. */
-    @Key("client_email")
-    private String clientEmail;
-
-    public void setClientEmail(String clientEmail) {
-      this.clientEmail = clientEmail;
+    /** Returns the details for web applications. */
+    public Details getWeb() {
+        return web;
     }
 
-    /** Returns the client email. */
-    public String getClientEmail() {
-      return clientEmail;
+    public void setWeb(Details web) {
+        this.web = web;
     }
-  }
 
-  /** Loads the {@code client_secrets.json} file from the given input stream. */
-  public static LegacyJsonKey load(JsonFactory jsonFactory, InputStream inputStream)
-      throws IOException {
-    return jsonFactory.fromInputStream(inputStream, Charsets.UTF_8, LegacyJsonKey.class);
-  }
+    /** Container for our new field, modeled after: {@link GoogleClientSecrets.Details} */
+    public static final class Details extends GenericJson {
+        /** Client email. */
+        @Key("client_email")
+        private String clientEmail;
+
+        public void setClientEmail(String clientEmail) {
+            this.clientEmail = clientEmail;
+        }
+
+        /** Returns the client email. */
+        public String getClientEmail() {
+            return clientEmail;
+        }
+    }
+
+    /** Loads the {@code client_secrets.json} file from the given input stream. */
+    public static LegacyJsonKey load(JsonFactory jsonFactory, InputStream inputStream) throws IOException {
+        return jsonFactory.fromInputStream(inputStream, Charsets.UTF_8, LegacyJsonKey.class);
+    }
 }

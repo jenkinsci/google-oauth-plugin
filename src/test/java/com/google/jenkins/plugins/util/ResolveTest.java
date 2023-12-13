@@ -27,42 +27,39 @@ import org.mockito.MockitoAnnotations;
 /** Tests for {@link Resolve}'s static methods. */
 public class ResolveTest {
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-  }
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
-  @Test
-  public void testBasicResolve() {
-    String basicInput = "la dee da $BUILD_NUMBER";
+    @Test
+    public void testBasicResolve() {
+        String basicInput = "la dee da $BUILD_NUMBER";
 
-    assertThat(
-        Resolve.resolveBuiltin(basicInput), Matchers.not(Matchers.containsString("BUILD_NUMBER")));
-  }
+        assertThat(Resolve.resolveBuiltin(basicInput), Matchers.not(Matchers.containsString("BUILD_NUMBER")));
+    }
 
-  @Test
-  public void testUserOverride() {
-    String basicInput = "$BUILD_NUMBER";
+    @Test
+    public void testUserOverride() {
+        String basicInput = "$BUILD_NUMBER";
 
-    assertEquals(
-        OVERRIDE,
-        Resolve.resolveBuiltinWithCustom(
-            basicInput, Collections.singletonMap("BUILD_NUMBER", OVERRIDE)));
-  }
+        assertEquals(
+                OVERRIDE,
+                Resolve.resolveBuiltinWithCustom(basicInput, Collections.singletonMap("BUILD_NUMBER", OVERRIDE)));
+    }
 
-  @Test
-  public void testJustUserOverrides() {
-    String basicInput = "$bar";
+    @Test
+    public void testJustUserOverrides() {
+        String basicInput = "$bar";
 
-    assertEquals(
-        OVERRIDE, Resolve.resolveCustom(basicInput, Collections.singletonMap("bar", OVERRIDE)));
-  }
+        assertEquals(OVERRIDE, Resolve.resolveCustom(basicInput, Collections.singletonMap("bar", OVERRIDE)));
+    }
 
-  @Test
-  public void testNoVariable() {
-    assertEquals(UNKNOWN_VAR, Resolve.resolveBuiltin(UNKNOWN_VAR));
-  }
+    @Test
+    public void testNoVariable() {
+        assertEquals(UNKNOWN_VAR, Resolve.resolveBuiltin(UNKNOWN_VAR));
+    }
 
-  private static final String OVERRIDE = "my variable override";
-  private static final String UNKNOWN_VAR = "$foo";
+    private static final String OVERRIDE = "my variable override";
+    private static final String UNKNOWN_VAR = "$foo";
 }

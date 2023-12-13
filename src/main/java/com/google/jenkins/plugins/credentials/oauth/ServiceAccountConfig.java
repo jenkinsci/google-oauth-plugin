@@ -32,33 +32,32 @@ import org.apache.commons.io.FileUtils;
  * general abstraction for providing google service account authentication mechanism. subclasses
  * need to provide an accountId and a private key to use for authenticating a service account
  */
-public abstract class ServiceAccountConfig
-    implements Describable<ServiceAccountConfig>, Serializable {
-  private static final Logger LOGGER = Logger.getLogger(ServiceAccountConfig.class.getName());
-  private static final long serialVersionUID = 6355493019938144806L;
+public abstract class ServiceAccountConfig implements Describable<ServiceAccountConfig>, Serializable {
+    private static final Logger LOGGER = Logger.getLogger(ServiceAccountConfig.class.getName());
+    private static final long serialVersionUID = 6355493019938144806L;
 
-  public abstract String getAccountId();
+    public abstract String getAccountId();
 
-  public abstract PrivateKey getPrivateKey();
+    public abstract PrivateKey getPrivateKey();
 
-  @Deprecated // Used only for compatibility purposes.
-  @CheckForNull
-  protected SecretBytes getSecretBytesFromFile(@CheckForNull String filePath) {
-    Jenkins.get().checkPermission(Jenkins.RUN_SCRIPTS);
+    @Deprecated // Used only for compatibility purposes.
+    @CheckForNull
+    protected SecretBytes getSecretBytesFromFile(@CheckForNull String filePath) {
+        Jenkins.get().checkPermission(Jenkins.RUN_SCRIPTS);
 
-    if (Strings.isNullOrEmpty(filePath)) {
-      LOGGER.log(Level.SEVERE, "Provided file path is null or empty.");
-      return null;
+        if (Strings.isNullOrEmpty(filePath)) {
+            LOGGER.log(Level.SEVERE, "Provided file path is null or empty.");
+            return null;
+        }
+
+        try {
+            return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filePath)));
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filePath), e);
+            return null;
+        }
     }
 
-    try {
-      return SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(filePath)));
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, String.format("Failed to read previous key from %s", filePath), e);
-      return null;
-    }
-  }
-
-  /** abstract descriptor for service account authentication */
-  public abstract static class Descriptor extends hudson.model.Descriptor<ServiceAccountConfig> {}
+    /** abstract descriptor for service account authentication */
+    public abstract static class Descriptor extends hudson.model.Descriptor<ServiceAccountConfig> {}
 }
