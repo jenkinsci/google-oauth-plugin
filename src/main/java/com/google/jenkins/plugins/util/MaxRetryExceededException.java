@@ -20,9 +20,9 @@ package com.google.jenkins.plugins.util;
  * shouldn't make further attempt.
  */
 public class MaxRetryExceededException extends ExecutorException {
-  public MaxRetryExceededException(Throwable throwable) {
-    super(throwable);
-  }
+    public MaxRetryExceededException(Throwable throwable) {
+        super(throwable);
+    }
 
-  public MaxRetryExceededException() {}
+    public MaxRetryExceededException() {}
 }

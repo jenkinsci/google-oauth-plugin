@@ -47,197 +47,198 @@ import org.kohsuke.stapler.verb.POST;
  * address and P12 private key file.
  */
 public class P12ServiceAccountConfig extends ServiceAccountConfig {
-  /*
-   * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
-   *    google-auth-library.
-   */
+    /*
+     * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
+     *    google-auth-library.
+     */
 
-  private static final long serialVersionUID = 8706353638974721795L;
-  private static final Logger LOGGER =
-      Logger.getLogger(P12ServiceAccountConfig.class.getSimpleName());
-  private static final String DEFAULT_P12_SECRET = "notasecret";
-  private static final String DEFAULT_P12_ALIAS = "privatekey";
-  private final String emailAddress;
-  @CheckForNull private String filename;
-  @CheckForNull private SecretBytes secretP12Key;
+    private static final long serialVersionUID = 8706353638974721795L;
+    private static final Logger LOGGER = Logger.getLogger(P12ServiceAccountConfig.class.getSimpleName());
+    private static final String DEFAULT_P12_SECRET = "notasecret";
+    private static final String DEFAULT_P12_ALIAS = "privatekey";
+    private final String emailAddress;
 
-  @Deprecated // for migration purpose
-  @CheckForNull
-  private transient String p12KeyFile;
+    @CheckForNull
+    private String filename;
 
-  /**
-   * @param emailAddress The service account email address.
-   * @since 0.8
-   */
-  @DataBoundConstructor
-  public P12ServiceAccountConfig(String emailAddress) {
-    this.emailAddress = emailAddress;
-  }
+    @CheckForNull
+    private SecretBytes secretP12Key;
 
-  /**
-   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility
-   * with external callers.
-   *
-   * @param emailAddress The service account email address.
-   * @param p12KeyFileUpload The uploaded p12 key file.
-   * @param prevP12KeyFile The path of the previous p12 key file.
-   * @since 0.3
-   */
-  @Deprecated
-  public P12ServiceAccountConfig(
-      String emailAddress, FileItem p12KeyFileUpload, String prevP12KeyFile) {
-    this(emailAddress);
-    this.setP12KeyFileUpload(p12KeyFileUpload);
-    if (filename == null && prevP12KeyFile != null) {
-      this.setFilename(prevP12KeyFile);
-      this.setSecretP12Key(getSecretBytesFromFile(prevP12KeyFile));
+    @Deprecated // for migration purpose
+    @CheckForNull
+    private transient String p12KeyFile;
+
+    /**
+     * @param emailAddress The service account email address.
+     * @since 0.8
+     */
+    @DataBoundConstructor
+    public P12ServiceAccountConfig(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
-  }
 
-  /** @param p12KeyFile The uploaded p12 key file. */
-  @Deprecated
-  @DataBoundSetter // Called on form submit, only used when key file is uploaded
-  public void setP12KeyFileUpload(FileItem p12KeyFile) {
-    if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
-      this.filename = extractFilename(p12KeyFile.getName());
-      this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
+    /**
+     * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility
+     * with external callers.
+     *
+     * @param emailAddress The service account email address.
+     * @param p12KeyFileUpload The uploaded p12 key file.
+     * @param prevP12KeyFile The path of the previous p12 key file.
+     * @since 0.3
+     */
+    @Deprecated
+    public P12ServiceAccountConfig(String emailAddress, FileItem p12KeyFileUpload, String prevP12KeyFile) {
+        this(emailAddress);
+        this.setP12KeyFileUpload(p12KeyFileUpload);
+        if (filename == null && prevP12KeyFile != null) {
+            this.setFilename(prevP12KeyFile);
+            this.setSecretP12Key(getSecretBytesFromFile(prevP12KeyFile));
+        }
     }
-  }
 
-  /** @param filename The previous p12 key file name. */
-  @DataBoundSetter
-  public void setFilename(String filename) {
-    if (!Strings.isNullOrEmpty(filename)) {
-      this.filename = extractFilename(filename);
+    /** @param p12KeyFile The uploaded p12 key file. */
+    @Deprecated
+    @DataBoundSetter // Called on form submit, only used when key file is uploaded
+    public void setP12KeyFileUpload(FileItem p12KeyFile) {
+        if (p12KeyFile != null && p12KeyFile.getSize() > 0) {
+            this.filename = extractFilename(p12KeyFile.getName());
+            this.secretP12Key = SecretBytes.fromBytes(p12KeyFile.get());
+        }
     }
-  }
 
-  /** @param secretP12Key The previous p12 key file content. */
-  @DataBoundSetter
-  public void setSecretP12Key(SecretBytes secretP12Key) {
-    if (secretP12Key != null && secretP12Key.getPlainData().length > 0) {
-      this.secretP12Key = secretP12Key;
+    /** @param filename The previous p12 key file name. */
+    @DataBoundSetter
+    public void setFilename(String filename) {
+        if (!Strings.isNullOrEmpty(filename)) {
+            this.filename = extractFilename(filename);
+        }
     }
-  }
 
-  @CheckForNull
-  private static String extractFilename(@CheckForNull String path) {
-    if (path == null) {
-      return null;
+    /** @param secretP12Key The previous p12 key file content. */
+    @DataBoundSetter
+    public void setSecretP12Key(SecretBytes secretP12Key) {
+        if (secretP12Key != null && secretP12Key.getPlainData().length > 0) {
+            this.secretP12Key = secretP12Key;
+        }
     }
-    return path.replaceFirst("^.+[/\\\\]", "");
-  }
 
-  @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
-  private Object readResolve() {
-    if (secretP12Key == null) {
-      // google-oauth-plugin < 0.7
-      return new P12ServiceAccountConfig(
-          getEmailAddress(),
-          null, // p12KeyFileUpload
-          getP12KeyFile());
+    @CheckForNull
+    private static String extractFilename(@CheckForNull String path) {
+        if (path == null) {
+            return null;
+        }
+        return path.replaceFirst("^.+[/\\\\]", "");
     }
-    return this;
-  }
 
-  @Override
-  public DescriptorImpl getDescriptor() {
-    return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(P12ServiceAccountConfig.class);
-  }
-
-  public String getEmailAddress() {
-    return emailAddress;
-  }
-
-  /**
-   * @return Original uploaded file name.
-   * @since 0.7
-   */
-  @CheckForNull
-  public String getFilename() {
-    return filename;
-  }
-
-  /**
-   * Do not use, required for UI.
-   *
-   * @return The secret p12 key.
-   */
-  @Restricted(DoNotUse.class) // UI:  Required for stapler call of setter.
-  @CheckForNull
-  public SecretBytes getSecretP12Key() {
-    return secretP12Key;
-  }
-
-  /** @return The path of the previous p12 key file. */
-  @Deprecated
-  public String getP12KeyFile() {
-    return p12KeyFile;
-  }
-
-  /**
-   * Do not use, required for UI.
-   *
-   * @return The uploaded p12 key file.
-   */
-  @Deprecated
-  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
-  public FileItem getP12KeyFileUpload() {
-    return null;
-  }
-
-  @Override
-  public String getAccountId() {
-    return getEmailAddress();
-  }
-
-  @Override
-  public PrivateKey getPrivateKey() {
-    try {
-      KeyStore p12KeyStore = getP12KeyStore();
-      if (p12KeyStore == null) {
-        return null;
-      }
-      return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS, DEFAULT_P12_SECRET.toCharArray());
-    } catch (IOException | GeneralSecurityException e) {
-      LOGGER.log(Level.SEVERE, "Failed to read private key", e);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private KeyStore getP12KeyStore()
-      throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-    InputStream in = null;
-    if (secretP12Key == null) {
-      return null;
-    }
-    try {
-      KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      in = new ByteArrayInputStream(secretP12Key.getPlainData());
-      keyStore.load(in, DEFAULT_P12_SECRET.toCharArray());
-      return keyStore;
-    } finally {
-      IOUtils.closeQuietly(in);
-    }
-  }
-
-  /** Descriptor for P12 service account authentication. */
-  @Extension
-  public static final class DescriptorImpl extends Descriptor {
-
-    @POST
-    public FormValidation doCheckEmailAddress(
-        @QueryParameter("emailAddress") final String emailAddress) {
-      if (Strings.isNullOrEmpty(emailAddress)) {
-        return FormValidation.error(Messages.P12ServiceAccountConfig_ErrorEmailRequired());
-      }
-      return FormValidation.ok();
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+    private Object readResolve() {
+        if (secretP12Key == null) {
+            // google-oauth-plugin < 0.7
+            return new P12ServiceAccountConfig(
+                    getEmailAddress(),
+                    null, // p12KeyFileUpload
+                    getP12KeyFile());
+        }
+        return this;
     }
 
     @Override
-    public String getDisplayName() {
-      return Messages.P12ServiceAccountConfig_DisplayName();
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(P12ServiceAccountConfig.class);
     }
-  }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    /**
+     * @return Original uploaded file name.
+     * @since 0.7
+     */
+    @CheckForNull
+    public String getFilename() {
+        return filename;
+    }
+
+    /**
+     * Do not use, required for UI.
+     *
+     * @return The secret p12 key.
+     */
+    @Restricted(DoNotUse.class) // UI:  Required for stapler call of setter.
+    @CheckForNull
+    public SecretBytes getSecretP12Key() {
+        return secretP12Key;
+    }
+
+    /** @return The path of the previous p12 key file. */
+    @Deprecated
+    public String getP12KeyFile() {
+        return p12KeyFile;
+    }
+
+    /**
+     * Do not use, required for UI.
+     *
+     * @return The uploaded p12 key file.
+     */
+    @Deprecated
+    @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
+    public FileItem getP12KeyFileUpload() {
+        return null;
+    }
+
+    @Override
+    public String getAccountId() {
+        return getEmailAddress();
+    }
+
+    @Override
+    public PrivateKey getPrivateKey() {
+        try {
+            KeyStore p12KeyStore = getP12KeyStore();
+            if (p12KeyStore == null) {
+                return null;
+            }
+            return (PrivateKey) p12KeyStore.getKey(DEFAULT_P12_ALIAS, DEFAULT_P12_SECRET.toCharArray());
+        } catch (IOException | GeneralSecurityException e) {
+            LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+        }
+        return null;
+    }
+
+    @CheckForNull
+    private KeyStore getP12KeyStore()
+            throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+        InputStream in = null;
+        if (secretP12Key == null) {
+            return null;
+        }
+        try {
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            in = new ByteArrayInputStream(secretP12Key.getPlainData());
+            keyStore.load(in, DEFAULT_P12_SECRET.toCharArray());
+            return keyStore;
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+    }
+
+    /** Descriptor for P12 service account authentication. */
+    @Extension
+    public static final class DescriptorImpl extends Descriptor {
+
+        @POST
+        public FormValidation doCheckEmailAddress(@QueryParameter("emailAddress") final String emailAddress) {
+            if (Strings.isNullOrEmpty(emailAddress)) {
+                return FormValidation.error(Messages.P12ServiceAccountConfig_ErrorEmailRequired());
+            }
+            return FormValidation.ok();
+        }
+
+        @Override
+        public String getDisplayName() {
+            return Messages.P12ServiceAccountConfig_DisplayName();
+        }
+    }
 }

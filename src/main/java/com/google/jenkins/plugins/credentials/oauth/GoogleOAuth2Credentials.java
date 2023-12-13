@@ -24,15 +24,13 @@ import java.security.GeneralSecurityException;
  * <p>Implementations surface an API for obtaining the Google-standard {@link Credential} object for
  * interacting with OAuth2 APIs.
  */
-public interface GoogleOAuth2Credentials
-    extends StandardUsernameOAuth2Credentials<GoogleOAuth2ScopeRequirement> {
-  /**
-   * Fetches a Credential for the set of OAuth 2.0 scopes required.
-   *
-   * @param requirement The set of required OAuth 2.0 scopes
-   * @return The Credential authorizing usage of the API scopes
-   * @throws GeneralSecurityException when the authentication fails
-   */
-  Credential getGoogleCredential(GoogleOAuth2ScopeRequirement requirement)
-      throws GeneralSecurityException;
+public interface GoogleOAuth2Credentials extends StandardUsernameOAuth2Credentials<GoogleOAuth2ScopeRequirement> {
+    /**
+     * Fetches a Credential for the set of OAuth 2.0 scopes required.
+     *
+     * @param requirement The set of required OAuth 2.0 scopes
+     * @return The Credential authorizing usage of the API scopes
+     * @throws GeneralSecurityException when the authentication fails
+     */
+    Credential getGoogleCredential(GoogleOAuth2ScopeRequirement requirement) throws GeneralSecurityException;
 }

@@ -20,16 +20,16 @@ import java.util.Collections;
 
 /** This is a trivial implementation of a {@link GoogleOAuth2ScopeRequirement}. */
 public class TestGoogleOAuth2DomainRequirement extends GoogleOAuth2ScopeRequirement {
-  private static final long serialVersionUID = 2234181311205118742L;
+    private static final long serialVersionUID = 2234181311205118742L;
 
-  public TestGoogleOAuth2DomainRequirement(String scope) {
-    this.scope = scope;
-  }
+    public TestGoogleOAuth2DomainRequirement(String scope) {
+        this.scope = scope;
+    }
 
-  @Override
-  public Collection<String> getScopes() {
-    return Collections.singletonList(scope);
-  }
+    @Override
+    public Collection<String> getScopes() {
+        return Collections.singletonList(scope);
+    }
 
-  private final String scope;
+    private final String scope;
 }

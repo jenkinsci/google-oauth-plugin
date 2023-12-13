@@ -26,16 +26,16 @@ import java.io.Serializable;
  * GoogleRobotCredentials}.
  */
 public class GoogleRobotCredentialsModule implements Serializable {
-  /** The HttpTransport to use for credential related requests. */
-  public HttpTransport getHttpTransport() {
-    return new NetHttpTransport();
-  }
+    /** The HttpTransport to use for credential related requests. */
+    public HttpTransport getHttpTransport() {
+        return new NetHttpTransport();
+    }
 
-  /** The HttpTransport to use for credential related requests. */
-  public JsonFactory getJsonFactory() {
-    return new JacksonFactory();
-  }
+    /** The HttpTransport to use for credential related requests. */
+    public JsonFactory getJsonFactory() {
+        return new JacksonFactory();
+    }
 
-  /** For {@link Serializable} */
-  private static final long serialVersionUID = 1L;
+    /** For {@link Serializable} */
+    private static final long serialVersionUID = 1L;
 }

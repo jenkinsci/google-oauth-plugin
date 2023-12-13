@@ -21,23 +21,23 @@ import org.junit.Test;
 
 /** Tests for {@link NameValuePair} */
 public class NameValuePairTest {
-  @Test
-  public void testBasicString() {
-    final String first = "a";
-    final String second = "b";
-    NameValuePair<String, String> pair = new NameValuePair<String, String>(first, second);
+    @Test
+    public void testBasicString() {
+        final String first = "a";
+        final String second = "b";
+        NameValuePair<String, String> pair = new NameValuePair<String, String>(first, second);
 
-    assertSame(first, pair.getName());
-    assertSame(second, pair.getValue());
-  }
+        assertSame(first, pair.getName());
+        assertSame(second, pair.getValue());
+    }
 
-  @Test
-  public void testBasicWithObject() {
-    final String first = "a";
-    final Object second = new Object();
-    NameValuePair<String, Object> pair = new NameValuePair<String, Object>(first, second);
+    @Test
+    public void testBasicWithObject() {
+        final String first = "a";
+        final Object second = new Object();
+        NameValuePair<String, Object> pair = new NameValuePair<String, Object>(first, second);
 
-    assertSame(first, pair.getName());
-    assertSame(second, pair.getValue());
-  }
+        assertSame(first, pair.getName());
+        assertSame(second, pair.getValue());
+    }
 }

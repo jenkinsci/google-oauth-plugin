@@ -23,27 +23,26 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * A Google-specific implementation of the {@link OAuth2ScopeSpecification} that limits its
  * application to Google-specific {@link OAuth2ScopeRequirement}
  */
-public class GoogleOAuth2ScopeSpecification
-    extends OAuth2ScopeSpecification<GoogleOAuth2ScopeRequirement> {
-  @DataBoundConstructor
-  public GoogleOAuth2ScopeSpecification(Collection<String> specifiedScopes) {
-    super(specifiedScopes);
-  }
-
-  /**
-   * Denoted this class is a {@code DomainSpecification} plugin, in particular for {@link
-   * OAuth2ScopeSpecification}
-   */
-  @Extension
-  public static class DescriptorImpl extends OAuth2ScopeSpecification.Descriptor {
-    public DescriptorImpl() {
-      super(GoogleOAuth2ScopeRequirement.class);
+public class GoogleOAuth2ScopeSpecification extends OAuth2ScopeSpecification<GoogleOAuth2ScopeRequirement> {
+    @DataBoundConstructor
+    public GoogleOAuth2ScopeSpecification(Collection<String> specifiedScopes) {
+        super(specifiedScopes);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String getDisplayName() {
-      return Messages.GoogleOAuth2ScopeSpecification_DisplayName();
+    /**
+     * Denoted this class is a {@code DomainSpecification} plugin, in particular for {@link
+     * OAuth2ScopeSpecification}
+     */
+    @Extension
+    public static class DescriptorImpl extends OAuth2ScopeSpecification.Descriptor {
+        public DescriptorImpl() {
+            super(GoogleOAuth2ScopeRequirement.class);
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public String getDisplayName() {
+            return Messages.GoogleOAuth2ScopeSpecification_DisplayName();
+        }
     }
-  }
 }

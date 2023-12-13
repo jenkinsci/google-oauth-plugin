@@ -37,143 +37,139 @@ import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link P12ServiceAccountConfig}. */
 public class P12ServiceAccountConfigTest {
-  private static final String SERVICE_ACCOUNT_EMAIL_ADDRESS = "service@account.com";
-  private static KeyPair keyPair;
-  private static String p12KeyPath;
-  @Rule public JenkinsRule jenkinsRule = new JenkinsRule();
-  @Mock private FileItem mockFileItem;
+    private static final String SERVICE_ACCOUNT_EMAIL_ADDRESS = "service@account.com";
+    private static KeyPair keyPair;
+    private static String p12KeyPath;
 
-  @BeforeClass
-  public static void preparePrivateKey() throws Exception {
-    keyPair = P12ServiceAccountConfigTestUtil.generateKeyPair();
-    p12KeyPath = P12ServiceAccountConfigTestUtil.createTempP12KeyFile(keyPair);
-  }
+    @Rule
+    public JenkinsRule jenkinsRule = new JenkinsRule();
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-  }
+    @Mock
+    private FileItem mockFileItem;
 
-  @Test
-  public void testCreateWithNewP12KeyFile() throws Exception {
-    when(mockFileItem.getSize()).thenReturn(1L);
-    when(mockFileItem.getName()).thenReturn(p12KeyPath);
-    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
+    @BeforeClass
+    public static void preparePrivateKey() throws Exception {
+        keyPair = P12ServiceAccountConfigTestUtil.generateKeyPair();
+        p12KeyPath = P12ServiceAccountConfigTestUtil.createTempP12KeyFile(keyPair);
+    }
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
-  }
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
-  @Test
-  public void testCreateWithNullAccountId() throws Exception {
-    SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
-    P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(null);
-    p12ServiceAccountConfig.setFilename(p12KeyPath);
-    p12ServiceAccountConfig.setSecretP12Key(prev);
+    @Test
+    public void testCreateWithNewP12KeyFile() throws Exception {
+        when(mockFileItem.getSize()).thenReturn(1L);
+        when(mockFileItem.getName()).thenReturn(p12KeyPath);
+        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
-    assertNull(p12ServiceAccountConfig.getAccountId());
-    assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  @WithoutJenkins
-  public void testCreateWithNullP12KeyFile() {
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+    @Test
+    public void testCreateWithNullAccountId() throws Exception {
+        SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(null);
+        p12ServiceAccountConfig.setFilename(p12KeyPath);
+        p12ServiceAccountConfig.setSecretP12Key(prev);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertNull(p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertNull(p12ServiceAccountConfig.getAccountId());
+        assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  @WithoutJenkins
-  public void testCreateWithEmptyP12KeyFile() throws Exception {
-    when(mockFileItem.getSize()).thenReturn(0L);
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
+    @Test
+    @WithoutJenkins
+    public void testCreateWithNullP12KeyFile() {
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertNull(p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertNull(p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  public void testCreateWithInvalidP12KeyFile() {
-    byte[] bytes = "invalidP12KeyFile".getBytes();
-    when(mockFileItem.getSize()).thenReturn((long) bytes.length);
-    when(mockFileItem.getName()).thenReturn("invalidP12KeyFile");
-    when(mockFileItem.get()).thenReturn(bytes);
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
+    @Test
+    @WithoutJenkins
+    public void testCreateWithEmptyP12KeyFile() throws Exception {
+        when(mockFileItem.getSize()).thenReturn(0L);
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertNull(p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertNull(p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  public void testCreateWithPrevP12KeyFileForCompatibility() {
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null, p12KeyPath);
+    @Test
+    public void testCreateWithInvalidP12KeyFile() {
+        byte[] bytes = "invalidP12KeyFile".getBytes();
+        when(mockFileItem.getSize()).thenReturn((long) bytes.length);
+        when(mockFileItem.getName()).thenReturn("invalidP12KeyFile");
+        when(mockFileItem.get()).thenReturn(bytes);
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertNull(p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  public void testCreateWithPrevP12KeyFile() throws Exception {
-    SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setFilename(p12KeyPath);
-    p12ServiceAccountConfig.setSecretP12Key(prev);
+    @Test
+    public void testCreateWithPrevP12KeyFileForCompatibility() {
+        P12ServiceAccountConfig p12ServiceAccountConfig =
+                new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null, p12KeyPath);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  public void testCreateWithEmptyPrevP12KeyFile() {
-    SecretBytes prev = SecretBytes.fromString("");
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setFilename("");
-    p12ServiceAccountConfig.setSecretP12Key(prev);
+    @Test
+    public void testCreateWithPrevP12KeyFile() throws Exception {
+        SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setFilename(p12KeyPath);
+        p12ServiceAccountConfig.setSecretP12Key(prev);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertNull(p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertEquals(keyPair.getPrivate(), p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  @WithoutJenkins
-  public void testCreateWithInvalidPrevP12KeyFile() {
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setFilename("invalidPrevP12KeyFile.p12");
+    @Test
+    public void testCreateWithEmptyPrevP12KeyFile() {
+        SecretBytes prev = SecretBytes.fromString("");
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setFilename("");
+        p12ServiceAccountConfig.setSecretP12Key(prev);
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
-    assertNull(p12ServiceAccountConfig.getPrivateKey());
-  }
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertNull(p12ServiceAccountConfig.getPrivateKey());
+    }
 
-  @Test
-  public void testSerialization() throws Exception {
-    when(mockFileItem.getSize()).thenReturn(1L);
-    when(mockFileItem.getName()).thenReturn(p12KeyPath);
-    when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
-    P12ServiceAccountConfig p12ServiceAccountConfig =
-        new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
-    p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
+    @Test
+    @WithoutJenkins
+    public void testCreateWithInvalidPrevP12KeyFile() {
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setFilename("invalidPrevP12KeyFile.p12");
 
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    SerializationUtil.serialize(p12ServiceAccountConfig, out);
-    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    P12ServiceAccountConfig deserializedP12KeyType =
-        SerializationUtil.deserialize(P12ServiceAccountConfig.class, in);
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
+        assertNull(p12ServiceAccountConfig.getPrivateKey());
+    }
 
-    assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, deserializedP12KeyType.getAccountId());
-    assertEquals(keyPair.getPrivate(), deserializedP12KeyType.getPrivateKey());
-  }
+    @Test
+    public void testSerialization() throws Exception {
+        when(mockFileItem.getSize()).thenReturn(1L);
+        when(mockFileItem.getName()).thenReturn(p12KeyPath);
+        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
+        p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        SerializationUtil.serialize(p12ServiceAccountConfig, out);
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        P12ServiceAccountConfig deserializedP12KeyType =
+                SerializationUtil.deserialize(P12ServiceAccountConfig.class, in);
+
+        assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, deserializedP12KeyType.getAccountId());
+        assertEquals(keyPair.getPrivate(), deserializedP12KeyType.getPrivateKey());
+    }
 }

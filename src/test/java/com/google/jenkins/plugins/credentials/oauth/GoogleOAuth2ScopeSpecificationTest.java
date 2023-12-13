@@ -31,67 +31,65 @@ import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link GoogleOAuth2ScopeSpecification}. */
 public class GoogleOAuth2ScopeSpecificationTest {
-  // Allow for testing using JUnit4, instead of JUnit3.
-  @Rule public JenkinsRule jenkins = new JenkinsRule();
+    // Allow for testing using JUnit4, instead of JUnit3.
+    @Rule
+    public JenkinsRule jenkins = new JenkinsRule();
 
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-  }
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
-  @Test
-  @WithoutJenkins
-  public void testBasics() throws Exception {
-    GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
+    @Test
+    @WithoutJenkins
+    public void testBasics() throws Exception {
+        GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
 
-    assertThat(spec.getSpecifiedScopes(), hasItems(GOOD_SCOPE1, GOOD_SCOPE2));
-  }
+        assertThat(spec.getSpecifiedScopes(), hasItems(GOOD_SCOPE1, GOOD_SCOPE2));
+    }
 
-  @Test
-  public void testUnknownRequirement() throws Exception {
-    GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
+    @Test
+    public void testUnknownRequirement() throws Exception {
+        GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
 
-    OAuth2ScopeRequirement requirement =
-        new OAuth2ScopeRequirement() {
-          @Override
-          public Collection<String> getScopes() {
-            return GOOD_SCOPES;
-          }
+        OAuth2ScopeRequirement requirement = new OAuth2ScopeRequirement() {
+            @Override
+            public Collection<String> getScopes() {
+                return GOOD_SCOPES;
+            }
         };
 
-    // Verify that even with the right scopes the type kind excludes
-    // the specification from matching this requirement
-    assertEquals(Result.UNKNOWN, spec.test(requirement));
-  }
+        // Verify that even with the right scopes the type kind excludes
+        // the specification from matching this requirement
+        assertEquals(Result.UNKNOWN, spec.test(requirement));
+    }
 
-  @Test
-  public void testKnownRequirements() throws Exception {
-    GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
+    @Test
+    public void testKnownRequirements() throws Exception {
+        GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
 
-    GoogleOAuth2ScopeRequirement goodReq =
-        new GoogleOAuth2ScopeRequirement() {
-          @Override
-          public Collection<String> getScopes() {
-            return GOOD_SCOPES;
-          }
+        GoogleOAuth2ScopeRequirement goodReq = new GoogleOAuth2ScopeRequirement() {
+            @Override
+            public Collection<String> getScopes() {
+                return GOOD_SCOPES;
+            }
         };
-    GoogleOAuth2ScopeRequirement badReq =
-        new GoogleOAuth2ScopeRequirement() {
-          @Override
-          public Collection<String> getScopes() {
-            return BAD_SCOPES;
-          }
+        GoogleOAuth2ScopeRequirement badReq = new GoogleOAuth2ScopeRequirement() {
+            @Override
+            public Collection<String> getScopes() {
+                return BAD_SCOPES;
+            }
         };
 
-    // Verify that with the right type of requirement that
-    // good scopes match POSITIVEly and bad scopes match NEGATIVEly
-    assertEquals(Result.POSITIVE, spec.test(goodReq));
-    assertEquals(Result.NEGATIVE, spec.test(badReq));
-  }
+        // Verify that with the right type of requirement that
+        // good scopes match POSITIVEly and bad scopes match NEGATIVEly
+        assertEquals(Result.POSITIVE, spec.test(goodReq));
+        assertEquals(Result.NEGATIVE, spec.test(badReq));
+    }
 
-  private static String GOOD_SCOPE1 = "foo";
-  private static String GOOD_SCOPE2 = "baz";
-  private static String BAD_SCOPE = "bar";
-  private static Collection<String> GOOD_SCOPES = ImmutableList.of(GOOD_SCOPE1, GOOD_SCOPE2);
-  private static Collection<String> BAD_SCOPES = ImmutableList.of(GOOD_SCOPE1, BAD_SCOPE);
+    private static String GOOD_SCOPE1 = "foo";
+    private static String GOOD_SCOPE2 = "baz";
+    private static String BAD_SCOPE = "bar";
+    private static Collection<String> GOOD_SCOPES = ImmutableList.of(GOOD_SCOPE1, GOOD_SCOPE2);
+    private static Collection<String> BAD_SCOPES = ImmutableList.of(GOOD_SCOPE1, BAD_SCOPE);
 }

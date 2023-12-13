@@ -25,20 +25,20 @@ import hudson.tasks.Builder;
  */
 @RequiresDomain(value = TestGoogleOAuth2DomainRequirement.class)
 public class TestRobotBuilder extends Builder {
-  public TestRobotBuilder() {}
+    public TestRobotBuilder() {}
 
-  @Override
-  public DescriptorImpl getDescriptor() {
-    return DESCRIPTOR;
-  }
-
-  /** Descriptor for our trivial builder */
-  public static final class DescriptorImpl extends Descriptor<Builder> {
     @Override
-    public String getDisplayName() {
-      return "Test Robot Builder";
+    public DescriptorImpl getDescriptor() {
+        return DESCRIPTOR;
     }
-  }
 
-  public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+    /** Descriptor for our trivial builder */
+    public static final class DescriptorImpl extends Descriptor<Builder> {
+        @Override
+        public String getDisplayName() {
+            return "Test Robot Builder";
+        }
+    }
+
+    public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 }

@@ -21,9 +21,9 @@ package com.google.jenkins.plugins.util;
  * of exceptions may be safely handled while letting these propagate.
  */
 public abstract class ExecutorException extends Exception {
-  public ExecutorException(Throwable throwable) {
-    super(throwable);
-  }
+    public ExecutorException(Throwable throwable) {
+        super(throwable);
+    }
 
-  public ExecutorException() {}
+    public ExecutorException() {}
 }

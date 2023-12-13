@@ -36,98 +36,98 @@ import org.mockito.MockitoAnnotations;
 
 /** Tests for {@link MetadataReader}. */
 public class MetadataReaderTest {
-  private MockHttpTransport transport;
-  private MockLowLevelHttpRequest request;
+    private MockHttpTransport transport;
+    private MockLowLevelHttpRequest request;
 
-  private void stubRequest(String url, int statusCode, String responseContent) throws IOException {
-    request.setResponse(
-        new MockLowLevelHttpResponse().setStatusCode(statusCode).setContent(responseContent));
-    doReturn(request).when(transport).buildRequest("GET", url);
-  }
-
-  private void verifyRequest(String key) throws IOException {
-    verify(transport).buildRequest("GET", METADATA_ENDPOINT + key);
-    verify(request).execute();
-    assertEquals("Google", getOnlyElement(request.getHeaderValues("Metadata-Flavor")));
-  }
-
-  private MetadataReader underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    MockitoAnnotations.initMocks(this);
-    transport = spy(new MockHttpTransport());
-    request = spy(new MockLowLevelHttpRequest());
-
-    underTest = new MetadataReader.Default(transport.createRequestFactory());
-  }
-
-  @Test
-  public void testHasMetadata() throws Exception {
-    stubRequest(METADATA_ENDPOINT, STATUS_CODE_OK, "hi");
-
-    assertTrue(underTest.hasMetadata());
-    verifyRequest("");
-  }
-
-  @Test
-  public void testHasNoMetadata() throws Exception {
-    stubRequest(METADATA_ENDPOINT, STATUS_CODE_NOT_FOUND, "hi");
-
-    assertFalse(underTest.hasMetadata());
-    verifyRequest("");
-  }
-
-  @Test
-  public void testHasNoMetadata2() throws Exception {
-    stubRequest(METADATA_ENDPOINT, 409, "hi");
-
-    assertFalse(underTest.hasMetadata());
-    verifyRequest("");
-  }
-
-  @Test
-  public void testReadMetadata() throws Exception {
-    stubRequest(METADATA_ENDPOINT + MY_KEY, STATUS_CODE_OK, MY_VALUE);
-
-    assertEquals(MY_VALUE, underTest.readMetadata(MY_KEY));
-    verifyRequest(MY_KEY);
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void testReadMissingMetadata() throws Exception {
-    stubRequest(METADATA_ENDPOINT + MY_KEY, STATUS_CODE_NOT_FOUND, MY_VALUE);
-
-    try {
-      underTest.readMetadata(MY_KEY);
-    } finally {
-      verifyRequest(MY_KEY);
+    private void stubRequest(String url, int statusCode, String responseContent) throws IOException {
+        request.setResponse(
+                new MockLowLevelHttpResponse().setStatusCode(statusCode).setContent(responseContent));
+        doReturn(request).when(transport).buildRequest("GET", url);
     }
-  }
 
-  @Test(expected = ForbiddenException.class)
-  public void testReadUnauthorizedMetadata() throws Exception {
-    stubRequest(METADATA_ENDPOINT + MY_KEY, STATUS_CODE_UNAUTHORIZED, MY_VALUE);
-
-    try {
-      underTest.readMetadata(MY_KEY);
-    } finally {
-      verifyRequest(MY_KEY);
+    private void verifyRequest(String key) throws IOException {
+        verify(transport).buildRequest("GET", METADATA_ENDPOINT + key);
+        verify(request).execute();
+        assertEquals("Google", getOnlyElement(request.getHeaderValues("Metadata-Flavor")));
     }
-  }
 
-  @Test(expected = IOException.class)
-  public void testReadUnrecognizedMetadataException() throws Exception {
-    stubRequest(METADATA_ENDPOINT + MY_KEY, 409, MY_VALUE);
+    private MetadataReader underTest;
 
-    try {
-      underTest.readMetadata(MY_KEY);
-    } finally {
-      verifyRequest(MY_KEY);
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        transport = spy(new MockHttpTransport());
+        request = spy(new MockLowLevelHttpRequest());
+
+        underTest = new MetadataReader.Default(transport.createRequestFactory());
     }
-  }
 
-  private static String METADATA_ENDPOINT = "http://metadata/computeMetadata/v1";
-  private static String MY_KEY = "/my/metadata/path";
-  private static String MY_VALUE = "RaNdOm value";
+    @Test
+    public void testHasMetadata() throws Exception {
+        stubRequest(METADATA_ENDPOINT, STATUS_CODE_OK, "hi");
+
+        assertTrue(underTest.hasMetadata());
+        verifyRequest("");
+    }
+
+    @Test
+    public void testHasNoMetadata() throws Exception {
+        stubRequest(METADATA_ENDPOINT, STATUS_CODE_NOT_FOUND, "hi");
+
+        assertFalse(underTest.hasMetadata());
+        verifyRequest("");
+    }
+
+    @Test
+    public void testHasNoMetadata2() throws Exception {
+        stubRequest(METADATA_ENDPOINT, 409, "hi");
+
+        assertFalse(underTest.hasMetadata());
+        verifyRequest("");
+    }
+
+    @Test
+    public void testReadMetadata() throws Exception {
+        stubRequest(METADATA_ENDPOINT + MY_KEY, STATUS_CODE_OK, MY_VALUE);
+
+        assertEquals(MY_VALUE, underTest.readMetadata(MY_KEY));
+        verifyRequest(MY_KEY);
+    }
+
+    @Test(expected = NotFoundException.class)
+    public void testReadMissingMetadata() throws Exception {
+        stubRequest(METADATA_ENDPOINT + MY_KEY, STATUS_CODE_NOT_FOUND, MY_VALUE);
+
+        try {
+            underTest.readMetadata(MY_KEY);
+        } finally {
+            verifyRequest(MY_KEY);
+        }
+    }
+
+    @Test(expected = ForbiddenException.class)
+    public void testReadUnauthorizedMetadata() throws Exception {
+        stubRequest(METADATA_ENDPOINT + MY_KEY, STATUS_CODE_UNAUTHORIZED, MY_VALUE);
+
+        try {
+            underTest.readMetadata(MY_KEY);
+        } finally {
+            verifyRequest(MY_KEY);
+        }
+    }
+
+    @Test(expected = IOException.class)
+    public void testReadUnrecognizedMetadataException() throws Exception {
+        stubRequest(METADATA_ENDPOINT + MY_KEY, 409, MY_VALUE);
+
+        try {
+            underTest.readMetadata(MY_KEY);
+        } finally {
+            verifyRequest(MY_KEY);
+        }
+    }
+
+    private static String METADATA_ENDPOINT = "http://metadata/computeMetadata/v1";
+    private static String MY_KEY = "/my/metadata/path";
+    private static String MY_VALUE = "RaNdOm value";
 }

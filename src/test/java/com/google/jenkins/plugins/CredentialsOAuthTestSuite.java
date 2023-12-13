@@ -29,14 +29,14 @@ import org.junit.runners.Suite;
 /** Defines the full test suite involving OAuth credentials. */
 @RunWith(Suite.class)
 @Suite.SuiteClasses(
-    value = {
-      ConfigurationAsCodeTest.class,
-      GoogleOAuth2ScopeSpecificationTest.class,
-      GoogleRobotCredentialsTest.class,
-      GoogleRobotMetadataCredentialsTest.class,
-      GoogleRobotPrivateKeyCredentialsTest.class,
-      JsonServiceAccountConfigTest.class,
-      P12ServiceAccountConfigTest.class,
-      RemotableGoogleCredentialsTest.class
-    })
+        value = {
+            ConfigurationAsCodeTest.class,
+            GoogleOAuth2ScopeSpecificationTest.class,
+            GoogleRobotCredentialsTest.class,
+            GoogleRobotMetadataCredentialsTest.class,
+            GoogleRobotPrivateKeyCredentialsTest.class,
+            JsonServiceAccountConfigTest.class,
+            P12ServiceAccountConfigTest.class,
+            RemotableGoogleCredentialsTest.class
+        })
 public class CredentialsOAuthTestSuite {}

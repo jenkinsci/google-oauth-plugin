@@ -54,190 +54,191 @@ import org.kohsuke.stapler.DataBoundSetter;
  * </code>
  */
 public class JsonServiceAccountConfig extends ServiceAccountConfig {
-  /*
-   * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
-   *    google-auth-library.
-   */
+    /*
+     * TODO(jenkinsci/google-oauth-plugin#50): Dedupe shared functionality in
+     *    google-auth-library.
+     */
 
-  private static final long serialVersionUID = 6818111194672325387L;
-  private static final Logger LOGGER =
-      Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
-  @CheckForNull private String filename;
-  @CheckForNull private SecretBytes secretJsonKey;
+    private static final long serialVersionUID = 6818111194672325387L;
+    private static final Logger LOGGER = Logger.getLogger(JsonServiceAccountConfig.class.getSimpleName());
 
-  @Deprecated // for migration purpose
-  @CheckForNull
-  private transient String jsonKeyFile;
+    @CheckForNull
+    private String filename;
 
-  private transient JsonKey jsonKey;
+    @CheckForNull
+    private SecretBytes secretJsonKey;
 
-  /** @since 0.8 */
-  @DataBoundConstructor
-  public JsonServiceAccountConfig() {}
+    @Deprecated // for migration purpose
+    @CheckForNull
+    private transient String jsonKeyFile;
 
-  /**
-   * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility
-   * with external callers.
-   *
-   * @param jsonKeyFile The uploaded JSON key file.
-   * @param prevJsonKeyFile The path of the previous JSON key file.
-   * @since 0.3
-   */
-  @Deprecated
-  public JsonServiceAccountConfig(FileItem jsonKeyFile, String prevJsonKeyFile) {
-    this.setJsonKeyFileUpload(jsonKeyFile);
-    if (filename == null && prevJsonKeyFile != null) {
-      this.filename = extractFilename(prevJsonKeyFile);
-      this.secretJsonKey = getSecretBytesFromFile(prevJsonKeyFile);
-    }
-  }
+    private transient JsonKey jsonKey;
 
-  /** @param jsonKeyFileUpload The uploaded JSON key file. */
-  @DataBoundSetter // Called on form submit, only used when key file is uploaded
-  public void setJsonKeyFileUpload(FileItem jsonKeyFileUpload) {
-    if (jsonKeyFileUpload != null && jsonKeyFileUpload.getSize() > 0) {
-      try {
-        JsonKey jsonKey = JsonKey.load(new JacksonFactory(), jsonKeyFileUpload.getInputStream());
-        if (jsonKey.getClientEmail() != null && jsonKey.getPrivateKey() != null) {
-          this.filename = extractFilename(jsonKeyFileUpload.getName());
-          this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFileUpload.get());
+    /** @since 0.8 */
+    @DataBoundConstructor
+    public JsonServiceAccountConfig() {}
+
+    /**
+     * For being able to load credentials created with versions &lt; 0.8 and backwards compatibility
+     * with external callers.
+     *
+     * @param jsonKeyFile The uploaded JSON key file.
+     * @param prevJsonKeyFile The path of the previous JSON key file.
+     * @since 0.3
+     */
+    @Deprecated
+    public JsonServiceAccountConfig(FileItem jsonKeyFile, String prevJsonKeyFile) {
+        this.setJsonKeyFileUpload(jsonKeyFile);
+        if (filename == null && prevJsonKeyFile != null) {
+            this.filename = extractFilename(prevJsonKeyFile);
+            this.secretJsonKey = getSecretBytesFromFile(prevJsonKeyFile);
         }
-      } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Failed to read JSON key from file", e);
-      }
     }
-  }
 
-  /** @param filename The JSON key file name. */
-  @DataBoundSetter
-  public void setFilename(String filename) {
-    String newFilename = extractFilename(filename);
-    if (!Strings.isNullOrEmpty(newFilename)) {
-      this.filename = newFilename;
-    }
-  }
-
-  /** @param secretJsonKey The JSON key file content. */
-  @DataBoundSetter
-  public void setSecretJsonKey(SecretBytes secretJsonKey) {
-    if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
-      this.secretJsonKey = secretJsonKey;
-    }
-  }
-
-  @CheckForNull
-  private static String extractFilename(@CheckForNull String path) {
-    if (path == null) {
-      return null;
-    }
-    return path.replaceFirst("^.+[/\\\\]", "");
-  }
-
-  @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
-  private Object readResolve() {
-    if (secretJsonKey == null) {
-      // google-oauth-plugin < 0.7
-      return new JsonServiceAccountConfig(null, getJsonKeyFile());
-    }
-    return this;
-  }
-
-  @Override
-  public DescriptorImpl getDescriptor() {
-    return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(JsonServiceAccountConfig.class);
-  }
-
-  /**
-   * @return Original uploaded file name.
-   * @since 0.7
-   */
-  @CheckForNull
-  public String getFilename() {
-    return filename;
-  }
-
-  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
-  @CheckForNull
-  public SecretBytes getSecretJsonKey() {
-    return secretJsonKey;
-  }
-
-  @Deprecated
-  public String getJsonKeyFile() {
-    return jsonKeyFile;
-  }
-
-  /**
-   * For use in UI, do not use.
-   *
-   * @return The uploaded JSON key file.
-   */
-  @Deprecated
-  @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
-  public FileItem getJsonKeyFileUpload() {
-    return null;
-  }
-
-  /**
-   * In this context the service account id is represented by the email address for that service
-   * account, which should be contained in the JSON key.
-   *
-   * @return The service account identifier. Null if no JSON key has been provided.
-   */
-  @Override
-  public String getAccountId() {
-    JsonKey jsonKey = getJsonKey();
-    if (jsonKey != null) {
-      return jsonKey.getClientEmail();
-    }
-    return null;
-  }
-
-  /**
-   * @return The {@link PrivateKey} that comes from the secret JSON key. Null if this service
-   *     account config contains no key or if the key is malformed.
-   */
-  @Override
-  public PrivateKey getPrivateKey() {
-    JsonKey jsonKey = getJsonKey();
-    if (jsonKey != null) {
-      String privateKey = jsonKey.getPrivateKey();
-      if (privateKey != null && !privateKey.isEmpty()) {
-        PemReader pemReader = new PemReader(new StringReader(privateKey));
-        try {
-          PemReader.Section section = pemReader.readNextSection();
-          if (section != null) {
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
-            return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
-          } else {
-            LOGGER.severe("The provided private key is malformed.");
-          }
-        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
-          LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+    /** @param jsonKeyFileUpload The uploaded JSON key file. */
+    @DataBoundSetter // Called on form submit, only used when key file is uploaded
+    public void setJsonKeyFileUpload(FileItem jsonKeyFileUpload) {
+        if (jsonKeyFileUpload != null && jsonKeyFileUpload.getSize() > 0) {
+            try {
+                JsonKey jsonKey = JsonKey.load(new JacksonFactory(), jsonKeyFileUpload.getInputStream());
+                if (jsonKey.getClientEmail() != null && jsonKey.getPrivateKey() != null) {
+                    this.filename = extractFilename(jsonKeyFileUpload.getName());
+                    this.secretJsonKey = SecretBytes.fromBytes(jsonKeyFileUpload.get());
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "Failed to read JSON key from file", e);
+            }
         }
-      }
     }
-    return null;
-  }
 
-  private JsonKey getJsonKey() {
-    if (jsonKey == null && secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
-      try {
-        jsonKey =
-            JsonKey.load(
-                new JacksonFactory(), new ByteArrayInputStream(secretJsonKey.getPlainData()));
-      } catch (IOException ignored) {
-      }
+    /** @param filename The JSON key file name. */
+    @DataBoundSetter
+    public void setFilename(String filename) {
+        String newFilename = extractFilename(filename);
+        if (!Strings.isNullOrEmpty(newFilename)) {
+            this.filename = newFilename;
+        }
     }
-    return jsonKey;
-  }
 
-  /** Descriptor for JSON service account authentication. */
-  @Extension
-  public static final class DescriptorImpl extends Descriptor {
+    /** @param secretJsonKey The JSON key file content. */
+    @DataBoundSetter
+    public void setSecretJsonKey(SecretBytes secretJsonKey) {
+        if (secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
+            this.secretJsonKey = secretJsonKey;
+        }
+    }
+
+    @CheckForNull
+    private static String extractFilename(@CheckForNull String path) {
+        if (path == null) {
+            return null;
+        }
+        return path.replaceFirst("^.+[/\\\\]", "");
+    }
+
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
+    private Object readResolve() {
+        if (secretJsonKey == null) {
+            // google-oauth-plugin < 0.7
+            return new JsonServiceAccountConfig(null, getJsonKeyFile());
+        }
+        return this;
+    }
+
     @Override
-    public String getDisplayName() {
-      return Messages.JsonServiceAccountConfig_DisplayName();
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) Jenkins.get().getDescriptorOrDie(JsonServiceAccountConfig.class);
     }
-  }
+
+    /**
+     * @return Original uploaded file name.
+     * @since 0.7
+     */
+    @CheckForNull
+    public String getFilename() {
+        return filename;
+    }
+
+    @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
+    @CheckForNull
+    public SecretBytes getSecretJsonKey() {
+        return secretJsonKey;
+    }
+
+    @Deprecated
+    public String getJsonKeyFile() {
+        return jsonKeyFile;
+    }
+
+    /**
+     * For use in UI, do not use.
+     *
+     * @return The uploaded JSON key file.
+     */
+    @Deprecated
+    @Restricted(DoNotUse.class) // UI: Required for stapler call of setter.
+    public FileItem getJsonKeyFileUpload() {
+        return null;
+    }
+
+    /**
+     * In this context the service account id is represented by the email address for that service
+     * account, which should be contained in the JSON key.
+     *
+     * @return The service account identifier. Null if no JSON key has been provided.
+     */
+    @Override
+    public String getAccountId() {
+        JsonKey jsonKey = getJsonKey();
+        if (jsonKey != null) {
+            return jsonKey.getClientEmail();
+        }
+        return null;
+    }
+
+    /**
+     * @return The {@link PrivateKey} that comes from the secret JSON key. Null if this service
+     *     account config contains no key or if the key is malformed.
+     */
+    @Override
+    public PrivateKey getPrivateKey() {
+        JsonKey jsonKey = getJsonKey();
+        if (jsonKey != null) {
+            String privateKey = jsonKey.getPrivateKey();
+            if (privateKey != null && !privateKey.isEmpty()) {
+                PemReader pemReader = new PemReader(new StringReader(privateKey));
+                try {
+                    PemReader.Section section = pemReader.readNextSection();
+                    if (section != null) {
+                        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(section.getBase64DecodedBytes());
+                        return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+                    } else {
+                        LOGGER.severe("The provided private key is malformed.");
+                    }
+                } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+                    LOGGER.log(Level.SEVERE, "Failed to read private key", e);
+                }
+            }
+        }
+        return null;
+    }
+
+    private JsonKey getJsonKey() {
+        if (jsonKey == null && secretJsonKey != null && secretJsonKey.getPlainData().length > 0) {
+            try {
+                jsonKey = JsonKey.load(new JacksonFactory(), new ByteArrayInputStream(secretJsonKey.getPlainData()));
+            } catch (IOException ignored) {
+            }
+        }
+        return jsonKey;
+    }
+
+    /** Descriptor for JSON service account authentication. */
+    @Extension
+    public static final class DescriptorImpl extends Descriptor {
+        @Override
+        public String getDisplayName() {
+            return Messages.JsonServiceAccountConfig_DisplayName();
+        }
+    }
 }
