@@ -77,7 +77,7 @@ public final class GoogleRobotMetadataCredentials extends GoogleRobotCredentials
    * id.
    *
    * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
-   * be either GLOBAL or SYSTEM.
+   *     be either GLOBAL or SYSTEM.
    * @param id the id to assign
    * @param projectId The Pantheon project id associated with this service account
    * @param description The credential description
