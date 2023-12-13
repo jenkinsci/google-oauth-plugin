@@ -317,19 +317,20 @@ public class GoogleRobotMetadataCredentialsTest {
     assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId(null).kind);
     assertEquals(FormValidation.Kind.ERROR, descriptor.doCheckProjectId("").kind);
   }
-  
+
   @Test
   public void testCredentialCreationWithNonEmptyIdAndDescription() throws Exception {
     final Module module = new Module();
 
     // WHEN: creating credential with defined id and description
     GoogleRobotMetadataCredentials credentials =
-            new GoogleRobotMetadataCredentials(CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID, DESCRIPTION, module);
+        new GoogleRobotMetadataCredentials(
+            CredentialsScope.SYSTEM, CREDENTIAL_ID, PROJECT_ID, DESCRIPTION, module);
 
     module.stubRequest(
-            "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
-            STATUS_CODE_OK,
-            USERNAME);
+        "http://metadata/computeMetadata/v1/instance/" + "service-accounts/default/email",
+        STATUS_CODE_OK,
+        USERNAME);
 
     // THEN: resulting credential should have our defined id and description
     assertEquals(CREDENTIAL_ID, credentials.getId());

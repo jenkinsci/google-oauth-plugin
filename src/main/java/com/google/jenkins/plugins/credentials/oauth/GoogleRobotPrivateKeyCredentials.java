@@ -74,7 +74,7 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
    * id.
    *
    * @param scope The scope of the credentials, determining where they can be used in Jenkins. Can
-   * be either GLOBAL or SYSTEM.
+   *     be either GLOBAL or SYSTEM.
    * @param id the id to assign
    * @param projectId The project id associated with this service account
    * @param description The credential description
