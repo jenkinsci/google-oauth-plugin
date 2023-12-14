@@ -95,6 +95,18 @@ public final class GoogleRobotPrivateKeyCredentials extends GoogleRobotCredentia
         this.serviceAccountConfig = serviceAccountConfig;
     }
 
+    @Deprecated
+    public GoogleRobotPrivateKeyCredentials(
+            @CheckForNull CredentialsScope scope,
+            String id,
+            String projectId,
+            ServiceAccountConfig serviceAccountConfig,
+            @Nullable GoogleRobotCredentialsModule module)
+            throws Exception {
+        super(scope, id, projectId, "", module);
+        this.serviceAccountConfig = serviceAccountConfig;
+    }
+
     @SuppressWarnings("deprecation")
     @SuppressFBWarnings(
             value = "RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE",
