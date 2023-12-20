@@ -68,7 +68,7 @@
     <revision>1</revision>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
-    <jenkins.version>2.387.3</jenkins.version>
+    <jenkins.version>2.401.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <google.api.version>1.35.2</google.api.version>
     <oauth2.revision>151</oauth2.revision>
@@ -90,8 +90,8 @@
       </dependency>
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
-        <artifactId>bom-2.387.x</artifactId>
-        <version>2483.v3b_22f030990a_</version>
+        <artifactId>bom-2.401.x</artifactId>
+        <version>2671.va_73a_b_4c103fb_</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
