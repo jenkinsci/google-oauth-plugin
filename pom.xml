@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>4.76</version>
+    <version>5.8</version>
   </parent>
 
   <!--
@@ -69,8 +69,8 @@
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.401</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+    <jenkins.baseline>2.479</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <google.api.version>1.35.2</google.api.version>
     <oauth2.revision>151</oauth2.revision>
@@ -93,7 +93,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>2745.vc7b_fe4c876fa_</version>
+        <version>3944.v1a_e4f8b_452db_</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
