@@ -15,27 +15,28 @@
  */
 package com.google.jenkins.plugins.util;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests for {@link NameValuePair} */
-public class NameValuePairTest {
+class NameValuePairTest {
+
     @Test
-    public void testBasicString() {
+    void testBasicString() {
         final String first = "a";
         final String second = "b";
-        NameValuePair<String, String> pair = new NameValuePair<String, String>(first, second);
+        NameValuePair<String, String> pair = new NameValuePair<>(first, second);
 
         assertSame(first, pair.getName());
         assertSame(second, pair.getValue());
     }
 
     @Test
-    public void testBasicWithObject() {
+    void testBasicWithObject() {
         final String first = "a";
         final Object second = new Object();
-        NameValuePair<String, Object> pair = new NameValuePair<String, Object>(first, second);
+        NameValuePair<String, Object> pair = new NameValuePair<>(first, second);
 
         assertSame(first, pair.getName());
         assertSame(second, pair.getValue());

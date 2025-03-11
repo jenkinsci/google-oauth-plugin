@@ -15,8 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
@@ -27,39 +27,33 @@ import java.io.FileInputStream;
 import java.security.PrivateKey;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link JsonServiceAccountConfig}. */
-public class JsonServiceAccountConfigTest {
+@WithJenkins
+@ExtendWith(MockitoExtension.class)
+class JsonServiceAccountConfigTest {
     private static final String SERVICE_ACCOUNT_EMAIL_ADDRESS = "service@account.com";
     private static PrivateKey privateKey;
     private static String jsonKeyPath;
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
-
     @Mock
     private FileItem mockFileItem;
 
-    @BeforeClass
-    public static void preparePrivateKey() throws Exception {
+    @BeforeAll
+    static void preparePrivateKey() throws Exception {
         privateKey = JsonServiceAccountConfigTestUtil.generatePrivateKey();
         jsonKeyPath = JsonServiceAccountConfigTestUtil.createTempJsonKeyFile(SERVICE_ACCOUNT_EMAIL_ADDRESS, privateKey);
     }
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
-    public void testCreateJsonKeyTypeWithNewJsonKeyFile() throws Exception {
+    void testCreateJsonKeyTypeWithNewJsonKeyFile(JenkinsRule jenkinsRule) throws Exception {
         when(mockFileItem.getSize()).thenReturn(1L);
         when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
         when(mockFileItem.getName()).thenReturn(jsonKeyPath);
@@ -72,7 +66,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithNullParameters() {
+    void testCreateJsonKeyTypeWithNullParameters(JenkinsRule jenkinsRule) {
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
 
         assertNull(jsonServiceAccountConfig.getAccountId());
@@ -80,7 +74,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithEmptyJsonKeyFile() throws Exception {
+    void testCreateJsonKeyTypeWithEmptyJsonKeyFile(JenkinsRule jenkinsRule) {
         when(mockFileItem.getSize()).thenReturn(0L);
         JsonServiceAccountConfig jsonKeyType = new JsonServiceAccountConfig();
         jsonKeyType.setJsonKeyFileUpload(mockFileItem);
@@ -91,7 +85,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithInvalidJsonKeyFile() throws Exception {
+    void testCreateJsonKeyTypeWithInvalidJsonKeyFile(JenkinsRule jenkinsRule) throws Exception {
         byte[] bytes = "invalidJsonKeyFile".getBytes();
         when(mockFileItem.getSize()).thenReturn((long) bytes.length);
         when(mockFileItem.getInputStream()).thenReturn(new ByteArrayInputStream(bytes));
@@ -103,7 +97,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility() {
+    void testCreateJsonKeyTypeWithPrevJsonKeyFileForCompatibility(JenkinsRule jenkinsRule) {
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig(null, jsonKeyPath);
 
         assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, jsonServiceAccountConfig.getAccountId());
@@ -111,7 +105,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithPrevJsonKeyFile() throws Exception {
+    void testCreateJsonKeyTypeWithPrevJsonKeyFile(JenkinsRule jenkinsRule) throws Exception {
         SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setFilename(jsonKeyPath);
@@ -122,7 +116,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithEmptyPrevJsonKeyFile() {
+    void testCreateJsonKeyTypeWithEmptyPrevJsonKeyFile(JenkinsRule jenkinsRule) {
         SecretBytes prev = SecretBytes.fromString("");
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setFilename("");
@@ -133,7 +127,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateJsonKeyTypeWithInvalidPrevJsonKeyFile() {
+    void testCreateJsonKeyTypeWithInvalidPrevJsonKeyFile(JenkinsRule jenkinsRule) {
         JsonServiceAccountConfig jsonServiceAccountConfig =
                 new JsonServiceAccountConfig(null, "invalidPrevJsonKeyFile.json");
 
@@ -142,7 +136,7 @@ public class JsonServiceAccountConfigTest {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization(JenkinsRule jenkinsRule) throws Exception {
         when(mockFileItem.getSize()).thenReturn(1L);
         when(mockFileItem.getName()).thenReturn(jsonKeyPath);
         when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));

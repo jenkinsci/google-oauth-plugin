@@ -76,7 +76,6 @@
     <oauth2.revision>151</oauth2.revision>
     <google.http.version>1.42.2</google.http.version>
     <spotbugs.effort>Max</spotbugs.effort>
-    <runSuite>**/GoogleOAuthPluginTestSuite.class</runSuite>
     <spotless.check.skip>false</spotless.check.skip>
   </properties>
 
@@ -85,7 +84,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>3944.v1a_e4f8b_452db_</version>
+        <version>4136.vca_c3202a_7fd1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -284,7 +283,7 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
+      <artifactId>mockito-junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -341,16 +340,6 @@
             <format>html</format>
             <format>xml</format>
           </formats>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <includes>
-            <include>${runSuite}</include>
-          </includes>
-          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>

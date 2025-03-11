@@ -15,41 +15,41 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.cloudbees.plugins.credentials.domains.DomainSpecification.Result;
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.WithoutJenkins;
-import org.mockito.MockitoAnnotations;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link GoogleOAuth2ScopeSpecification}. */
-public class GoogleOAuth2ScopeSpecificationTest {
-    // Allow for testing using JUnit4, instead of JUnit3.
-    @Rule
-    public JenkinsRule jenkins = new JenkinsRule();
+@WithJenkins
+@ExtendWith(MockitoExtension.class)
+class GoogleOAuth2ScopeSpecificationTest {
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
+    private static final String GOOD_SCOPE1 = "foo";
+    private static final String GOOD_SCOPE2 = "baz";
+    private static final String BAD_SCOPE = "bar";
+    private static final Collection<String> GOOD_SCOPES = List.of(GOOD_SCOPE1, GOOD_SCOPE2);
+    private static final Collection<String> BAD_SCOPES = List.of(GOOD_SCOPE1, BAD_SCOPE);
 
     @Test
     @WithoutJenkins
-    public void testBasics() throws Exception {
+    void testBasics() {
         GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
 
         assertThat(spec.getSpecifiedScopes(), hasItems(GOOD_SCOPE1, GOOD_SCOPE2));
     }
 
     @Test
-    public void testUnknownRequirement() throws Exception {
+    void testUnknownRequirement(JenkinsRule jenkins) {
         GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
 
         OAuth2ScopeRequirement requirement = new OAuth2ScopeRequirement() {
@@ -65,7 +65,7 @@ public class GoogleOAuth2ScopeSpecificationTest {
     }
 
     @Test
-    public void testKnownRequirements() throws Exception {
+    void testKnownRequirements(JenkinsRule jenkins) throws Exception {
         GoogleOAuth2ScopeSpecification spec = new GoogleOAuth2ScopeSpecification(GOOD_SCOPES);
 
         GoogleOAuth2ScopeRequirement goodReq = new GoogleOAuth2ScopeRequirement() {
@@ -86,10 +86,4 @@ public class GoogleOAuth2ScopeSpecificationTest {
         assertEquals(Result.POSITIVE, spec.test(goodReq));
         assertEquals(Result.NEGATIVE, spec.test(badReq));
     }
-
-    private static String GOOD_SCOPE1 = "foo";
-    private static String GOOD_SCOPE2 = "baz";
-    private static String BAD_SCOPE = "bar";
-    private static Collection<String> GOOD_SCOPES = ImmutableList.of(GOOD_SCOPE1, GOOD_SCOPE2);
-    private static Collection<String> BAD_SCOPES = ImmutableList.of(GOOD_SCOPE1, BAD_SCOPE);
 }

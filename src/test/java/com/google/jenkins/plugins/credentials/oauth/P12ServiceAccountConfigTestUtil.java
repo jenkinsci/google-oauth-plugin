@@ -43,7 +43,7 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 /** Util class for {@link P12ServiceAccountConfigTest}. */
-public class P12ServiceAccountConfigTestUtil {
+class P12ServiceAccountConfigTestUtil {
     private static final String DEFAULT_P12_SECRET = "notasecret";
     private static final String DEFAULT_P12_ALIAS = "privatekey";
     private static File tempFolder;
@@ -57,7 +57,7 @@ public class P12ServiceAccountConfigTestUtil {
 
     public static String createTempP12KeyFile(KeyPair keyPair)
             throws IOException, OperatorCreationException, CertificateException, NoSuchAlgorithmException,
-                    KeyStoreException, NoSuchProviderException {
+                    KeyStoreException {
         File tempP12Key = File.createTempFile("temp-key", ".p12", getTempFolder());
         writeKeyToFile(keyPair, tempP12Key);
         return tempP12Key.getAbsolutePath();
@@ -65,8 +65,7 @@ public class P12ServiceAccountConfigTestUtil {
 
     private static File getTempFolder() throws IOException {
         if (tempFolder == null) {
-            tempFolder = Files.createTempDirectory("temp" + Long.toString(System.nanoTime()))
-                    .toFile();
+            tempFolder = Files.createTempDirectory("temp" + System.nanoTime()).toFile();
             tempFolder.deleteOnExit();
         }
         return tempFolder;
@@ -74,7 +73,7 @@ public class P12ServiceAccountConfigTestUtil {
 
     private static void writeKeyToFile(KeyPair keyPair, File tempP12Key)
             throws IOException, OperatorCreationException, CertificateException, NoSuchAlgorithmException,
-                    KeyStoreException, NoSuchProviderException {
+                    KeyStoreException {
         FileOutputStream out = null;
         try {
             out = new FileOutputStream(tempP12Key);
@@ -87,7 +86,7 @@ public class P12ServiceAccountConfigTestUtil {
 
     private static KeyStore createKeyStore(KeyPair keyPair)
             throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException,
-                    OperatorCreationException, NoSuchProviderException {
+                    OperatorCreationException {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(null, null);
         keyStore.setKeyEntry(
