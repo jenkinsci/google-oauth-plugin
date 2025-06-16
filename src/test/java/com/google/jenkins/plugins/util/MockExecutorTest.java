@@ -15,94 +15,74 @@
  */
 package com.google.jenkins.plugins.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClient;
 import com.google.api.client.googleapis.services.json.AbstractGoogleJsonClientRequest;
 import com.google.common.base.Predicates;
 import java.io.IOException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.rules.Verifier;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for the {@link MockExecutor}. */
-public class MockExecutorTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Mock
-    private AbstractGoogleJsonClientRequest<String> mockRequest;
-
-    private static class FakeRequest extends AbstractGoogleJsonClientRequest<String> {
-        private FakeRequest(AbstractGoogleJsonClient client, String s, String t, Object o) {
-            super(client, s, t, o, String.class);
-        }
-    }
-    ;
-
-    @Mock
-    private FakeRequest otherMockRequest;
+@ExtendWith(MockitoExtension.class)
+class MockExecutorTest {
 
     private static final String theString = "tHe StRiNg!";
     private static final String theOtherString = "tHe OtHeR sTrInG!";
 
-    private MockExecutor executor = new MockExecutor();
+    @Mock
+    private AbstractGoogleJsonClientRequest<String> mockRequest;
 
-    @Rule
-    public Verifier verifySawAll = new Verifier() {
-        @Override
-        public void verify() {
-            assertTrue(executor.sawAll());
-        }
-    };
+    @Mock
+    private FakeRequest otherMockRequest;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    private final MockExecutor executor = new MockExecutor();
+
+    @AfterEach
+    void tearDown() {
+        assertTrue(executor.sawAll());
     }
 
     @Test
-    public void testEmpty() throws Exception {
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage(containsString("Unexpected request"));
-
-        try {
-            executor.execute(mockRequest);
-        } finally {
-            assertTrue(executor.sawUnexpected());
-        }
+    void testEmpty() {
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            try {
+                executor.execute(mockRequest);
+            } finally {
+                assertTrue(executor.sawUnexpected());
+            }
+        });
+        assertThat(exception.getMessage(), containsString("Unexpected request"));
     }
 
     @Test
-    public void testFailingPredicate() throws Exception {
-        // Make sure that when a false predicate occurs, we throw
-        // an exception
-        executor.when(
-                mockRequest.getClass(),
-                theOtherString,
-                Predicates.<AbstractGoogleJsonClientRequest<String>>alwaysFalse());
+    void testFailingPredicate() {
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            // Make sure that when a false predicate occurs, we throw
+            // an exception
+            executor.when(mockRequest.getClass(), theOtherString, Predicates.alwaysFalse());
 
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage(containsString("User predicate"));
-
-        try {
-            executor.execute(mockRequest);
-        } finally {
-            assertTrue(executor.sawUnexpected());
-        }
+            try {
+                executor.execute(mockRequest);
+            } finally {
+                assertTrue(executor.sawUnexpected());
+            }
+        });
+        assertThat(exception.getMessage(), containsString("User predicate"));
     }
 
     @Test
-    public void testWhen() throws Exception {
+    void testWhen() throws Exception {
         executor.when(mockRequest.getClass(), theOtherString);
 
         assertEquals(theOtherString, executor.execute(mockRequest));
@@ -110,14 +90,14 @@ public class MockExecutorTest {
     }
 
     @Test
-    public void testOutOfOrder() throws Exception {
-        executor.when(otherMockRequest.getClass(), theOtherString);
+    void testOutOfOrder() {
+        Throwable exception = assertThrows(IllegalStateException.class, () -> {
+            executor.when(otherMockRequest.getClass(), theOtherString);
 
-        thrown.expect(IllegalStateException.class);
-        thrown.expectMessage(containsString("out of order"));
-
-        executor.execute(mockRequest);
-        assertFalse(executor.sawUnexpected());
+            executor.execute(mockRequest);
+            assertFalse(executor.sawUnexpected());
+        });
+        assertThat(exception.getMessage(), containsString("out of order"));
     }
 
     private static final class MyException extends IOException {
@@ -127,21 +107,21 @@ public class MockExecutorTest {
     }
 
     @Test
-    public void testThrowWhen() throws Exception {
-        executor.throwWhen(mockRequest.getClass(), new MyException(theString));
+    void testThrowWhen() {
+        Throwable exception = assertThrows(MyException.class, () -> {
+            executor.throwWhen(mockRequest.getClass(), new MyException(theString));
 
-        thrown.expect(MyException.class);
-        thrown.expectMessage(theString);
-
-        try {
-            executor.execute(mockRequest);
-        } finally {
-            assertFalse(executor.sawUnexpected());
-        }
+            try {
+                executor.execute(mockRequest);
+            } finally {
+                assertFalse(executor.sawUnexpected());
+            }
+        });
+        assertTrue(exception.getMessage().contains(theString));
     }
 
     @Test
-    public void testPassThruWhen() throws Exception {
+    void testPassThruWhen() throws Exception {
         when(mockRequest.getJsonContent()).thenReturn(theString);
         executor.passThruWhen(mockRequest.getClass());
 
@@ -149,6 +129,12 @@ public class MockExecutorTest {
             assertEquals(theString, executor.execute(mockRequest));
         } finally {
             assertFalse(executor.sawUnexpected());
+        }
+    }
+
+    private static class FakeRequest extends AbstractGoogleJsonClientRequest<String> {
+        private FakeRequest(AbstractGoogleJsonClient client, String s, String t, Object o) {
+            super(client, s, t, o, String.class);
         }
     }
 }

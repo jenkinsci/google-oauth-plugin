@@ -16,34 +16,32 @@
 
 package com.google.jenkins.plugins.credentials.oauth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.SecretBytes;
 import io.jenkins.plugins.casc.misc.ConfiguredWithCode;
 import io.jenkins.plugins.casc.misc.JenkinsConfiguredWithCodeRule;
+import io.jenkins.plugins.casc.misc.junit.jupiter.WithJenkinsConfiguredWithCode;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Tests that the credentials are correctly processed by the Configuration as Code plugin. */
-public class ConfigurationAsCodeTest {
-
-    @Rule
-    public JenkinsConfiguredWithCodeRule r = new JenkinsConfiguredWithCodeRule();
+@WithJenkinsConfiguredWithCode
+class ConfigurationAsCodeTest {
 
     @Test
     @ConfiguredWithCode("json-service-account-config.yml")
-    public void supportsConfigurationWithJsonServiceAccountConfig() throws IOException {
+    void supportsConfigurationWithJsonServiceAccountConfig(JenkinsConfiguredWithCodeRule r) throws IOException {
         List<GoogleRobotPrivateKeyCredentials> credentialsList =
                 CredentialsProvider.lookupCredentials(GoogleRobotPrivateKeyCredentials.class);
         assertNotNull(credentialsList);
-        assertEquals("No credentials created", 1, credentialsList.size());
+        assertEquals(1, credentialsList.size(), "No credentials created");
         GoogleRobotPrivateKeyCredentials credentials = credentialsList.get(0);
         assertNotNull(credentials);
         JsonServiceAccountConfig config = (JsonServiceAccountConfig) credentials.getServiceAccountConfig();
@@ -57,16 +55,16 @@ public class ConfigurationAsCodeTest {
         String actualBytes = new String(bytes.getPlainData(), StandardCharsets.UTF_8);
         String expectedBytes =
                 IOUtils.toString(this.getClass().getResourceAsStream("test-key.json"), StandardCharsets.UTF_8);
-        assertEquals("Failed to configure secretJsonKey correctly.", expectedBytes, actualBytes);
+        assertEquals(expectedBytes, actualBytes, "Failed to configure secretJsonKey correctly.");
     }
 
     @Test
     @ConfiguredWithCode("p12-service-account-config.yml")
-    public void supportsConfigurationWithP12ServiceAccountConfig() {
+    void supportsConfigurationWithP12ServiceAccountConfig(JenkinsConfiguredWithCodeRule r) {
         List<GoogleRobotPrivateKeyCredentials> credentialsList =
                 CredentialsProvider.lookupCredentials(GoogleRobotPrivateKeyCredentials.class);
         assertNotNull(credentialsList);
-        assertEquals("No credentials created", 1, credentialsList.size());
+        assertEquals(1, credentialsList.size(), "No credentials created");
         GoogleRobotPrivateKeyCredentials credentials = credentialsList.get(0);
         assertNotNull(credentials);
         P12ServiceAccountConfig config = (P12ServiceAccountConfig) credentials.getServiceAccountConfig();
@@ -81,6 +79,6 @@ public class ConfigurationAsCodeTest {
         SecretBytes bytes = config.getSecretP12Key();
         String actualBytes = new String(bytes.getPlainData(), StandardCharsets.UTF_8);
         String expectedBytes = "test-p12-key";
-        assertEquals("Failed to configure secretP12Key correctly", expectedBytes, actualBytes);
+        assertEquals(expectedBytes, actualBytes, "Failed to configure secretP12Key correctly");
     }
 }

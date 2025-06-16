@@ -15,11 +15,13 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 
 /** This is a trivial implementation of a {@link GoogleOAuth2ScopeRequirement}. */
 public class TestGoogleOAuth2DomainRequirement extends GoogleOAuth2ScopeRequirement {
+    @Serial
     private static final long serialVersionUID = 2234181311205118742L;
 
     public TestGoogleOAuth2DomainRequirement(String scope) {

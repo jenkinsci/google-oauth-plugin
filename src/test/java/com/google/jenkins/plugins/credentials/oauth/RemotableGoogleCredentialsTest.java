@@ -15,9 +15,11 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.matchesPattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.cloudbees.plugins.credentials.CredentialsNameProvider;
@@ -27,13 +29,24 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import java.security.GeneralSecurityException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link RemotableGoogleCredentials}. */
-public class RemotableGoogleCredentialsTest {
+@ExtendWith(MockitoExtension.class)
+class RemotableGoogleCredentialsTest {
+
+    private static final long ERROR = 1; // 1 second error
+    private static final long IMMINENT_EXPIRATION_SECONDS = 60;
+    private static final long EXPIRATION_SECONDS = 1234;
+    private static final String USERNAME = "theUserName";
+    private static final String PROJECT_ID = "foo.com:bar-baz";
+    private static final String THE_SCOPE = "my.scope";
+    private static final String BAD_SCOPE = "NOT.my.scope";
+    private static final String ACCESS_TOKEN = "ThE.ToKeN";
 
     private GoogleCredential fakeCredential;
 
@@ -44,10 +57,8 @@ public class RemotableGoogleCredentialsTest {
 
     private GoogleRobotCredentialsModule module;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
+    @BeforeEach
+    void setUp() throws Exception {
         // Freeze time
         DateTime now = new DateTime();
         DateTimeUtils.setCurrentMillisFixed(now.getMillis());
@@ -63,7 +74,7 @@ public class RemotableGoogleCredentialsTest {
     }
 
     @Test
-    public void testUsername() throws Exception {
+    void testUsername() throws Exception {
         fakeCredential.setAccessToken(ACCESS_TOKEN);
         fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
@@ -74,19 +85,23 @@ public class RemotableGoogleCredentialsTest {
         assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
     }
 
-    @Test(expected = GeneralSecurityException.class)
-    public void testNullExpirationBadRefresh() throws Exception {
-        new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
-    }
-
-    @Test(expected = GeneralSecurityException.class)
-    public void testImminentExpirationBadRefresh() throws Exception {
-        fakeCredential.setExpiresInSeconds(IMMINENT_EXPIRATION_SECONDS);
-        new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
+    @Test
+    void testNullExpirationBadRefresh() {
+        assertThrows(
+                GeneralSecurityException.class,
+                () -> new RemotableGoogleCredentials(mockCredentials, testConsumer, module));
     }
 
     @Test
-    public void testReasonableExpiration() throws Exception {
+    void testImminentExpirationBadRefresh() {
+        fakeCredential.setExpiresInSeconds(IMMINENT_EXPIRATION_SECONDS);
+        assertThrows(
+                GeneralSecurityException.class,
+                () -> new RemotableGoogleCredentials(mockCredentials, testConsumer, module));
+    }
+
+    @Test
+    void testReasonableExpiration() throws Exception {
         fakeCredential.setAccessToken(ACCESS_TOKEN);
         fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
@@ -97,31 +112,23 @@ public class RemotableGoogleCredentialsTest {
         assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 2));
     }
 
-    public void testName() throws Exception {
+    @Test
+    void testName() throws Exception {
         fakeCredential.setAccessToken(ACCESS_TOKEN);
         fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
 
         GoogleRobotCredentials credentials = new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
 
-        assertEquals("RemotableGoogleCredentials", CredentialsNameProvider.name(credentials));
+        assertThat(
+                CredentialsNameProvider.name(credentials),
+                matchesPattern("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testUnsupportedDescriptor() throws Exception {
+    @Test
+    void testUnsupportedDescriptor() throws GeneralSecurityException {
         fakeCredential.setAccessToken(ACCESS_TOKEN);
         fakeCredential.setExpiresInSeconds(EXPIRATION_SECONDS);
-
         GoogleRobotCredentials credentials = new RemotableGoogleCredentials(mockCredentials, testConsumer, module);
-
-        credentials.getDescriptor();
+        assertThrows(UnsupportedOperationException.class, credentials::getDescriptor);
     }
-
-    private static final long ERROR = 1; // 1 second error
-    private static final long IMMINENT_EXPIRATION_SECONDS = 60;
-    private static final long EXPIRATION_SECONDS = 1234;
-    private static final String USERNAME = "theUserName";
-    private static final String PROJECT_ID = "foo.com:bar-baz";
-    private static final String THE_SCOPE = "my.scope";
-    private static final String BAD_SCOPE = "NOT.my.scope";
-    private static final String ACCESS_TOKEN = "ThE.ToKeN";
 }

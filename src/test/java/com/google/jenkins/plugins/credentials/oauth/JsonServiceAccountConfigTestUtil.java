@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -33,7 +33,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMWriter;
 
 /** Util class for {@link JsonServiceAccountConfigTest}. */
-public class JsonServiceAccountConfigTestUtil {
+class JsonServiceAccountConfigTestUtil {
     private static File tempFolder;
 
     public static PrivateKey generatePrivateKey() throws NoSuchProviderException, NoSuchAlgorithmException {
@@ -46,24 +46,17 @@ public class JsonServiceAccountConfigTestUtil {
 
     public static String createTempJsonKeyFile(String clientEmail, PrivateKey privateKey) throws IOException {
         final File tempJsonKey = File.createTempFile("temp-key", ".json", getTempFolder());
-        JsonGenerator jsonGenerator = null;
-        try {
-            jsonGenerator = new JacksonFactory()
-                    .createJsonGenerator(new FileOutputStream(tempJsonKey), Charset.forName("UTF-8"));
+        try (JsonGenerator jsonGenerator =
+                new JacksonFactory().createJsonGenerator(new FileOutputStream(tempJsonKey), StandardCharsets.UTF_8)) {
             jsonGenerator.enablePrettyPrint();
             jsonGenerator.serialize(createJsonKey(clientEmail, privateKey));
-        } finally {
-            if (jsonGenerator != null) {
-                jsonGenerator.close();
-            }
         }
         return tempJsonKey.getAbsolutePath();
     }
 
     private static File getTempFolder() throws IOException {
         if (tempFolder == null) {
-            tempFolder = Files.createTempDirectory("temp" + Long.toString(System.nanoTime()))
-                    .toFile();
+            tempFolder = Files.createTempDirectory("temp" + System.nanoTime()).toFile();
             tempFolder.deleteOnExit();
         }
         return tempFolder;

@@ -15,8 +15,8 @@
  */
 package com.google.jenkins.plugins.credentials.oauth;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 import com.cloudbees.plugins.credentials.SecretBytes;
@@ -26,40 +26,34 @@ import java.io.File;
 import java.security.KeyPair;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.WithoutJenkins;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /** Tests for {@link P12ServiceAccountConfig}. */
-public class P12ServiceAccountConfigTest {
+@WithJenkins
+@ExtendWith(MockitoExtension.class)
+class P12ServiceAccountConfigTest {
     private static final String SERVICE_ACCOUNT_EMAIL_ADDRESS = "service@account.com";
     private static KeyPair keyPair;
     private static String p12KeyPath;
 
-    @Rule
-    public JenkinsRule jenkinsRule = new JenkinsRule();
-
     @Mock
     private FileItem mockFileItem;
 
-    @BeforeClass
-    public static void preparePrivateKey() throws Exception {
+    @BeforeAll
+    static void preparePrivateKey() throws Exception {
         keyPair = P12ServiceAccountConfigTestUtil.generateKeyPair();
         p12KeyPath = P12ServiceAccountConfigTestUtil.createTempP12KeyFile(keyPair);
     }
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
-    public void testCreateWithNewP12KeyFile() throws Exception {
+    void testCreateWithNewP12KeyFile(JenkinsRule jenkinsRule) throws Exception {
         when(mockFileItem.getSize()).thenReturn(1L);
         when(mockFileItem.getName()).thenReturn(p12KeyPath);
         when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
@@ -71,7 +65,7 @@ public class P12ServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateWithNullAccountId() throws Exception {
+    void testCreateWithNullAccountId(JenkinsRule jenkinsRule) throws Exception {
         SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(null);
         p12ServiceAccountConfig.setFilename(p12KeyPath);
@@ -83,7 +77,7 @@ public class P12ServiceAccountConfigTest {
 
     @Test
     @WithoutJenkins
-    public void testCreateWithNullP12KeyFile() {
+    void testCreateWithNullP12KeyFile(JenkinsRule jenkinsRule) {
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
 
         assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, p12ServiceAccountConfig.getAccountId());
@@ -92,7 +86,7 @@ public class P12ServiceAccountConfigTest {
 
     @Test
     @WithoutJenkins
-    public void testCreateWithEmptyP12KeyFile() throws Exception {
+    void testCreateWithEmptyP12KeyFile(JenkinsRule jenkinsRule) {
         when(mockFileItem.getSize()).thenReturn(0L);
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
@@ -102,7 +96,7 @@ public class P12ServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateWithInvalidP12KeyFile() {
+    void testCreateWithInvalidP12KeyFile(JenkinsRule jenkinsRule) {
         byte[] bytes = "invalidP12KeyFile".getBytes();
         when(mockFileItem.getSize()).thenReturn((long) bytes.length);
         when(mockFileItem.getName()).thenReturn("invalidP12KeyFile");
@@ -115,7 +109,7 @@ public class P12ServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateWithPrevP12KeyFileForCompatibility() {
+    void testCreateWithPrevP12KeyFileForCompatibility(JenkinsRule jenkinsRule) {
         P12ServiceAccountConfig p12ServiceAccountConfig =
                 new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS, null, p12KeyPath);
 
@@ -124,7 +118,7 @@ public class P12ServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateWithPrevP12KeyFile() throws Exception {
+    void testCreateWithPrevP12KeyFile(JenkinsRule jenkinsRule) throws Exception {
         SecretBytes prev = SecretBytes.fromBytes(FileUtils.readFileToByteArray(new File(p12KeyPath)));
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setFilename(p12KeyPath);
@@ -135,7 +129,7 @@ public class P12ServiceAccountConfigTest {
     }
 
     @Test
-    public void testCreateWithEmptyPrevP12KeyFile() {
+    void testCreateWithEmptyPrevP12KeyFile(JenkinsRule jenkinsRule) {
         SecretBytes prev = SecretBytes.fromString("");
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setFilename("");
@@ -147,7 +141,7 @@ public class P12ServiceAccountConfigTest {
 
     @Test
     @WithoutJenkins
-    public void testCreateWithInvalidPrevP12KeyFile() {
+    void testCreateWithInvalidPrevP12KeyFile(JenkinsRule jenkinsRule) {
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setFilename("invalidPrevP12KeyFile.p12");
 
@@ -156,7 +150,7 @@ public class P12ServiceAccountConfigTest {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization(JenkinsRule jenkinsRule) throws Exception {
         when(mockFileItem.getSize()).thenReturn(1L);
         when(mockFileItem.getName()).thenReturn(p12KeyPath);
         when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));

@@ -16,6 +16,7 @@
 package com.google.jenkins.plugins.credentials.oauth;
 
 import com.google.jenkins.plugins.credentials.domains.RequiresDomain;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.model.Descriptor;
 import hudson.tasks.Builder;
 
@@ -25,6 +26,7 @@ import hudson.tasks.Builder;
  */
 @RequiresDomain(value = TestGoogleOAuth2DomainRequirement.class)
 public class TestRobotBuilder extends Builder {
+
     public TestRobotBuilder() {}
 
     @Override
@@ -35,6 +37,7 @@ public class TestRobotBuilder extends Builder {
     /** Descriptor for our trivial builder */
     public static final class DescriptorImpl extends Descriptor<Builder> {
         @Override
+        @NonNull
         public String getDisplayName() {
             return "Test Robot Builder";
         }
