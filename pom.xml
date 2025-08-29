@@ -68,6 +68,7 @@
     <revision>1</revision>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
+    <hpi.bundledArtifacts>google-api-client,google-api-services-oauth2,google-http-client,google-http-client-apache-v2,google-http-client-gson,google-http-client-jackson2,google-oauth-client,grpc-context,j2objc-annotations,opencensus-api,opencensus-contrib-http-util</hpi.bundledArtifacts>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.baseline>2.504</jenkins.baseline>
     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
