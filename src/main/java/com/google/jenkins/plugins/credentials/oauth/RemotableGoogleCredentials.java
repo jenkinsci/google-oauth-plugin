@@ -43,9 +43,6 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
      * is {@code package-private}. This should only be called from {@link
      * GoogleRobotCredentials#forRemote}.
      */
-    @SuppressFBWarnings(
-            value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE",
-            justification = "False positive from what I can see in Ordering.natural().nullsFirst()")
     public RemotableGoogleCredentials(
             GoogleRobotCredentials credentials,
             GoogleOAuth2ScopeRequirement requirement,

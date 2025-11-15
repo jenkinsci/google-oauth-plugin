@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>5.8</version>
+    <version>5.24</version>
   </parent>
 
   <!--
@@ -68,9 +68,10 @@
     <revision>1</revision>
     <changelist>999999-SNAPSHOT</changelist>
     <gitHubRepo>jenkinsci/google-oauth-plugin</gitHubRepo>
+    <hpi.bundledArtifacts>google-api-client,google-api-services-oauth2,google-http-client,google-http-client-apache-v2,google-http-client-gson,google-http-client-jackson2,google-oauth-client,grpc-context,j2objc-annotations,opencensus-api,opencensus-contrib-http-util</hpi.bundledArtifacts>
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.baseline>2.479</jenkins.baseline>
-    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+    <jenkins.baseline>2.504</jenkins.baseline>
+    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     <hpi.compatibleSinceVersion>1.0.0</hpi.compatibleSinceVersion>
     <google.api.version>1.35.2</google.api.version>
     <oauth2.revision>151</oauth2.revision>
@@ -85,7 +86,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-        <version>3944.v1a_e4f8b_452db_</version>
+        <version>5294.va_d2e144c80e1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
