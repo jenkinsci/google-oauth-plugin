@@ -24,7 +24,7 @@ import com.google.common.collect.Ordering;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import org.joda.time.DateTime;
+import java.time.Instant;
 
 /**
  * As some implementations of {@link GoogleRobotCredentials} are bound to the controller, this
@@ -70,9 +70,9 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
             throw new GeneralSecurityException(Messages.RemotableGoogleCredentials_NoAccessToken(), e);
         }
         this.accessToken = checkNotNull(credential.getAccessToken());
-        this.expiration = new DateTime()
+        this.expiration = Instant.now()
                 .plusSeconds(checkNotNull(credential.getExpiresInSeconds()).intValue())
-                .getMillis();
+                .toEpochMilli();
     }
     /**
      * Construct a remotable credential. This should never be used directly - this constructor is only
@@ -129,7 +129,7 @@ final class RemotableGoogleCredentials extends GoogleRobotCredentials {
         //
         // TODO(mattmoor): Consider throwing an exception if the access token
         // has expired.
-        long lifetimeSeconds = (expiration - new DateTime().getMillis()) / 1000;
+        long lifetimeSeconds = (expiration - Instant.now().toEpochMilli()) / 1000;
 
         return new GoogleCredential.Builder()
                 .setTransport(getModule().getHttpTransport())
