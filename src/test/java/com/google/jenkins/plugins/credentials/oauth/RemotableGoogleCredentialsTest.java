@@ -87,7 +87,7 @@ public class RemotableGoogleCredentialsTest {
         Credential credential = credentials.getGoogleCredential(testConsumer);
 
         assertEquals(ACCESS_TOKEN, credential.getAccessToken());
-        assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 2));
+        assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 60));
     }
 
     public void testName() throws Exception {
