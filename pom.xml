@@ -229,14 +229,6 @@
       <groupId>io.jenkins.plugins</groupId>
       <artifactId>gson-api</artifactId>
     </dependency>
-    <!--
-      Use API plugins for oft-used transitive dependencies:
-      https://www.jenkins.io/doc/developer/plugin-development/dependencies-and-class-loading/#using-library-wrapper-plugins
-    -->
-    <dependency>
-      <groupId>io.jenkins.plugins</groupId>
-      <artifactId>joda-time-api</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>apache-httpcomponents-client-4-api</artifactId>
