@@ -44,7 +44,7 @@ public abstract class ServiceAccountConfig
   @Deprecated // Used only for compatibility purposes.
   @CheckForNull
   protected SecretBytes getSecretBytesFromFile(@CheckForNull String filePath) {
-    Jenkins.get().checkPermission(Jenkins.RUN_SCRIPTS);
+    Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 
     if (Strings.isNullOrEmpty(filePath)) {
       LOGGER.log(Level.SEVERE, "Provided file path is null or empty.");
