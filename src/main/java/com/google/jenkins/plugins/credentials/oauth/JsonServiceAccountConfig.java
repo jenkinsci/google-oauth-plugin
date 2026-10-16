@@ -20,7 +20,6 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.PemReader;
 import com.google.api.client.util.Strings;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -136,7 +135,6 @@ public class JsonServiceAccountConfig extends ServiceAccountConfig {
         return path.replaceFirst("^.+[/\\\\]", "");
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     private Object readResolve() {
         if (secretJsonKey == null) {
             // google-oauth-plugin < 0.7

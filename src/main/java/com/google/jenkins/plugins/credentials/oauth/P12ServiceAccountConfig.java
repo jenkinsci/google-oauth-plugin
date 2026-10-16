@@ -18,7 +18,6 @@ package com.google.jenkins.plugins.credentials.oauth;
 import com.cloudbees.plugins.credentials.SecretBytes;
 import com.google.api.client.util.Strings;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Extension;
 import hudson.util.FormValidation;
 import java.io.ByteArrayInputStream;
@@ -130,7 +129,6 @@ public class P12ServiceAccountConfig extends ServiceAccountConfig {
         return path.replaceFirst("^.+[/\\\\]", "");
     }
 
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     private Object readResolve() {
         if (secretP12Key == null) {
             // google-oauth-plugin < 0.7

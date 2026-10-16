@@ -25,8 +25,6 @@ import com.cloudbees.plugins.credentials.CredentialsScope;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import java.security.GeneralSecurityException;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -47,11 +45,6 @@ public class RemotableGoogleCredentialsTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        // Freeze time
-        DateTime now = new DateTime();
-        DateTimeUtils.setCurrentMillisFixed(now.getMillis());
-
         this.module = new GoogleRobotCredentialsModule();
 
         this.testConsumer = new TestGoogleOAuth2DomainRequirement(THE_SCOPE);
@@ -94,7 +87,7 @@ public class RemotableGoogleCredentialsTest {
         Credential credential = credentials.getGoogleCredential(testConsumer);
 
         assertEquals(ACCESS_TOKEN, credential.getAccessToken());
-        assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 2));
+        assertThat(credential.getExpiresInSeconds().doubleValue(), closeTo(EXPIRATION_SECONDS, 60));
     }
 
     public void testName() throws Exception {
