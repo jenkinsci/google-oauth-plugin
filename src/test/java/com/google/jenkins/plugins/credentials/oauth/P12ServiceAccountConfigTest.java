@@ -60,9 +60,7 @@ public class P12ServiceAccountConfigTest {
 
     @Test
     public void testCreateWithNewP12KeyFile() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(p12KeyPath);
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        setupFileItemGetNameAndGetSizeAndGetStubs(p12KeyPath, 1L, FileUtils.readFileToByteArray(new File(p12KeyPath)));
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
@@ -104,9 +102,7 @@ public class P12ServiceAccountConfigTest {
     @Test
     public void testCreateWithInvalidP12KeyFile() {
         byte[] bytes = "invalidP12KeyFile".getBytes();
-        when(mockFileItem.getSize()).thenReturn((long) bytes.length);
-        when(mockFileItem.getName()).thenReturn("invalidP12KeyFile");
-        when(mockFileItem.get()).thenReturn(bytes);
+        setupFileItemGetNameAndGetSizeAndGetStubs("invalidP12KeyFile", (long) bytes.length, bytes);
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
@@ -157,9 +153,7 @@ public class P12ServiceAccountConfigTest {
 
     @Test
     public void testSerialization() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(p12KeyPath);
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        setupFileItemGetNameAndGetSizeAndGetStubs(p12KeyPath, 1L, FileUtils.readFileToByteArray(new File(p12KeyPath)));
         P12ServiceAccountConfig p12ServiceAccountConfig = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         p12ServiceAccountConfig.setP12KeyFileUpload(mockFileItem);
 
@@ -171,5 +165,12 @@ public class P12ServiceAccountConfigTest {
 
         assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, deserializedP12KeyType.getAccountId());
         assertEquals(keyPair.getPrivate(), deserializedP12KeyType.getPrivateKey());
+    }
+
+    private void setupFileItemGetNameAndGetSizeAndGetStubs(
+            String getNameReturnValue, long getSizeReturnValue, byte[] getReturnValue) {
+        when(mockFileItem.getSize()).thenReturn(getSizeReturnValue);
+        when(mockFileItem.getName()).thenReturn(getNameReturnValue);
+        when(mockFileItem.get()).thenReturn(getReturnValue);
     }
 }
