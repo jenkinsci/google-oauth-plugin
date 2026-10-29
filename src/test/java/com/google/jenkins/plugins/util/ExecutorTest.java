@@ -80,7 +80,7 @@ public class ExecutorTest {
     @Test(expected = NotFoundException.class)
     public void testNewExecutorWithNotFound() throws Exception {
         assertNotNull(underTest);
-        when(mockRequest.execute()).thenThrow(notFoundJsonException);
+        setupAbstractGoogleClientRequestExecuteStubs(notFoundJsonException);
 
         underTest.execute(mockRequest);
     }
@@ -88,7 +88,7 @@ public class ExecutorTest {
     @Test(expected = ConflictException.class)
     public void testNewExecutorWithConflict() throws Exception {
         assertNotNull(underTest);
-        when(mockRequest.execute()).thenThrow(conflictJsonException);
+        setupAbstractGoogleClientRequestExecuteStubs(conflictJsonException);
 
         underTest.execute(mockRequest);
     }
@@ -96,7 +96,7 @@ public class ExecutorTest {
     @Test(expected = ForbiddenException.class)
     public void testNewExecutorWithForbidden() throws Exception {
         assertNotNull(underTest);
-        when(mockRequest.execute()).thenThrow(forbiddenJsonException);
+        setupAbstractGoogleClientRequestExecuteStubs(forbiddenJsonException);
 
         underTest.execute(mockRequest);
     }
@@ -104,7 +104,7 @@ public class ExecutorTest {
     @Test(expected = HttpResponseException.class)
     public void testNewExecutorWithAllErrors() throws Exception {
         assertNotNull(underTest);
-        when(mockRequest.execute()).thenThrow(errorJsonException);
+        setupAbstractGoogleClientRequestExecuteStubs(errorJsonException);
 
         underTest.execute(mockRequest);
     }
@@ -121,4 +121,8 @@ public class ExecutorTest {
     }
 
     private static final String STATUS_MESSAGE = "doesn't matter";
+
+    private void setupAbstractGoogleClientRequestExecuteStubs(HttpResponseException executeThrown) throws Exception {
+        when(mockRequest.execute()).thenThrow(executeThrown);
+    }
 }
