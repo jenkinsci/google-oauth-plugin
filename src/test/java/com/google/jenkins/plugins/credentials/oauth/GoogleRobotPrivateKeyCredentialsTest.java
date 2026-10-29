@@ -108,10 +108,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
     @Test
     public void testCreatePrivateKeyCredentialsWithJsonKeyType() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetNameAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
         GoogleRobotPrivateKeyCredentials credentials = new GoogleRobotPrivateKeyCredentials(
@@ -139,9 +136,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
     @Test
     public void testCreatePrivateKeyCredentialsWithP12KeyType() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(p12KeyPath);
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
+        setupFileItemGetAndGetNameAndGetSizeStubs(p12KeyPath);
         P12ServiceAccountConfig keyType = new P12ServiceAccountConfig(SERVICE_ACCOUNT_EMAIL_ADDRESS);
         keyType.setP12KeyFileUpload(mockFileItem);
         GoogleRobotPrivateKeyCredentials credentials =
@@ -338,10 +333,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
     @Test
     public void testGetById() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetNameAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
         GoogleRobotPrivateKeyCredentials credentials = new GoogleRobotPrivateKeyCredentials(
@@ -377,10 +369,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     @Test
     public void testCredentialCreationWithNonEmptyIdAndDescriptionAndJsonKey() throws Exception {
         // GIVEN: Setup the mock and configuration for JSON key
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetNameAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
@@ -396,10 +385,8 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     @Test
     public void testCredentialCreationWithNonEmptyIdAndDescriptionAndP12() throws Exception {
         // GIVEN: Setup the mock and configuration for P12 key
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(p12KeyPath);
+        setupFileItemGetAndGetNameAndGetSizeStubs(p12KeyPath);
         when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(p12KeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(p12KeyPath)));
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
@@ -415,10 +402,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     @Test
     public void testCredentialCreationWithSystemScope() throws Exception {
         // GIVEN: Setup the mock and configuration
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetNameAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
@@ -433,10 +417,7 @@ public class GoogleRobotPrivateKeyCredentialsTest {
     @Test
     public void testCredentialCreationWithGlobalScope() throws Exception {
         // GIVEN: Setup the mock and configuration
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetNameAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
@@ -446,5 +427,16 @@ public class GoogleRobotPrivateKeyCredentialsTest {
 
         // THEN: the resulting credential should have GLOBAL scope
         assertEquals(CredentialsScope.GLOBAL, credentials.getScope());
+    }
+
+    private void setupFileItemGetAndGetNameAndGetSizeStubs(String keyPath) throws IOException {
+        when(mockFileItem.getSize()).thenReturn(1L);
+        when(mockFileItem.getName()).thenReturn(keyPath);
+        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(keyPath)));
+    }
+
+    private void setupFileItemGetAndGetNameAndGetSizeAnd1MoreStubs() throws IOException {
+        setupFileItemGetAndGetNameAndGetSizeStubs(jsonKeyPath);
+        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
     }
 }
