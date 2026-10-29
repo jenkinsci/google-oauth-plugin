@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.PrivateKey;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
@@ -60,10 +61,7 @@ public class JsonServiceAccountConfigTest {
 
     @Test
     public void testCreateJsonKeyTypeWithNewJsonKeyFile() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetInputStreamAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonKeyType = new JsonServiceAccountConfig();
         jsonKeyType.setJsonKeyFileUpload(mockFileItem);
 
@@ -93,8 +91,7 @@ public class JsonServiceAccountConfigTest {
     @Test
     public void testCreateJsonKeyTypeWithInvalidJsonKeyFile() throws Exception {
         byte[] bytes = "invalidJsonKeyFile".getBytes();
-        when(mockFileItem.getSize()).thenReturn((long) bytes.length);
-        when(mockFileItem.getInputStream()).thenReturn(new ByteArrayInputStream(bytes));
+        setupFileItemGetSizeAndGetInputStreamStubs((long) bytes.length, new ByteArrayInputStream(bytes));
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
@@ -143,10 +140,7 @@ public class JsonServiceAccountConfigTest {
 
     @Test
     public void testSerialization() throws Exception {
-        when(mockFileItem.getSize()).thenReturn(1L);
-        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
-        when(mockFileItem.getInputStream()).thenReturn(new FileInputStream(jsonKeyPath));
-        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
+        setupFileItemGetAndGetInputStreamAndGetSizeAnd1MoreStubs();
         JsonServiceAccountConfig jsonServiceAccountConfig = new JsonServiceAccountConfig();
         jsonServiceAccountConfig.setJsonKeyFileUpload(mockFileItem);
 
@@ -158,5 +152,17 @@ public class JsonServiceAccountConfigTest {
 
         assertEquals(SERVICE_ACCOUNT_EMAIL_ADDRESS, deserializedJsonKeyType.getAccountId());
         assertEquals(privateKey, deserializedJsonKeyType.getPrivateKey());
+    }
+
+    private void setupFileItemGetSizeAndGetInputStreamStubs(
+            long getSizeReturnValue, InputStream getInputStreamReturnValue) throws Exception {
+        when(mockFileItem.getSize()).thenReturn(getSizeReturnValue);
+        when(mockFileItem.getInputStream()).thenReturn(getInputStreamReturnValue);
+    }
+
+    private void setupFileItemGetAndGetInputStreamAndGetSizeAnd1MoreStubs() throws Exception {
+        setupFileItemGetSizeAndGetInputStreamStubs(1L, new FileInputStream(jsonKeyPath));
+        when(mockFileItem.getName()).thenReturn(jsonKeyPath);
+        when(mockFileItem.get()).thenReturn(FileUtils.readFileToByteArray(new File(jsonKeyPath)));
     }
 }
